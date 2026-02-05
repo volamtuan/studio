@@ -4,9 +4,6 @@
 import * as React from "react"
 import { 
   LayoutDashboard, 
-  Terminal, 
-  Database, 
-  ShieldCheck, 
   LogOut,
   Zap,
   FileKey2,
@@ -44,24 +41,6 @@ const mainNav = [
   },
 ]
 
-const scraperNav = [
-  {
-    title: "Proxies",
-    url: "/proxies",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Data Browser",
-    url: "/data",
-    icon: Database,
-  },
-  {
-    title: "System Logs",
-    url: "/logs",
-    icon: Terminal,
-  },
-]
-
 export function AppSidebar() {
   const pathname = usePathname()
 
@@ -82,26 +61,6 @@ export function AppSidebar() {
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Analytics</SidebarGroupLabel>
           <SidebarMenu>
             {mainNav.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={pathname === item.url}
-                  tooltip={item.title}
-                  className="hover:text-accent transition-colors"
-                >
-                  <Link href={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Scraper Tools</SidebarGroupLabel>
-          <SidebarMenu>
-            {scraperNav.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   asChild 

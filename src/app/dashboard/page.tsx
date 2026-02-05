@@ -1,20 +1,80 @@
 
-"use client"
-
-import * as React from "react"
+import { promises as fs } from 'fs';
+import path from 'path';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart, Users, FileText } from "lucide-react"
-import Link from "next/link"
+import { BarChart, Users, MapPin } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-const stats = [
-    { title: "Total Visits", value: "1,204", icon: Users, change: "+12.5%" },
-    { title: "Locations Logged", value: "876", icon: FileText, change: "+8.1%" },
-    { title: "Unique IPs", value: "652", icon: BarChart, change: "-2.3%" }
-]
+const logFile = path.join(process.cwd(), 'logs', 'tracking_logs.txt');
 
-export default function DashboardPage() {
+interface RecentLog {
+  timestamp: string;
+  ip: string;
+  device: string;
+  location: string;
+}
+
+async function getLogStats() {
+  try {
+    const content = await fs.readFile(logFile, 'utf-8');
+    const entries = content.split('--- [').filter(e => e.trim() !== '');
+
+    const uniqueIps = new Set<string>();
+    entries.forEach(entry => {
+        const ipMatch = entry.match(/IP: (.*?)\n/);
+        if (ipMatch && ipMatch[1]) {
+            uniqueIps.add(ipMatch[1]);
+        }
+    });
+
+    const locationsLogged = entries.filter(e => /Tọa độ:/.test(e)).length;
+    
+    const recentLogs: RecentLog[] = entries.slice(-10).reverse().map(entry => {
+      const lines = entry.split('\n');
+      const timestamp = lines[0]?.split(']')[0] || 'N/A';
+      
+      const ipMatch = entry.match(/IP: (.*?)\n/);
+      const ip = ipMatch ? ipMatch[1] : 'N/A';
+
+      const deviceMatch = entry.match(/Thiết bị: (.*?)\n/);
+      const device = deviceMatch ? deviceMatch[1] : 'N/A';
+
+      const locationMatch = entry.match(/Vị trí \(ước tính\): (.*?)\n/);
+      const location = locationMatch ? locationMatch[1] : 'N/A';
+      
+      return { timestamp, ip, device, location };
+    });
+
+    return {
+      totalVisits: entries.length,
+      locationsLogged,
+      uniqueIps: uniqueIps.size,
+      recentLogs
+    };
+
+  } catch (error) {
+    // If file does not exist or other error
+    return {
+      totalVisits: 0,
+      locationsLogged: 0,
+      uniqueIps: 0,
+      recentLogs: []
+    };
+  }
+}
+
+
+export default async function DashboardPage() {
+  const statsData = await getLogStats();
+
+  const statsCards = [
+      { title: "Total Visits", value: statsData.totalVisits.toLocaleString(), icon: Users },
+      { title: "Locations Logged", value: statsData.locationsLogged.toLocaleString(), icon: MapPin },
+      { title: "Unique IPs", value: statsData.uniqueIps.toLocaleString(), icon: BarChart }
+  ];
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,7 +86,7 @@ export default function DashboardPage() {
 
         <main className="flex-1 p-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {stats.map((stat) => (
+                {statsCards.map((stat) => (
                     <Card key={stat.title}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
@@ -36,24 +96,46 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stat.value}</div>
-                        <p className="text-xs text-muted-foreground">
-                        {stat.change} from last month
-                        </p>
                     </CardContent>
                     </Card>
                 ))}
             </div>
+            
             <div className="mt-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Welcome to the Admin Console</CardTitle>
-                        <CardDescription>All systems operational.</CardDescription>
+                        <CardTitle>Recent Activity</CardTitle>
+                        <CardDescription>Showing the last 10 visits to the verification page.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-muted-foreground">
-                            Use the sidebar to navigate to the <Link href="/admin" className="text-primary underline">Access Logs</Link> to view detailed visitor information.
-                            The scraper tools are also available for data collection tasks.
-                        </p>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[150px]">Timestamp</TableHead>
+                                    <TableHead className="w-[150px]">IP Address</TableHead>
+                                    <TableHead>Location</TableHead>
+                                    <TableHead className="hidden md:table-cell">Device</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {statsData.recentLogs.length > 0 ? (
+                                    statsData.recentLogs.map((log, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
+                                            <TableCell className="font-medium">{log.ip}</TableCell>
+                                            <TableCell>{log.location}</TableCell>
+                                            <TableCell className="hidden md:table-cell text-xs text-muted-foreground truncate max-w-xs">{log.device}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                                            No activity logged yet.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
                     </CardContent>
                 </Card>
             </div>
