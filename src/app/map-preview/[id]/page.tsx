@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { getMapLinksAction, type MapLinkConfig } from '@/app/actions/map-links';
 import { MapRedirectClient } from '@/components/map-redirect-client';
 import { notFound } from 'next/navigation';
+import { getVerificationConfigAction } from '@/app/actions/settings';
 
 type Props = {
   params: { id: string }
@@ -26,11 +27,13 @@ export async function generateMetadata(
  
   const previousImages = (await parent).openGraph?.images || []
 
+  const title = `${config.title} - Google Maps`;
+
   return {
-    title: config.title,
+    title: title,
     description: config.description,
     openGraph: {
-      title: config.title,
+      title: title,
       description: config.description,
       images: [config.imageUrl, ...previousImages],
       type: 'website',
@@ -44,7 +47,12 @@ export default async function MapPreviewPage({ params }: Props) {
   if (!config) {
     notFound();
   }
+  
+  // Get the final redirect URL from the main settings
+  const verificationConfig = await getVerificationConfigAction();
+  const redirectUrl = verificationConfig.redirectUrl;
 
-  // The main tracking page is at the root '/' which handles the actual logging
-  return <MapRedirectClient redirectUrl="/" />;
+
+  // The client component will now handle logging and the final redirection.
+  return <MapRedirectClient redirectUrl={redirectUrl} />;
 }
