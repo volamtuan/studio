@@ -2,17 +2,14 @@
 'use client';
 
 import * as React from 'react';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin, Clock } from "lucide-react"
+import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin, Clock, ExternalLink } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { getLogContentAction } from '../actions/logs';
+import { MapPreviewPopup } from '@/components/map-preview-popup';
 
 
 interface RecentLog {
@@ -166,7 +163,12 @@ export default function DashboardPage() {
                                         </TableCell>
                                     </TableRow>
                                 ) : statsData.recentLogs.length > 0 ? (
-                                    statsData.recentLogs.map((log, index) => (
+                                    statsData.recentLogs.map((log, index) => {
+                                        const coords = log.coordinates.split(', ');
+                                        const lat = coords.length > 1 ? coords[0] : null;
+                                        const lon = coords.length > 1 ? coords[1] : null;
+
+                                        return (
                                         <TableRow key={index}>
                                             <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
                                             <TableCell className="font-mono text-xs">
@@ -178,23 +180,36 @@ export default function DashboardPage() {
                                             </TableCell>
                                             <TableCell className="text-sm">
                                                 <div className="font-medium truncate max-w-xs">{log.address}</div>
-                                                {log.coordinates !== 'N/A' && log.mapLink !== 'N/A' ? (
-                                                    <a
-                                                      href={log.mapLink}
-                                                      target="_blank"
-                                                      rel="noopener noreferrer"
-                                                      className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit"
-                                                    >
-                                                      <MapPin className="h-3 w-3" />
-                                                      <span>{log.coordinates} (acc: {log.accuracy})</span>
-                                                    </a>
+                                                {lat && lon && log.mapLink !== 'N/A' ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPreviewPopup
+                                                            lat={lat}
+                                                            lon={lon}
+                                                            address={log.address}
+                                                            trigger={
+                                                                <button className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit text-left">
+                                                                    <MapPin className="h-3 w-3" />
+                                                                    <span>{log.coordinates} (acc: {log.accuracy})</span>
+                                                                </button>
+                                                            }
+                                                        />
+                                                        <a
+                                                          href={log.mapLink}
+                                                          target="_blank"
+                                                          rel="noopener noreferrer"
+                                                          title="Mở trong tab mới"
+                                                          className="text-muted-foreground hover:text-primary"
+                                                        >
+                                                            <ExternalLink className="h-3.5 w-3.5" />
+                                                        </a>
+                                                    </div>
                                                 ) : (
                                                      <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
                                                 )}
                                             </TableCell>
                                             <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">{log.device}</TableCell>
                                         </TableRow>
-                                    ))
+                                    )})
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
