@@ -17,7 +17,7 @@ export default function AdminPage() {
   const { toast } = useToast()
 
   const fetchLogs = React.useCallback(async () => {
-    setLoading(true)
+    // We don't set loading to true on refresh to prevent the loading state from flashing.
     const content = await getLogContentAction()
     setLogContent(content)
     setLoading(false)
@@ -60,8 +60,8 @@ export default function AdminPage() {
           title: "Lỗi",
           description: result.message,
         })
+        setLoading(false) // Ensure loading is turned off on failure
       }
-      setLoading(false)
     }
   }
 
