@@ -148,7 +148,7 @@ export default function CloakerPage() {
                   <CardHeader>
                     <CardTitle>Tạo Liên Kết Mới</CardTitle>
                     <CardDescription>
-                      Tạo link xem trước tùy chỉnh và chuyển hướng đến URL đích.
+                      Tạo link xem trước tùy chỉnh. Khi người dùng truy cập, hệ thống sẽ ghi lại IP/vị trí trước khi chuyển hướng đến URL đích.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">

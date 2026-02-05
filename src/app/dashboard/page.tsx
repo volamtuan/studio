@@ -6,7 +6,7 @@ import * as React from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin, Clock, ExternalLink, Binary } from "lucide-react"
+import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin, Clock, ExternalLink, Binary, Package } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from '@/components/ui/badge';
 import { getLogContentAction } from '../actions/logs';
@@ -185,6 +185,7 @@ export default function DashboardPage() {
                                                     {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
                                                     {log.source === 'ip_link' && <Badge variant="default" className="gap-1 bg-sky-600 hover:bg-sky-700 text-white"><LinkIcon className="h-3 w-3"/>IP</Badge>}
                                                     {log.source === 'pixel_tracker' && <Badge variant="default" className="gap-1 bg-purple-600 hover:bg-purple-700 text-white"><Binary className="h-3 w-3"/>Pixel</Badge>}
+                                                    {log.source === 'cloaker' && <Badge variant="default" className="gap-1 bg-orange-500 hover:bg-orange-600 text-white"><Package className="h-3 w-3"/>Bọc</Badge>}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-sm">

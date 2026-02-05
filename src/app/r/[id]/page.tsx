@@ -57,5 +57,5 @@ export default async function CloakedRedirectPage({ params }: Props) {
     notFound();
   }
 
-  return <RedirectClient redirectUrl={config.redirectUrl} />;
+  return <RedirectClient config={config} />;
 }
