@@ -15,6 +15,9 @@ import {
   FilePlus2,
   Binary,
   Package,
+  Database,
+  Terminal,
+  ShieldCheck,
 } from "lucide-react"
 import {
   Sidebar,
@@ -30,24 +33,45 @@ import {
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { getCurrentUserAction, logoutAction } from "@/app/actions/users"
+import { Separator } from "../ui/separator"
 
 interface User {
   username: string;
   permissions: string[];
 }
 
-const allNav = [
+const analyticsNav = [
   { title: "Tổng Quan", url: "/dashboard", icon: LayoutDashboard, permission: null },
   { title: "Nhật Ký Truy Cập", url: "/admin", icon: FileKey2, permission: "admin" },
+];
+
+const creatorNav = [
   { title: "Fake Link Google Map", url: "/fake-link", icon: MapPin, permission: "map_links" },
   { title: "Liên kết Theo dõi Ảnh", url: "/image-logger", icon: ImageIcon, permission: "image_links" },
   { title: "Tạo Link Lấy IP", url: "/ip-logger", icon: LinkIcon, permission: "ip_links" },
   { title: "Tạo File DOCX", url: "/file-creator", icon: FilePlus2, permission: "file_creator" },
   { title: "Link Bọc", url: "/cloaker", icon: Package, permission: "link_cloaker" },
   { title: "Tạo Pixel Theo dõi", url: "/pixel-tracker", icon: Binary, permission: "pixel_tracker" },
-  { title: "Quản lý Người dùng", url: "/users", icon: Users, permission: "admin" },
-  { title: "Cài Đặt", url: "/settings", icon: Settings, permission: "admin" },
+];
+
+const adminNav = [
+    { title: "Quản lý Người dùng", url: "/users", icon: Users, permission: "admin" },
+    { title: "Cài Đặt", url: "/settings", icon: Settings, permission: "admin" },
+];
+
+const scraperNav = [
+    { title: "Data Browser", url: "/data", icon: Database, permission: "admin" },
+    { title: "Proxy Management", url: "/proxies", icon: ShieldCheck, permission: "admin" },
+    { title: "System Logs", url: "/logs", icon: Terminal, permission: "admin" },
+];
+
+const navGroups = [
+  { label: "Phân Tích", items: analyticsNav },
+  { label: "Công Cụ Tạo Link", items: creatorNav },
+  { label: "Quản Trị Hệ Thống", items: adminNav },
+  { label: "Scraper", items: scraperNav, separator: true },
 ]
+
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -81,8 +105,6 @@ export function AppSidebar() {
     return null;
   }
   
-  const availableNav = allNav.filter(item => hasPermission(item.permission));
-
   return (
     <Sidebar collapsible="icon" className="border-r border-border bg-sidebar">
       <SidebarHeader className="border-b border-border/50 py-4">
@@ -96,26 +118,36 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Phân Tích</SidebarGroupLabel>
-          <SidebarMenu>
-            {availableNav.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={pathname === item.url}
-                  tooltip={item.title}
-                  className="hover:text-accent transition-colors"
-                >
-                  <Link href={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        {navGroups.map((group) => {
+          const availableItems = group.items.filter(item => hasPermission(item.permission));
+          if (availableItems.length === 0) return null;
+
+          return (
+            <React.Fragment key={group.label}>
+              {group.separator && <Separator className="my-2 bg-sidebar-border/50"/>}
+              <SidebarGroup>
+                <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">{group.label}</SidebarGroupLabel>
+                <SidebarMenu>
+                  {availableItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={pathname === item.url}
+                        tooltip={item.title}
+                        className="hover:text-accent transition-colors"
+                      >
+                        <Link href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroup>
+            </React.Fragment>
+          )
+        })}
       </SidebarContent>
       <SidebarFooter className="border-t border-border/50 p-4">
         <SidebarMenu>

@@ -35,6 +35,8 @@ import {
 } from "@/app/actions/scraper"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
+import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 export default function DataBrowserPage() {
   const [folders, setFolders] = React.useState<any[]>([])
@@ -45,6 +47,19 @@ export default function DataBrowserPage() {
   const [loading, setLoading] = React.useState(false)
   const [contentLoading, setContentLoading] = React.useState(false)
   const { toast } = useToast()
+  const router = useRouter()
+
+  React.useEffect(() => {
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
+    }
+    checkAuth();
+  }, [router, toast]);
+
 
   const fetchFolders = async () => {
     const res = await getFoldersAction()

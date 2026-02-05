@@ -4,14 +4,32 @@
 import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
-import { Terminal, Download, Trash2, Filter, RefreshCw } from "lucide-react"
+import { Terminal, Trash2, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getScraperStatusAction } from "@/app/actions/scraper"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
+
 
 export default function LogsPage() {
   const [logs, setLogs] = React.useState<string[]>([])
   const [autoRefresh, setAutoRefresh] = React.useState(true)
+  const { toast } = useToast()
+  const router = useRouter()
+
+  React.useEffect(() => {
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
+    }
+    checkAuth();
+  }, [router, toast]);
+
 
   const fetchLogs = async () => {
     const status = await getScraperStatusAction()
@@ -27,6 +45,11 @@ export default function LogsPage() {
     }
     return () => clearInterval(interval)
   }, [autoRefresh])
+
+  const handleClearConsole = () => {
+    setLogs(["[INFO] Console cleared by user."])
+    toast({ title: "Console Cleared" })
+  }
 
   return (
     <SidebarProvider>
@@ -45,7 +68,7 @@ export default function LogsPage() {
               <RefreshCw className={`h-4 w-4 ${autoRefresh ? "animate-spin" : ""}`} /> 
               {autoRefresh ? "Auto-refreshing" : "Static"}
             </Button>
-            <Button variant="outline" size="sm" className="gap-2 text-destructive border-destructive/20">
+            <Button variant="outline" size="sm" className="gap-2 text-destructive border-destructive/20" onClick={handleClearConsole}>
               <Trash2 className="h-4 w-4" /> Clear Console
             </Button>
           </div>

@@ -11,11 +11,26 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { ShieldCheck, Info } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
+
 
 export default function ProxiesPage() {
   const [useProxy, setUseProxy] = React.useState(true)
   const [proxyList, setProxyList] = React.useState("")
   const { toast } = useToast()
+  const router = useRouter()
+  
+  React.useEffect(() => {
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
+    }
+    checkAuth();
+  }, [router, toast]);
 
   const handleSave = () => {
     toast({
