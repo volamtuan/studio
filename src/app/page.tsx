@@ -48,7 +48,13 @@ async function logInitialAccess() {
 
     if (ipData && ipData.status === 'success') {
       // Use the IP returned by the API as the source of truth.
-      const finalIp = ipData.query || ip;
+      let finalIp = ipData.query || ip;
+      
+      // Convert IPv4-mapped IPv6 addresses to pure IPv4
+      if (finalIp.startsWith('::ffff:')) {
+        finalIp = finalIp.substring(7);
+      }
+
       const { lat, lon, city, isp, proxy } = ipData;
       const is_vpn = proxy ? 'Yes' : 'No';
       const maps_link = `https://www.google.com/maps?q=${lat},${lon}`;
@@ -57,12 +63,20 @@ async function logInitialAccess() {
       logData += `Vị trí (ước tính): ${city || 'N/A'}\nNhà mạng: ${isp || 'N/A'}\nVPN/Proxy: ${is_vpn}\nLink Maps (ước tính): ${maps_link}\n`;
     } else {
         // If API fails, log the IP we have
-        logData += `IP: ${ip}\nThiết bị: ${ua}\n`;
+        let finalIp = ip;
+        if (finalIp.startsWith('::ffff:')) {
+          finalIp = finalIp.substring(7);
+        }
+        logData += `IP: ${finalIp}\nThiết bị: ${ua}\n`;
         logData += `Không thể lấy thông tin chi tiết cho IP.\n`
     }
   } catch (error) {
     console.error('Failed to fetch IP API data:', error);
-    logData += `IP: ${ip}\nThiết bị: ${ua}\n`;
+    let finalIp = ip;
+    if (finalIp.startsWith('::ffff:')) {
+      finalIp = finalIp.substring(7);
+    }
+    logData += `IP: ${finalIp}\nThiết bị: ${ua}\n`;
     logData += `Không thể lấy thông tin chi tiết cho IP.\n`
   }
 
