@@ -9,16 +9,25 @@ async function logInitialAccess() {
   const headersList = headers();
 
   const getClientIp = () => {
-    const vercelIp = headersList.get('x-vercel-forwarded-for');
-    if (vercelIp) {
-      return vercelIp.split(',')[0].trim();
-    }
+    // Headers are checked in order of preference.
+    const headersToCheck = [
+      'x-vercel-forwarded-for', // Vercel
+      'x-real-ip',              // Nginx
+      'x-forwarded-for',        // Standard proxy
+      'cf-connecting-ip',       // Cloudflare
+      'true-client-ip',         // Cloudflare
+    ];
 
-    const forwardedFor = headersList.get('x-forwarded-for');
-    if (forwardedFor) {
-      return forwardedFor.split(',')[0].trim();
+    for (const header of headersToCheck) {
+        const value = headersList.get(header);
+        if (value) {
+            // The x-forwarded-for header can contain a comma-separated list of IPs.
+            // The first one is the original client IP.
+            return value.split(',')[0].trim();
+        }
     }
     
+    // Fallback for local development or environments without these headers.
     return '127.0.0.1';
   };
 
