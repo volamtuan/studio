@@ -53,6 +53,8 @@ export default function FakeLinkPage() {
     },
   })
 
+  const currentImageUrl = form.watch("imageUrl");
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     const newLink: MapLinkConfig = {
       id: crypto.randomUUID(),
@@ -160,6 +162,14 @@ export default function FakeLinkPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
+                    {currentImageUrl && z.string().url().safeParse(currentImageUrl).success && (
+                        <div className="space-y-2">
+                            <FormLabel>Xem trước ảnh</FormLabel>
+                            <div className="relative w-full aspect-[1.91/1] rounded-md bg-muted overflow-hidden border">
+                               <Image src={currentImageUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
+                            </div>
+                        </div>
+                    )}
                   </CardContent>
                   <CardFooter>
                     <Button type="submit" className="w-full">
