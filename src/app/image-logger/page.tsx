@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -15,6 +14,12 @@ import { useToast } from "@/hooks/use-toast"
 import { getImageLinksAction, saveImageLinksAction, type ImageLinkConfig } from "@/app/actions/image-links"
 import { Copy, PlusCircle, Save, Trash2, Image as ImageIcon } from "lucide-react"
 import NextImage from 'next/image'
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -179,9 +184,16 @@ export default function ImageLoggerPage() {
                   links.length > 0 ? (
                     links.map(link => (
                       <Card key={link.id} className="flex flex-col sm:flex-row items-start gap-4 p-4">
-                        <div className="relative w-full sm:w-32 h-32 sm:h-auto sm:aspect-[1.91/1] shrink-0">
-                           <NextImage src={link.imageUrl} alt={link.title} layout="fill" objectFit="cover" className="rounded-md bg-muted" />
-                        </div>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <div className="relative w-full sm:w-32 h-32 sm:h-auto sm:aspect-[1.91/1] shrink-0 cursor-pointer group">
+                                <NextImage src={link.imageUrl} alt={link.title} layout="fill" objectFit="cover" className="rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
+                                </div>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
+                                <NextImage src={link.imageUrl} alt={link.title} width={1200} height={630} className="rounded-md w-full h-auto" />
+                            </DialogContent>
+                        </Dialog>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{link.title}</p>
                           <div className="mt-2 flex items-center gap-2 bg-muted/50 p-2 rounded-md">
