@@ -6,10 +6,10 @@ import {
   LayoutDashboard, 
   Terminal, 
   Database, 
-  Settings, 
   ShieldCheck, 
   LogOut,
-  Zap
+  Zap,
+  FileKey2
 } from "lucide-react"
 import {
   Sidebar,
@@ -25,12 +25,20 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-const items = [
+const mainNav = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: LayoutDashboard,
   },
+  {
+    title: "Access Logs",
+    url: "/admin",
+    icon: FileKey2,
+  },
+]
+
+const scraperNav = [
   {
     title: "Proxies",
     url: "/proxies",
@@ -59,15 +67,35 @@ export function AppSidebar() {
             <Zap className="h-5 w-5 text-white" />
           </div>
           <span className="font-headline font-bold text-lg group-data-[collapsible=icon]:hidden">
-            Notepad Scraper
+            Admin Panel
           </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Analytics</SidebarGroupLabel>
           <SidebarMenu>
-            {items.map((item) => (
+            {mainNav.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={pathname === item.url}
+                  tooltip={item.title}
+                  className="hover:text-accent transition-colors"
+                >
+                  <Link href={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Scraper Tools</SidebarGroupLabel>
+          <SidebarMenu>
+            {scraperNav.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   asChild 

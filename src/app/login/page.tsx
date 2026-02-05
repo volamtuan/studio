@@ -6,20 +6,30 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Zap, ShieldAlert } from "lucide-react"
-import Link from "next/link"
+import { Zap, ShieldAlert, ShieldX } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError(null)
     setLoading(true)
+    
+    const username = (e.currentTarget.elements.namedItem("username") as HTMLInputElement)?.value
+    const password = (e.currentTarget.elements.namedItem("password") as HTMLInputElement)?.value
+
     // Simulate auth delay
     setTimeout(() => {
-      router.push("/")
+      if (username === "admin" && password === "pass") {
+        router.push("/dashboard")
+      } else {
+          setError("Invalid username or password.")
+          setLoading(false)
+      }
     }, 1000)
   }
 
@@ -31,25 +41,34 @@ export default function LoginPage() {
             <Zap className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-headline font-bold">Admin Console</h1>
-          <p className="text-muted-foreground">Notepad Scraper System v2.0</p>
+          <p className="text-muted-foreground">Access Management</p>
         </div>
 
         <Card className="bg-card/50 backdrop-blur-sm border-border shadow-2xl">
           <form onSubmit={handleLogin}>
             <CardHeader>
               <CardTitle>Sign In</CardTitle>
-              <CardDescription>Enter your credentials to access the scraper dashboard</CardDescription>
+              <CardDescription>Enter credentials to access the admin dashboard.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
-                <Input id="username" placeholder="vlt" required className="bg-muted/30" />
+                <Input id="username" name="username" placeholder="admin" required className="bg-muted/30" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required className="bg-muted/30" />
+                <Input id="password" name="password" type="password" placeholder="••••" required className="bg-muted/30" />
               </div>
               
+              {error && (
+                 <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-3 mt-4">
+                    <ShieldX className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-xs text-destructive">
+                      {error}
+                    </p>
+                  </div>
+              )}
+
               <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-3 mt-4">
                 <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <p className="text-xs text-destructive">
@@ -66,7 +85,7 @@ export default function LoginPage() {
         </Card>
         
         <p className="text-center text-xs text-muted-foreground">
-          &copy; 2023 Scraper Systems Inc. All rights reserved.
+          &copy; 2024 Secure Access Systems. All rights reserved.
         </p>
       </div>
     </div>
