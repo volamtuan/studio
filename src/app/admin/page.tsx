@@ -203,7 +203,7 @@ export default function AdminPage() {
                                                 {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
                                                 {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
                                                 {log.source === 'ip_link' && <Badge variant="default" className="gap-1 bg-sky-600 hover:bg-sky-700 text-white"><LinkIcon className="h-3 w-3"/>IP</Badge>}
-                                                {log.source === 'pixel_tracker' && <Badge variant="default" className="gap-1 bg-purple-600 hover:bg-purple-700 text-white"><Binary className="h-3 w-3"/>Pixel</Badge>}
+                                                
                                                 {log.source === 'cloaker' && <Badge variant="default" className="gap-1 bg-orange-500 hover:bg-orange-600 text-white"><Package className="h-3 w-3"/>Bọc</Badge>}
                                             </div>
                                         </TableCell>

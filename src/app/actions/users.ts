@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 
 const usersConfigPath = path.join(process.cwd(), 'src', 'config', 'users.json');
 
-export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'pixel_tracker' | 'link_cloaker' | 'qr_creator';
+export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'link_cloaker' | 'qr_creator';
 
 export interface User {
   username: string;

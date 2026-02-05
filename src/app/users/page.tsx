@@ -68,7 +68,6 @@ const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
     'image_links', 
     'ip_links', 
     'file_creator',
-    'pixel_tracker',
     'link_cloaker',
     'qr_creator',
 ];
@@ -80,7 +79,6 @@ const permissionLabels: { [key in UserPermission]: string } = {
   image_links: 'Tạo Link Ảnh',
   ip_links: 'Tạo Link Lấy IP',
   file_creator: 'Tạo File DOCX',
-  pixel_tracker: 'Tạo Pixel Theo dõi',
   link_cloaker: 'Tạo Link Bọc',
   qr_creator: 'Tạo Mã QR'
 }
