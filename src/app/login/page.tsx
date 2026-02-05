@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -14,7 +15,7 @@ export default function LoginPage() {
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
   
-  // Clear session on load to ensure a clean login
+  // Clear old insecure session on load to ensure a clean login
   React.useEffect(() => {
     sessionStorage.removeItem('user');
   }, [])
@@ -31,7 +32,6 @@ export default function LoginPage() {
     const result = await loginAction(username, password)
     
     if (result.success) {
-      sessionStorage.setItem('user', JSON.stringify(result.user));
       router.push("/dashboard")
     } else {
       setError(result.message || "Đã xảy ra lỗi không xác định.")

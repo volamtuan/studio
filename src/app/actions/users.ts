@@ -5,15 +5,62 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 
 const usersConfigPath = path.join(process.cwd(), 'src', 'config', 'users.json');
 
-export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'link_cloaker' | 'qr_creator';
+export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'link_cloaker';
 
 export interface User {
   username: string;
   passwordHash: string;
   permissions: UserPermission[];
+}
+
+// This secret should be moved to an environment variable in a real production app.
+const SESSION_SECRET = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3";
+
+async function createSession(payload: { username: string; permissions: UserPermission[] }) {
+    const sessionData = JSON.stringify(payload);
+    const signature = crypto.createHmac('sha256', SESSION_SECRET).update(sessionData).digest('hex');
+    const token = `${Buffer.from(sessionData).toString('base64')}.${signature}`;
+
+    cookies().set('session', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24, // 1 day
+        path: '/',
+        sameSite: 'lax',
+    });
+}
+
+export async function getCurrentUserAction(): Promise<{ username: string; permissions: UserPermission[] } | null> {
+    const token = cookies().get('session')?.value;
+    if (!token) return null;
+
+    try {
+        const [encodedPayload, signature] = token.split('.');
+        if (!encodedPayload || !signature) return null;
+
+        const sessionData = Buffer.from(encodedPayload, 'base64').toString('utf-8');
+        const expectedSignature = crypto.createHmac('sha256', SESSION_SECRET).update(sessionData).digest('hex');
+
+        // Use timingSafeEqual to prevent timing attacks
+        if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+            const payload = JSON.parse(sessionData);
+            return payload as { username: string; permissions: UserPermission[] };
+        }
+    } catch (e) {
+        // Errors in parsing/verification mean an invalid token
+        return null;
+    }
+
+    return null;
+}
+
+export async function logoutAction() {
+    cookies().delete('session');
+    return { success: true };
 }
 
 async function readUsers(): Promise<User[]> {
@@ -22,7 +69,6 @@ async function readUsers(): Promise<User[]> {
     return JSON.parse(fileContent);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      // If the file doesn't exist, create it with the default admin user
       const defaultAdminPassword = "123";
       const passwordHash = crypto.createHash('sha256').update(defaultAdminPassword).digest('hex');
       const defaultUser: User[] = [{
@@ -47,7 +93,6 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-// Action to authenticate a user
 export async function loginAction(username: string, password_raw: string) {
   const users = await readUsers();
   const passwordHash = hashPassword(password_raw);
@@ -56,13 +101,13 @@ export async function loginAction(username: string, password_raw: string) {
 
   if (user && user.passwordHash === passwordHash) {
     const { passwordHash: _, ...userToReturn } = user;
+    await createSession(userToReturn);
     return { success: true, user: userToReturn };
   }
   
   return { success: false, message: 'Tên đăng nhập hoặc mật khẩu không hợp lệ.' };
 }
 
-// Action to get all users (without password hashes)
 export async function getUsersAction() {
   const users = await readUsers();
   return users.map(u => {
@@ -71,8 +116,12 @@ export async function getUsersAction() {
   });
 }
 
-// Action to add a new user
 export async function addUserAction(formData: FormData) {
+  const session = await getCurrentUserAction();
+  if (!session?.permissions.includes('admin')) {
+    return { success: false, message: 'Truy cập bị từ chối: Yêu cầu quyền quản trị viên.' };
+  }
+
   const username = formData.get('username') as string;
   const password = formData.get('password') as string;
   const permissions = formData.getAll('permissions') as UserPermission[];
@@ -97,8 +146,12 @@ export async function addUserAction(formData: FormData) {
   return { success: true, message: 'Người dùng đã được tạo thành công.' };
 }
 
-// Action to update user permissions
 export async function updateUserAction(formData: FormData) {
+    const session = await getCurrentUserAction();
+    if (!session?.permissions.includes('admin')) {
+        return { success: false, message: 'Truy cập bị từ chối: Yêu cầu quyền quản trị viên.' };
+    }
+
     const username = formData.get('username') as string;
     const permissions = formData.getAll('permissions') as UserPermission[];
 
@@ -113,7 +166,6 @@ export async function updateUserAction(formData: FormData) {
         return { success: false, message: 'Không tìm thấy người dùng.' };
     }
 
-    // Prevent changing admin user's permissions away from 'admin'
     if (users[userIndex].permissions.includes('admin')) {
         return { success: false, message: 'Không thể thay đổi quyền của quản trị viên.' };
     }
@@ -124,12 +176,15 @@ export async function updateUserAction(formData: FormData) {
     return { success: true, message: `Quyền của người dùng '${username}' đã được cập nhật.` };
 }
 
-
-// Action to update admin password
 export async function updateAdminPasswordAction(formData: FormData) {
+    const session = await getCurrentUserAction();
+    if (!session?.permissions.includes('admin')) {
+        return { success: false, message: 'Truy cập bị từ chối: Yêu cầu quyền quản trị viên.' };
+    }
+
     const currentPassword = formData.get('currentPassword') as string;
     const newPassword = formData.get('newPassword') as string;
-    const adminUsername = "vlt"; // Assuming 'vlt' is the admin
+    const adminUsername = "vlt"; 
 
     if (!currentPassword || !newPassword) {
         return { success: false, message: "Vui lòng nhập đầy đủ mật khẩu." };
@@ -146,15 +201,18 @@ export async function updateAdminPasswordAction(formData: FormData) {
         return { success: false, message: "Mật khẩu hiện tại không chính xác." };
     }
 
-    // Update password
     users = users.map(u => u.username === adminUsername ? { ...u, passwordHash: hashPassword(newPassword) } : u);
     await writeUsers(users);
 
     return { success: true, message: "Mật khẩu quản trị đã được cập nhật thành công." };
 }
 
-// Action to delete a user
 export async function deleteUserAction(username: string) {
+    const session = await getCurrentUserAction();
+    if (!session?.permissions.includes('admin')) {
+        return { success: false, message: 'Truy cập bị từ chối: Yêu cầu quyền quản trị viên.' };
+    }
+
     if (username === 'vlt') {
         return { success: false, message: 'Không thể xóa tài khoản quản trị viên gốc.' };
     }

@@ -1,67 +1,46 @@
---- [2026-02-05T22:32:44.743Z] MỚI TRUY CẬP ---
+--- [2026-02-05T23:40:28.826Z] MỚI TRUY CẬP ---
 Nguồn: link
-Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/696 ZaloTheme/light ZaloLanguage/vn
 Địa chỉ IP: 115.75.248.16
 Ngôn ngữ: vi-VN
 Múi giờ: Asia/Saigon
-Tọa độ: 10.93671763762366, 106.79419762217009
-Độ chính xác: 16.895014m
+Tọa độ: 10.936629702759694, 106.79418509011563
+Độ chính xác: 4.184364348991948m
 Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
-Link Google Maps: https://www.google.com/maps?q=10.93671763762366,106.79419762217009
+Link Google Maps: https://www.google.com/maps?q=10.936629702759694,106.79418509011563
 ----------------------------------
---- [2026-02-05T22:33:36.216Z] MỚI TRUY CẬP ---
+--- [2026-02-05T23:40:35.744Z] MỚI TRUY CẬP ---
 Nguồn: ip_link
-Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/696 ZaloTheme/light ZaloLanguage/vn
 Địa chỉ IP: 115.75.248.16
 Ngôn ngữ: vi-VN
 Múi giờ: Asia/Saigon
-Tọa độ: 10.936717815940934, 106.79419735486574
-Độ chính xác: 15.895014000000002m
+Tọa độ: 10.936629707478188, 106.79418511376758
+Độ chính xác: 4.1718171198915615m
 Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
-Link Google Maps: https://www.google.com/maps?q=10.936717815940934,106.79419735486574
+Link Google Maps: https://www.google.com/maps?q=10.936629707478188,106.79418511376758
 Chuyển hướng đến: https://www.google.com
 ----------------------------------
---- [2026-02-05T22:39:13.046Z] MỚI TRUY CẬP ---
+--- [2026-02-05T23:42:10.567Z] MỚI TRUY CẬP ---
 Nguồn: link
-Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/696 ZaloTheme/light ZaloLanguage/vn
 Địa chỉ IP: 115.75.248.16
 Ngôn ngữ: vi-VN
 Múi giờ: Asia/Saigon
-Tọa độ: 10.936717951434547, 106.79419714464305
-Độ chính xác: 8.4796335266737m
+Tọa độ: 10.936629726994747, 106.7941853873972
+Độ chính xác: 6.299030152927941m
 Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
-Link Google Maps: https://www.google.com/maps?q=10.936717951434547,106.79419714464305
+Link Google Maps: https://www.google.com/maps?q=10.936629726994747,106.7941853873972
 ----------------------------------
---- [2026-02-05T22:44:22.474Z] MỚI TRUY CẬP ---
-Nguồn: link
-Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T23:42:16.875Z] MỚI TRUY CẬP ---
+Nguồn: ip_link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/696 ZaloTheme/light ZaloLanguage/vn
 Địa chỉ IP: 115.75.248.16
 Ngôn ngữ: vi-VN
 Múi giờ: Asia/Saigon
-Tọa độ: 10.93663977912601, 106.7941790239965
-Độ chính xác: 12.451578435622146m
+Tọa độ: 10.936629749091683, 106.79418548176591
+Độ chính xác: 6.099902670099609m
 Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
-Link Google Maps: https://www.google.com/maps?q=10.93663977912601,106.7941790239965
-----------------------------------
---- [2026-02-05T22:46:00.534Z] MỚI TRUY CẬP ---
-Nguồn: link
-Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
-Địa chỉ IP: 115.75.248.16
-Ngôn ngữ: vi-VN
-Múi giờ: Asia/Saigon
-Tọa độ: 10.93671795562602, 106.79419714140319
-Độ chính xác: 8.281324008974655m
-Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
-Link Google Maps: https://www.google.com/maps?q=10.93671795562602,106.79419714140319
-----------------------------------
---- [2026-02-05T22:47:59.901Z] MỚI TRUY CẬP ---
-Nguồn: link
-Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
-Địa chỉ IP: 115.75.248.16
-Ngôn ngữ: vi-VN
-Múi giờ: Asia/Saigon
-Tọa độ: 10.936717934921143, 106.79419719709263
-Độ chính xác: 7.488009334941696m
-Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
-Link Google Maps: https://www.google.com/maps?q=10.936717934921143,106.79419719709263
+Link Google Maps: https://www.google.com/maps?q=10.936629749091683,106.79418548176591
+Chuyển hướng đến: https://www.google.com
 ----------------------------------

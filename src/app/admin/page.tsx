@@ -14,6 +14,7 @@ import { getLogContentAction, deleteLogsAction } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { MapPreviewPopup } from "@/components/map-preview-popup"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 interface LogEntry {
   timestamp: string;
@@ -71,15 +72,14 @@ export default function AdminPage() {
 
   // Protect page
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   const fetchLogs = React.useCallback(async () => {

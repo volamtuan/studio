@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { getCurrentUserAction, logoutAction } from "@/app/actions/users"
 
 interface User {
   username: string;
@@ -53,21 +54,20 @@ export function AppSidebar() {
   const [user, setUser] = React.useState<User | null>(null);
 
   React.useEffect(() => {
-    try {
-      const userData = sessionStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      } else {
-        router.replace('/login');
-      }
-    } catch (error) {
-      router.replace('/login');
+    async function fetchUser() {
+        const currentUser = await getCurrentUserAction();
+        if (currentUser) {
+            setUser(currentUser as User);
+        } else {
+            router.replace('/login');
+        }
     }
+    fetchUser();
   }, [router]);
 
-  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    sessionStorage.removeItem('user')
+    await logoutAction();
     router.push('/login')
   }
 

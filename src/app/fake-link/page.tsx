@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -20,6 +21,8 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -29,10 +32,22 @@ const formSchema = z.object({
 
 export default function FakeLinkPage() {
   const { toast } = useToast()
+  const router = useRouter()
   const [links, setLinks] = React.useState<MapLinkConfig[]>([])
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
   const [origin, setOrigin] = React.useState("")
+
+  React.useEffect(() => {
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('map_links'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
+    }
+    checkAuth();
+  }, [router, toast]);
 
   React.useEffect(() => {
     // This check ensures window is defined, preventing server-side errors in Next.js

@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import { getIpLinksAction, saveIpLinksAction, type IpLinkConfig } from "@/app/actions/ip-links"
 import { Copy, PlusCircle, Save, Trash2, Globe } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -30,15 +31,14 @@ export default function IpLoggerPage() {
   const [origin, setOrigin] = React.useState("")
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin') && !user.permissions?.includes('ip_links')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('ip_links'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   React.useEffect(() => {

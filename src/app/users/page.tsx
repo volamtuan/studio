@@ -54,6 +54,7 @@ import {
   deleteUserAction,
   updateUserAction,
   type UserPermission,
+  getCurrentUserAction
 } from '@/app/actions/users'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
@@ -69,7 +70,6 @@ const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
     'ip_links', 
     'file_creator',
     'link_cloaker',
-    'qr_creator',
 ];
 
 
@@ -80,7 +80,6 @@ const permissionLabels: { [key in UserPermission]: string } = {
   ip_links: 'Tạo Link Lấy IP',
   file_creator: 'Tạo File DOCX',
   link_cloaker: 'Tạo Link Bọc',
-  qr_creator: 'Tạo Mã QR'
 }
 
 export default function UsersPage() {
@@ -94,15 +93,14 @@ export default function UsersPage() {
   const changePasswordFormRef = React.useRef<HTMLFormElement>(null)
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   const fetchUsers = React.useCallback(async () => {
@@ -154,7 +152,6 @@ export default function UsersPage() {
         description: `${result.message} Vui lòng đăng nhập lại với mật khẩu mới.`,
       })
       setTimeout(() => {
-        sessionStorage.removeItem('user')
         router.push('/login')
       }, 2000)
     } else {

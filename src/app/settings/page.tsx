@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -33,6 +34,7 @@ import { Bot, Save } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -55,15 +57,14 @@ export default function SettingsPage() {
 
   // Protect page
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({

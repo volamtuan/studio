@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import PizZip from "pizzip"
 import { saveAs } from "file-saver"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 export default function FileCreatorPage() {
   const { toast } = useToast()
@@ -27,15 +28,14 @@ export default function FileCreatorPage() {
   const [origin, setOrigin] = React.useState("")
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin') && !user.permissions?.includes('file_creator')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('file_creator'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
     
     if (typeof window !== 'undefined') {
       setOrigin(window.location.origin)
