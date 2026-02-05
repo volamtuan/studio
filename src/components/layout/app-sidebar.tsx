@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,7 +8,8 @@ import {
   Zap,
   FileKey2,
   Settings,
-  MapPin
+  MapPin,
+  Image as ImageIcon
 } from "lucide-react"
 import {
   Sidebar,
@@ -38,6 +40,11 @@ const mainNav = [
     title: "Fake Link Google Map",
     url: "/fake-link",
     icon: MapPin,
+  },
+  {
+    title: "Liên kết Theo dõi Ảnh",
+    url: "/image-logger",
+    icon: ImageIcon,
   },
   {
     title: "Cài Đặt",

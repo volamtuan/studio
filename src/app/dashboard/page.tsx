@@ -1,15 +1,19 @@
 
+'use client';
+
+import * as React from 'react';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, Link as LinkIcon, Globe } from "lucide-react"
+import { Users, Link as LinkIcon, Globe, Image as ImageIcon } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { getLogContentAction } from '../actions/logs';
 
-const logFile = path.join(process.cwd(), 'logs', 'tracking_logs.txt');
 
 interface RecentLog {
   timestamp: string;
@@ -19,6 +23,13 @@ interface RecentLog {
   coordinates: string;
   accuracy: string;
   mapLink: string;
+  source: string;
+}
+
+interface LogStats {
+  totalVisits: number;
+  uniqueIps: number;
+  recentLogs: RecentLog[];
 }
 
 function parseValue(entry: string, label: string): string {
@@ -26,9 +37,8 @@ function parseValue(entry: string, label: string): string {
     return match ? match[1].trim() : 'N/A';
 }
 
-async function getLogStats() {
+async function getLogStats(content: string): Promise<LogStats> {
   try {
-    const content = await fs.readFile(logFile, 'utf-8');
     const entries = content.split('--- [').filter(e => e.trim() !== '');
 
     const allIps = entries.map(e => parseValue(e, 'Địa chỉ IP')).filter(ip => ip !== 'N/A');
@@ -44,6 +54,7 @@ async function getLogStats() {
         coordinates: parseValue(entry, 'Tọa độ'),
         accuracy: parseValue(entry, 'Độ chính xác'),
         mapLink: parseValue(entry, 'Link Google Maps'),
+        source: parseValue(entry, 'Nguồn'),
       };
     });
 
@@ -54,7 +65,6 @@ async function getLogStats() {
     };
 
   } catch (error) {
-    // If file does not exist or other error
     return {
       totalVisits: 0,
       uniqueIps: 0,
@@ -64,8 +74,22 @@ async function getLogStats() {
 }
 
 
-export default async function DashboardPage() {
-  const statsData = await getLogStats();
+export default function DashboardPage() {
+  const [statsData, setStatsData] = React.useState<LogStats>({ totalVisits: 0, uniqueIps: 0, recentLogs: [] });
+  const [loading, setLoading] = React.useState(true);
+
+  const fetchStats = React.useCallback(async () => {
+    const content = await getLogContentAction();
+    const stats = await getLogStats(content);
+    setStatsData(stats);
+    setLoading(false);
+  }, []);
+
+  React.useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000); // Auto-refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, [fetchStats]);
 
   const statsCards = [
       { title: "Tổng Lượt Truy Cập", value: statsData.totalVisits.toLocaleString(), icon: Users },
@@ -102,7 +126,7 @@ export default async function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Hoạt động Gần đây</CardTitle>
-                        <CardDescription>Hiển thị 10 lượt truy cập gần nhất.</CardDescription>
+                        <CardDescription>Hiển thị 10 lượt truy cập gần nhất. Tự động làm mới sau 5 giây.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -116,11 +140,23 @@ export default async function DashboardPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {statsData.recentLogs.length > 0 ? (
+                                {loading ? (
+                                     <TableRow>
+                                        <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                            Đang tải dữ liệu...
+                                        </TableCell>
+                                    </TableRow>
+                                ) : statsData.recentLogs.length > 0 ? (
                                     statsData.recentLogs.map((log, index) => (
                                         <TableRow key={index}>
                                             <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
-                                            <TableCell className="font-mono text-xs">{log.ip}</TableCell>
+                                            <TableCell className="font-mono text-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <span>{log.ip}</span>
+                                                    {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
+                                                    {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
+                                                </div>
+                                            </TableCell>
                                             <TableCell className="text-sm">
                                                 <div className="font-medium truncate max-w-xs">{log.address}</div>
                                                 {log.coordinates !== 'N/A' && (

