@@ -156,7 +156,7 @@ export default function FileCreatorPage() {
                   Chèn Link Theo Dõi vào File DOCX
                 </CardTitle>
                 <CardDescription>
-                  Tải lên một tệp .docx và chọn một "Link Lấy IP" để chèn vào. Hệ thống sẽ tự động tạo và tải xuống một tệp mới chứa link theo dõi.
+                  Công cụ này sẽ chèn một link theo dõi vào tệp .docx của bạn. Khi người nhận mở tệp, hệ thống sẽ cố gắng ghi lại địa chỉ IP và vị trí địa lý của họ.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
