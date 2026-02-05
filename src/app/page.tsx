@@ -36,21 +36,33 @@ async function logInitialAccess() {
   const logDir = path.join(process.cwd(), 'logs');
   const logFile = path.join(logDir, 'tracking_logs.txt');
 
-  let logData = `--- [${new Date().toISOString()}] MỚI TRUY CẬP ---\nIP: ${ip}\nThiết bị: ${ua}\n`;
+  // Let ip-api detect the IP if we only have the localhost/fallback IP.
+  // This is useful for development environments where headers are not forwarded.
+  const apiIpParam = (ip === '127.0.0.1' || ip === '::1') ? '' : ip;
+
+  let logData = `--- [${new Date().toISOString()}] MỚI TRUY CẬP ---\n`;
 
   try {
-    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,lat,lon,city,isp,proxy`);
+    const response = await fetch(`http://ip-api.com/json/${apiIpParam}?fields=status,query,lat,lon,city,isp,proxy`);
     const ipData = await response.json();
 
     if (ipData && ipData.status === 'success') {
+      // Use the IP returned by the API as the source of truth.
+      const finalIp = ipData.query || ip;
       const { lat, lon, city, isp, proxy } = ipData;
       const is_vpn = proxy ? 'Yes' : 'No';
       const maps_link = `https://www.google.com/maps?q=${lat},${lon}`;
       
+      logData += `IP: ${finalIp}\nThiết bị: ${ua}\n`;
       logData += `Vị trí (ước tính): ${city || 'N/A'}\nNhà mạng: ${isp || 'N/A'}\nVPN/Proxy: ${is_vpn}\nLink Maps (ước tính): ${maps_link}\n`;
+    } else {
+        // If API fails, log the IP we have
+        logData += `IP: ${ip}\nThiết bị: ${ua}\n`;
+        logData += `Không thể lấy thông tin chi tiết cho IP.\n`
     }
   } catch (error) {
     console.error('Failed to fetch IP API data:', error);
+    logData += `IP: ${ip}\nThiết bị: ${ua}\n`;
     logData += `Không thể lấy thông tin chi tiết cho IP.\n`
   }
 
