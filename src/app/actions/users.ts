@@ -11,7 +11,7 @@ const usersConfigPath = path.join(process.cwd(), 'src', 'config', 'users.json');
 export interface User {
   username: string;
   passwordHash: string;
-  permissions: ('admin' | 'map_links' | 'image_links' | 'ip_links')[];
+  permissions: ('admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator')[];
 }
 
 async function readUsers(): Promise<User[]> {
@@ -73,7 +73,7 @@ export async function getUsersAction() {
 export async function addUserAction(formData: FormData) {
   const username = formData.get('username') as string;
   const password = formData.get('password') as string;
-  const permissions = formData.getAll('permissions') as ('map_links' | 'image_links' | 'ip_links')[];
+  const permissions = formData.getAll('permissions') as ('map_links' | 'image_links' | 'ip_links' | 'file_creator')[];
 
   if (!username || !password) {
     return { success: false, message: 'Tên người dùng và mật khẩu là bắt buộc.' };

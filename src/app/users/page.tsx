@@ -144,6 +144,7 @@ export default function UsersPage() {
     map_links: 'Tạo Link Map',
     image_links: 'Tạo Link Ảnh',
     ip_links: 'Tạo Link Lấy IP',
+    file_creator: 'Tạo File DOCX',
   }
 
   return (
@@ -214,6 +215,14 @@ export default function UsersPage() {
                           value="ip_links"
                         />
                         <Label htmlFor="ip_links">Tạo Link Lấy IP</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="file_creator"
+                          name="permissions"
+                          value="file_creator"
+                        />
+                        <Label htmlFor="file_creator">Tạo File DOCX</Label>
                       </div>
                     </div>
                   </div>
