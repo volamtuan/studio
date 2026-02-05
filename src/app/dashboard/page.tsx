@@ -12,8 +12,10 @@ const logFile = path.join(process.cwd(), 'logs', 'tracking_logs.txt');
 interface RecentLog {
   timestamp: string;
   ip: string;
-  device: string;
+  isp: string;
+  country: string;
   location: string;
+  device: string;
 }
 
 async function getLogStats() {
@@ -23,7 +25,7 @@ async function getLogStats() {
 
     const uniqueIps = new Set<string>();
     entries.forEach(entry => {
-        const ipMatch = entry.match(/IP: (.*?)\n/);
+        const ipMatch = entry.match(/Địa chỉ IP: (.*?)\n/);
         if (ipMatch && ipMatch[1]) {
             uniqueIps.add(ipMatch[1]);
         }
@@ -35,16 +37,19 @@ async function getLogStats() {
       const lines = entry.split('\n');
       const timestamp = lines[0]?.split(']')[0] || 'N/A';
       
-      const ipMatch = entry.match(/IP: (.*?)\n/);
-      const ip = ipMatch ? ipMatch[1] : 'N/A';
-
-      const deviceMatch = entry.match(/Thiết bị: (.*?)\n/);
-      const device = deviceMatch ? deviceMatch[1] : 'N/A';
-
-      const locationMatch = entry.match(/Vị trí \(ước tính\): (.*?)\n/);
-      const location = locationMatch ? locationMatch[1] : 'N/A';
+      const getValue = (label: string) => {
+        const line = lines.find(l => l.startsWith(label + ": "));
+        return line ? line.split(': ')[1].trim() : 'N/A';
+      };
       
-      return { timestamp, ip, device, location };
+      return { 
+        timestamp,
+        ip: getValue('Địa chỉ IP'),
+        device: getValue('Thiết bị'),
+        location: getValue('Vị trí (ước tính)'),
+        country: getValue('Quốc gia'),
+        isp: getValue('Nhà cung cấp')
+      };
     });
 
     return {
@@ -112,8 +117,10 @@ export default async function DashboardPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-[150px]">Timestamp</TableHead>
-                                    <TableHead className="w-[150px]">IP Address</TableHead>
+                                    <TableHead className="w-[120px]">IP Address</TableHead>
                                     <TableHead>Location</TableHead>
+                                    <TableHead>Country</TableHead>
+                                    <TableHead>ISP</TableHead>
                                     <TableHead className="hidden md:table-cell">Device</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -124,12 +131,14 @@ export default async function DashboardPage() {
                                             <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
                                             <TableCell className="font-medium">{log.ip}</TableCell>
                                             <TableCell>{log.location}</TableCell>
+                                            <TableCell>{log.country}</TableCell>
+                                            <TableCell>{log.isp}</TableCell>
                                             <TableCell className="hidden md:table-cell text-xs text-muted-foreground truncate max-w-xs">{log.device}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                                             No activity logged yet.
                                         </TableCell>
                                     </TableRow>

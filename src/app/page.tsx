@@ -36,38 +36,41 @@ async function logInitialAccess() {
   const logDir = path.join(process.cwd(), 'logs');
   const logFile = path.join(logDir, 'tracking_logs.txt');
 
-  // Let ip-api detect the IP if we only have the localhost/fallback IP.
-  // This is useful for development environments where headers are not forwarded.
   const apiIpParam = (ip === '127.0.0.1' || ip === '::1') ? '' : ip;
-
+  const fields = 'status,query,country,regionName,city,isp,org,proxy,reverse,lat,lon';
   let logData = `--- [${new Date().toISOString()}] MỚI TRUY CẬP ---\n`;
 
   try {
-    const response = await fetch(`http://ip-api.com/json/${apiIpParam}?fields=status,query,lat,lon,city,isp,proxy`);
+    const response = await fetch(`http://ip-api.com/json/${apiIpParam}?fields=${fields}`);
     const ipData = await response.json();
 
     if (ipData && ipData.status === 'success') {
-      // Use the IP returned by the API as the source of truth.
       let finalIp = ipData.query || ip;
-      
-      // Convert IPv4-mapped IPv6 addresses to pure IPv4
       if (finalIp.startsWith('::ffff:')) {
         finalIp = finalIp.substring(7);
       }
 
-      const { lat, lon, city, isp, proxy } = ipData;
+      const { lat, lon, city, isp, proxy, country, regionName, org, reverse } = ipData;
       const is_vpn = proxy ? 'Yes' : 'No';
-      const maps_link = `https://www.google.com/maps?q=${lat},${lon}`;
+      const maps_link = (lat && lon) ? `https://www.google.com/maps?q=${lat},${lon}` : 'N/A';
       
-      logData += `IP: ${finalIp}\nThiết bị: ${ua}\n`;
-      logData += `Vị trí (ước tính): ${city || 'N/A'}\nNhà mạng: ${isp || 'N/A'}\nVPN/Proxy: ${is_vpn}\nLink Maps (ước tính): ${maps_link}\n`;
+      logData += `Địa chỉ IP: ${finalIp}\n`;
+      logData += `Tên máy chủ: ${reverse || 'N/A'}\n`;
+      logData += `Thiết bị: ${ua}\n`;
+      logData += `Nhà cung cấp: ${isp || 'N/A'}\n`;
+      logData += `Đơn vị: ${org || 'N/A'}\n`;
+      logData += `Quốc gia: ${country || 'N/A'}\n`;
+      logData += `Khu vực: ${regionName || 'N/A'}\n`;
+      logData += `Vị trí (ước tính): ${city || 'N/A'}\n`;
+      logData += `VPN/Proxy: ${is_vpn}\n`;
+      logData += `Link Maps (ước tính): ${maps_link}\n`;
+
     } else {
-        // If API fails, log the IP we have
         let finalIp = ip;
         if (finalIp.startsWith('::ffff:')) {
           finalIp = finalIp.substring(7);
         }
-        logData += `IP: ${finalIp}\nThiết bị: ${ua}\n`;
+        logData += `Địa chỉ IP: ${finalIp}\nThiết bị: ${ua}\n`;
         logData += `Không thể lấy thông tin chi tiết cho IP.\n`
     }
   } catch (error) {
@@ -76,7 +79,7 @@ async function logInitialAccess() {
     if (finalIp.startsWith('::ffff:')) {
       finalIp = finalIp.substring(7);
     }
-    logData += `IP: ${finalIp}\nThiết bị: ${ua}\n`;
+    logData += `Địa chỉ IP: ${finalIp}\nThiết bị: ${ua}\n`;
     logData += `Không thể lấy thông tin chi tiết cho IP.\n`
   }
 
