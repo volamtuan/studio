@@ -1,0 +1,8 @@
+--- [2026-02-05T17:29:00.033Z] MỚI TRUY CẬP ---
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 115.75.248.16
+Tọa độ: 10.936629304778126, 106.79418480030965
+Độ chính xác: 13.15380949415588m
+Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.936629304778126,106.79418480030965
+----------------------------------

