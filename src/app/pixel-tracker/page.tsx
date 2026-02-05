@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -119,7 +120,7 @@ export default function PixelTrackerPage() {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          
+          <SidebarTrigger />
           <h1 className="text-xl font-bold font-headline">Tạo Pixel Theo dõi</h1>
           <div className="ml-auto">
             <Button onClick={handleSave} disabled={saving}>

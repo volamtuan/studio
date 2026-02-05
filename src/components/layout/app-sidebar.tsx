@@ -66,10 +66,9 @@ export function AppSidebar() {
     fetchUser();
   }, [router]);
 
-  const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
+  const handleLogout = async () => {
     await logoutAction();
-    router.push('/login')
+    router.push('/login');
   }
 
   const hasPermission = (permission: string | null) => {
@@ -129,11 +128,9 @@ export function AppSidebar() {
              </SidebarMenuButton>
            </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-muted-foreground hover:text-destructive">
-              <a href="/login" onClick={handleLogout}>
+            <SidebarMenuButton onClick={handleLogout} className="text-muted-foreground hover:text-destructive">
                 <LogOut className="h-4 w-4" />
                 <span>Đăng Xuất</span>
-              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

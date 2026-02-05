@@ -191,7 +191,7 @@ export default function UsersPage() {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          
+          <SidebarTrigger />
           <h1 className="flex items-center gap-2 text-xl font-bold font-headline">
             <Users />
             Quản lý Người dùng
