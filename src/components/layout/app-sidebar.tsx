@@ -9,7 +9,8 @@ import {
   ShieldCheck, 
   LogOut,
   Zap,
-  FileKey2
+  FileKey2,
+  Settings
 } from "lucide-react"
 import {
   Sidebar,
@@ -35,6 +36,11 @@ const mainNav = [
     title: "Access Logs",
     url: "/admin",
     icon: FileKey2,
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
   },
 ]
 

