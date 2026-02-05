@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -21,7 +20,7 @@ import {
   SidebarGroupLabel,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 const mainNav = [
   {
@@ -43,6 +42,33 @@ const mainNav = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isVerified, setIsVerified] = React.useState(false)
+
+  React.useEffect(() => {
+    try {
+      const isAuthenticated = sessionStorage.getItem('isAuthenticated')
+      if (isAuthenticated === 'true') {
+        setIsVerified(true)
+      } else {
+        router.replace('/login')
+      }
+    } catch (error) {
+      router.replace('/login')
+    }
+  }, [router])
+
+  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    sessionStorage.removeItem('isAuthenticated')
+    router.push('/login')
+  }
+
+  if (!isVerified) {
+    // Return null or a skeleton loader to prevent rendering the sidebar
+    // and its content before authentication check is complete.
+    return null
+  }
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border bg-sidebar">
@@ -82,10 +108,10 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="text-muted-foreground hover:text-destructive">
-              <Link href="/login">
+              <a href="/login" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
                 <span>Đăng Xuất</span>
-              </Link>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

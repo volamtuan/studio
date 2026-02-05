@@ -23,7 +23,8 @@ export default function LoginPage() {
 
     // Simulate auth delay
     setTimeout(() => {
-      if (username === "admin" && password === "123") {
+      if (username === "vlt" && password === "123") {
+        sessionStorage.setItem('isAuthenticated', 'true');
         router.push("/dashboard")
       } else {
           setError("Tên đăng nhập hoặc mật khẩu không hợp lệ.")
@@ -52,7 +53,7 @@ export default function LoginPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Tên đăng nhập</Label>
-                <Input id="username" name="username" placeholder="admin" required className="bg-muted/30" />
+                <Input id="username" name="username" placeholder="vlt" required className="bg-muted/30" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Mật khẩu</Label>
