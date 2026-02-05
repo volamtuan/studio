@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { getLogContentAction } from '../actions/logs';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 
 interface RecentLog {
@@ -179,24 +178,16 @@ export default function DashboardPage() {
                                             </TableCell>
                                             <TableCell className="text-sm">
                                                 <div className="font-medium truncate max-w-xs">{log.address}</div>
-                                                {log.coordinates !== 'N/A' ? (
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <div className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit">
-                                                                <MapPin className="h-3 w-3" />
-                                                                <span>{log.coordinates} (acc: {log.accuracy})</span>
-                                                            </div>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="p-0 w-80 h-64 border-0">
-                                                            <iframe
-                                                                className="w-full h-full rounded-md"
-                                                                loading="lazy"
-                                                                allowFullScreen
-                                                                src={`https://maps.google.com/maps?q=${log.coordinates}&hl=vi&z=15&output=embed`}
-                                                                >
-                                                            </iframe>
-                                                        </PopoverContent>
-                                                    </Popover>
+                                                {log.coordinates !== 'N/A' && log.mapLink !== 'N/A' ? (
+                                                    <a
+                                                      href={log.mapLink}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit"
+                                                    >
+                                                      <MapPin className="h-3 w-3" />
+                                                      <span>{log.coordinates} (acc: {log.accuracy})</span>
+                                                    </a>
                                                 ) : (
                                                      <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
                                                 )}

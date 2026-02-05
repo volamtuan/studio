@@ -198,7 +198,9 @@ export default function ImageLoggerPage() {
                           <p className="font-semibold text-sm truncate">{link.title}</p>
                           <div className="mt-2 flex items-center gap-2 bg-muted/50 p-2 rounded-md">
                             <ImageIcon className="h-3 w-3 text-muted-foreground shrink-0"/>
-                            <p className="text-xs font-code text-muted-foreground truncate">/i/{link.id}</p>
+                             <a href={link.imageUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-code text-muted-foreground truncate hover:text-primary hover:underline" title="Xem ảnh gốc">
+                                /i/{link.id}
+                              </a>
                           </div>
                         </div>
                         <div className="flex gap-2 self-start sm:self-center shrink-0">
