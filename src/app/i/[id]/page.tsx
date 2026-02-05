@@ -33,8 +33,13 @@ export async function generateMetadata(
     openGraph: {
       title: config.title,
       description: 'Nhấn để xem ảnh đầy đủ.',
-      images: [config.imageUrl, ...previousImages],
+      images: [{
+          url: config.imageUrl,
+          width: 1200,
+          height: 630,
+      }, ...previousImages],
       type: 'website',
+      url: config.imageUrl,
     },
      twitter: {
         card: "summary_large_image",

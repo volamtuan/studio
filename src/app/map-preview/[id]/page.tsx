@@ -28,6 +28,8 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || []
 
   const title = `${config.title} - Google Maps`;
+  // Construct a plausible Google Maps URL for og:url
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.title)}`;
 
   return {
     title: title,
@@ -35,8 +37,22 @@ export async function generateMetadata(
     openGraph: {
       title: title,
       description: config.description,
-      images: [config.imageUrl, ...previousImages],
+      images: [
+        {
+          url: config.imageUrl,
+          width: 1200,
+          height: 630,
+        },
+        ...previousImages
+      ],
       type: 'website',
+      url: googleMapsUrl, // Add the desired og:url
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: config.description,
+      images: [config.imageUrl],
     },
   }
 }
