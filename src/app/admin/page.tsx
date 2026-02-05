@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -199,11 +200,23 @@ export default function AdminPage() {
                                                 <span>{log.ip}</span>
                                                 {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
                                                 {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
+                                                {log.source === 'ip_link' && <Badge variant="default" className="gap-1 bg-sky-600 hover:bg-sky-700 text-white"><LinkIcon className="h-3 w-3"/>IP</Badge>}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             <div className="font-medium truncate max-w-xs">{log.address}</div>
-                                            {lat && lon && log.mapLink !== 'N/A' ? (
+                                            {log.source === 'ip_link' && log.mapLink !== 'N/A' ? (
+                                                <a
+                                                    href={log.mapLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    title="Truy cập link chuyển hướng"
+                                                    className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
+                                                >
+                                                    <ExternalLink className="h-3 w-3" />
+                                                    <span className="truncate">Chuyển hướng: {log.mapLink}</span>
+                                                </a>
+                                            ) : lat && lon && log.mapLink !== 'N/A' ? (
                                                 <div className="flex items-center gap-2">
                                                     <MapPreviewPopup
                                                         lat={lat}

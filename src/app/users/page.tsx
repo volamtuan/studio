@@ -1,3 +1,4 @@
+
 'use client'
 
 import * as React from 'react'
@@ -142,6 +143,7 @@ export default function UsersPage() {
     admin: 'Quản trị viên',
     map_links: 'Tạo Link Map',
     image_links: 'Tạo Link Ảnh',
+    ip_links: 'Tạo Link Lấy IP',
   }
 
   return (
@@ -192,7 +194,7 @@ export default function UsersPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Quyền truy cập</Label>
-                    <div className="flex flex-col sm:flex-row gap-4 rounded-lg border p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-lg border p-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox id="map_links" name="permissions" value="map_links" />
                         <Label htmlFor="map_links">Tạo Link Google Map</Label>
@@ -204,6 +206,14 @@ export default function UsersPage() {
                           value="image_links"
                         />
                         <Label htmlFor="image_links">Tạo Link Theo dõi Ảnh</Label>
+                      </div>
+                       <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="ip_links"
+                          name="permissions"
+                          value="ip_links"
+                        />
+                        <Label htmlFor="ip_links">Tạo Link Lấy IP</Label>
                       </div>
                     </div>
                   </div>
