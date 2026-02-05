@@ -5,3 +5,11 @@ Tọa độ: 10.936440866426018, 106.79407956626822
 Địa chỉ: Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
 Link Google Maps: https://www.google.com/maps?q=10.936440866426018,106.79407956626822
 ----------------------------------
+--- [2026-02-05T17:20:14.572Z] MỚI TRUY CẬP ---
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 115.75.248.16
+Tọa độ: 10.93662982967615, 106.79418608747038
+Độ chính xác: 14.295014m
+Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.93662982967615,106.79418608747038
+----------------------------------
