@@ -4,15 +4,58 @@ import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, RefreshCw, Download, Trash2 } from 'lucide-react'
+import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin } from 'lucide-react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { getLogContentAction, deleteLogsAction } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
+interface LogEntry {
+  timestamp: string;
+  source: string;
+  device: string;
+  ip: string;
+  coordinates: string;
+  accuracy: string;
+  address: string;
+  mapLink: string;
+}
+
+function parseValue(entry: string, label: string): string {
+  const match = entry.match(new RegExp(`${label}: (.*)`));
+  return match ? match[1].trim() : 'N/A';
+}
+
+function parseLogContent(content: string): LogEntry[] {
+  if (!content || content.trim() === '') {
+    return [];
+  }
+  const entries = content.split('--- [').filter(e => e.trim() !== '');
+  
+  const allLogs: LogEntry[] = entries.map(entry => {
+    const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
+    return {
+        timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
+        source: parseValue(entry, 'Nguồn'),
+        device: parseValue(entry, 'Thiết bị'),
+        ip: parseValue(entry, 'Địa chỉ IP'),
+        coordinates: parseValue(entry, 'Tọa độ'),
+        accuracy: parseValue(entry, 'Độ chính xác'),
+        address: parseValue(entry, 'Địa chỉ'),
+        mapLink: parseValue(entry, 'Link Google Maps'),
+    };
+  });
+
+  return allLogs.reverse(); // Newest first
+}
+
+
 export default function AdminPage() {
-  const [logContent, setLogContent] = React.useState("Đang tải nhật ký...")
+  const [rawLogContent, setRawLogContent] = React.useState("")
+  const [parsedLogs, setParsedLogs] = React.useState<LogEntry[]>([])
   const [loading, setLoading] = React.useState(true)
   const [autoRefresh, setAutoRefresh] = React.useState(true)
   const { toast } = useToast()
@@ -32,9 +75,9 @@ export default function AdminPage() {
   }, [router, toast]);
 
   const fetchLogs = React.useCallback(async () => {
-    // We don't set loading to true on refresh to prevent the loading state from flashing.
     const content = await getLogContentAction()
-    setLogContent(content)
+    setRawLogContent(content)
+    setParsedLogs(parseLogContent(content))
     setLoading(false)
   }, [])
 
@@ -48,7 +91,7 @@ export default function AdminPage() {
   }, [fetchLogs, autoRefresh])
 
   const handleDownload = () => {
-    const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([rawLogContent], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -75,7 +118,7 @@ export default function AdminPage() {
           title: "Lỗi",
           description: result.message,
         })
-        setLoading(false) // Ensure loading is turned off on failure
+        setLoading(false)
       }
     }
   }
@@ -97,7 +140,7 @@ export default function AdminPage() {
               <RefreshCw className={`h-4 w-4 ${autoRefresh ? "animate-spin" : ""}`} /> 
               {autoRefresh ? "Tự động làm mới" : "Làm mới thủ công"}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || !logContent}>
+            <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || !rawLogContent}>
               <Download className="h-4 w-4" />
                <span className="ml-2 hidden sm:inline">Tải xuống</span>
             </Button>
@@ -113,16 +156,71 @@ export default function AdminPage() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  logs/tracking_logs.txt
+                  Toàn bộ nhật ký từ logs/tracking_logs.txt
                 </div>
+                <Badge variant="outline">Tổng: {parsedLogs.length} lượt</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[65vh] rounded-md border bg-muted/20 p-4 font-code">
-                <pre className="text-sm text-foreground whitespace-pre-wrap">
-                  {loading ? "Đang tải nhật ký..." : logContent}
-                </pre>
-              </ScrollArea>
+              <div className="border rounded-md">
+                <ScrollArea className="h-[68vh]">
+                    <Table>
+                        <TableHeader className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
+                            <TableRow>
+                                <TableHead className="w-[180px]">Thời gian</TableHead>
+                                <TableHead>Địa chỉ IP</TableHead>
+                                <TableHead>Địa chỉ / Vị trí</TableHead>
+                                <TableHead className="hidden lg:table-cell">Thiết bị</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                <TableCell colSpan={4} className="text-center h-48 text-muted-foreground">
+                                    Đang tải nhật ký...
+                                </TableCell>
+                                </TableRow>
+                            ) : parsedLogs.length > 0 ? (
+                                parsedLogs.map((log, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
+                                        <TableCell className="font-mono text-xs">
+                                            <div className="flex items-center gap-2">
+                                                <span>{log.ip}</span>
+                                                {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
+                                                {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-sm">
+                                            <div className="font-medium truncate max-w-xs">{log.address}</div>
+                                            {log.coordinates !== 'N/A' && log.mapLink !== 'N/A' ? (
+                                                <a
+                                                    href={log.mapLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit"
+                                                >
+                                                    <MapPin className="h-3 w-3" />
+                                                    <span>{log.coordinates} (acc: {log.accuracy})</span>
+                                                </a>
+                                            ) : (
+                                                    <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">{log.device}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="text-center h-48 text-muted-foreground">
+                                        Nhật ký trống.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+              </div>
             </CardContent>
           </Card>
         </main>
