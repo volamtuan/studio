@@ -7,3 +7,18 @@ Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit
 --- [2026-02-05T08:45:42.173Z] MỚI TRUY CẬP ---
 IP: 127.0.0.1
 Thiết bị: node
+--- [2026-02-05T08:45:43.563Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T09:12:05.920Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T09:12:38.797Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T09:22:58.309Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T10:30:25.792Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
