@@ -7,13 +7,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Zap, ShieldAlert, ShieldX } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { loginAction } from "@/app/actions/users"
 
 export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
+  
+  // Clear session on load to ensure a clean login
+  React.useEffect(() => {
+    sessionStorage.removeItem('user');
+  }, [])
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
@@ -21,16 +28,15 @@ export default function LoginPage() {
     const username = (e.currentTarget.elements.namedItem("username") as HTMLInputElement)?.value
     const password = (e.currentTarget.elements.namedItem("password") as HTMLInputElement)?.value
 
-    // Simulate auth delay
-    setTimeout(() => {
-      if (username === "vlt" && password === "123") {
-        sessionStorage.setItem('isAuthenticated', 'true');
-        router.push("/dashboard")
-      } else {
-          setError("Tên đăng nhập hoặc mật khẩu không hợp lệ.")
-          setLoading(false)
-      }
-    }, 1000)
+    const result = await loginAction(username, password)
+    
+    if (result.success) {
+      sessionStorage.setItem('user', JSON.stringify(result.user));
+      router.push("/dashboard")
+    } else {
+      setError(result.message || "Đã xảy ra lỗi không xác định.")
+      setLoading(false)
+    }
   }
 
   return (
@@ -53,11 +59,11 @@ export default function LoginPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Tên đăng nhập</Label>
-                <Input id="username" name="username" placeholder="vlt" required className="bg-muted/30" />
+                <Input id="username" name="username" required className="bg-muted/30" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Mật khẩu</Label>
-                <Input id="password" name="password" type="password" placeholder="••••" required className="bg-muted/30" />
+                <Input id="password" name="password" type="password" required className="bg-muted/30" />
               </div>
               
               {error && (

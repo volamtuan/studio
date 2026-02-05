@@ -9,12 +9,27 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { getLogContentAction, deleteLogsAction } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 export default function AdminPage() {
   const [logContent, setLogContent] = React.useState("Đang tải nhật ký...")
   const [loading, setLoading] = React.useState(true)
   const [autoRefresh, setAutoRefresh] = React.useState(true)
   const { toast } = useToast()
+  const router = useRouter()
+
+  // Protect page
+  React.useEffect(() => {
+    try {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (!user.permissions?.includes('admin')) {
+        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+        router.replace('/dashboard');
+      }
+    } catch (e) {
+      router.replace('/login');
+    }
+  }, [router, toast]);
 
   const fetchLogs = React.useCallback(async () => {
     // We don't set loading to true on refresh to prevent the loading state from flashing.

@@ -9,7 +9,8 @@ import {
   FileKey2,
   Settings,
   MapPin,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Users
 } from "lucide-react"
 import {
   Sidebar,
@@ -25,63 +26,55 @@ import {
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
-const mainNav = [
-  {
-    title: "Tổng Quan",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Nhật Ký Truy Cập",
-    url: "/admin",
-    icon: FileKey2,
-  },
-  {
-    title: "Fake Link Google Map",
-    url: "/fake-link",
-    icon: MapPin,
-  },
-  {
-    title: "Liên kết Theo dõi Ảnh",
-    url: "/image-logger",
-    icon: ImageIcon,
-  },
-  {
-    title: "Cài Đặt",
-    url: "/settings",
-    icon: Settings,
-  },
+interface User {
+  username: string;
+  permissions: string[];
+}
+
+const allNav = [
+  { title: "Tổng Quan", url: "/dashboard", icon: LayoutDashboard, permission: null },
+  { title: "Nhật Ký Truy Cập", url: "/admin", icon: FileKey2, permission: "admin" },
+  { title: "Fake Link Google Map", url: "/fake-link", icon: MapPin, permission: "map_links" },
+  { title: "Liên kết Theo dõi Ảnh", url: "/image-logger", icon: ImageIcon, permission: "image_links" },
+  { title: "Quản lý Người dùng", url: "/users", icon: Users, permission: "admin" },
+  { title: "Cài Đặt", url: "/settings", icon: Settings, permission: "admin" },
 ]
 
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const [isVerified, setIsVerified] = React.useState(false)
+  const [user, setUser] = React.useState<User | null>(null);
 
   React.useEffect(() => {
     try {
-      const isAuthenticated = sessionStorage.getItem('isAuthenticated')
-      if (isAuthenticated === 'true') {
-        setIsVerified(true)
+      const userData = sessionStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
       } else {
-        router.replace('/login')
+        router.replace('/login');
       }
     } catch (error) {
-      router.replace('/login')
+      router.replace('/login');
     }
-  }, [router])
+  }, [router]);
 
   const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    sessionStorage.removeItem('isAuthenticated')
+    sessionStorage.removeItem('user')
     router.push('/login')
   }
 
-  if (!isVerified) {
-    // Return null or a skeleton loader to prevent rendering the sidebar
-    // and its content before authentication check is complete.
-    return null
+  const hasPermission = (permission: string | null) => {
+    if (!permission) return true; // Public link
+    if (!user) return false;
+    return user.permissions.includes('admin') || user.permissions.includes(permission);
   }
+
+  if (!user) {
+    return null;
+  }
+  
+  const availableNav = allNav.filter(item => hasPermission(item.permission));
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border bg-sidebar">
@@ -99,7 +92,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Phân Tích</SidebarGroupLabel>
           <SidebarMenu>
-            {mainNav.map((item) => (
+            {availableNav.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   asChild 
@@ -119,6 +112,14 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-border/50 p-4">
         <SidebarMenu>
+           <SidebarMenuItem>
+             <SidebarMenuButton disabled className="justify-start pointer-events-none">
+                <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sidebar-accent-foreground font-bold">
+                  {user?.username.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-bold">{user?.username}</span>
+             </SidebarMenuButton>
+           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="text-muted-foreground hover:text-destructive">
               <a href="/login" onClick={handleLogout}>

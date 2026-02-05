@@ -7,7 +7,7 @@ import path from 'path';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin } from "lucide-react"
+import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin, Clock } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -31,6 +31,7 @@ interface LogStats {
   totalVisits: number;
   uniqueIps: number;
   recentLogs: RecentLog[];
+  visitsInLast5Mins: number;
 }
 
 function parseValue(entry: string, label: string): string {
@@ -45,38 +46,56 @@ async function getLogStats(content: string): Promise<LogStats> {
     const allIps = entries.map(e => parseValue(e, 'Địa chỉ IP')).filter(ip => ip !== 'N/A');
     const uniqueIps = new Set(allIps).size;
     
-    const recentLogs: RecentLog[] = entries.slice(-10).reverse().map(entry => {
-      const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
-      return { 
-        timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
-        ip: parseValue(entry, 'Địa chỉ IP'),
-        device: parseValue(entry, 'Thiết bị'),
-        address: parseValue(entry, 'Địa chỉ'),
-        coordinates: parseValue(entry, 'Tọa độ'),
-        accuracy: parseValue(entry, 'Độ chính xác'),
-        mapLink: parseValue(entry, 'Link Google Maps'),
-        source: parseValue(entry, 'Nguồn'),
-      };
+    const now = new Date().getTime();
+    const fiveMinutesAgo = now - 5 * 60 * 1000;
+
+    const recentLogs: RecentLog[] = [];
+    let visitsInLast5Mins = 0;
+
+    entries.forEach(entry => {
+        const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
+        if (timestampMatch) {
+            const logDate = new Date(timestampMatch[1]);
+            if (logDate.getTime() >= fiveMinutesAgo) {
+                visitsInLast5Mins++;
+            }
+
+            // We still only want the last 10 for the table
+            if (entries.length - entries.indexOf(entry) <= 10) {
+                 recentLogs.push({
+                    timestamp: logDate.toLocaleString('vi-VN'),
+                    ip: parseValue(entry, 'Địa chỉ IP'),
+                    device: parseValue(entry, 'Thiết bị'),
+                    address: parseValue(entry, 'Địa chỉ'),
+                    coordinates: parseValue(entry, 'Tọa độ'),
+                    accuracy: parseValue(entry, 'Độ chính xác'),
+                    mapLink: parseValue(entry, 'Link Google Maps'),
+                    source: parseValue(entry, 'Nguồn'),
+                });
+            }
+        }
     });
 
     return {
       totalVisits: entries.length,
       uniqueIps,
-      recentLogs
+      recentLogs: recentLogs.reverse(),
+      visitsInLast5Mins,
     };
 
   } catch (error) {
     return {
       totalVisits: 0,
       uniqueIps: 0,
-      recentLogs: []
+      recentLogs: [],
+      visitsInLast5Mins: 0,
     };
   }
 }
 
 
 export default function DashboardPage() {
-  const [statsData, setStatsData] = React.useState<LogStats>({ totalVisits: 0, uniqueIps: 0, recentLogs: [] });
+  const [statsData, setStatsData] = React.useState<LogStats>({ totalVisits: 0, uniqueIps: 0, recentLogs: [], visitsInLast5Mins: 0 });
   const [loading, setLoading] = React.useState(true);
 
   const fetchStats = React.useCallback(async () => {
@@ -95,6 +114,7 @@ export default function DashboardPage() {
   const statsCards = [
       { title: "Tổng Lượt Truy Cập", value: statsData.totalVisits.toLocaleString(), icon: Users },
       { title: "IP Duy Nhất", value: statsData.uniqueIps.toLocaleString(), icon: Globe },
+      { title: "Người dùng trong 5 phút", value: statsData.visitsInLast5Mins.toLocaleString(), icon: Clock },
   ];
 
   return (
@@ -107,7 +127,7 @@ export default function DashboardPage() {
         </header>
 
         <main className="flex-1 p-6">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
                 {statsCards.map((stat) => (
                     <Card key={stat.title}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -117,7 +137,7 @@ export default function DashboardPage() {
                         <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stat.value}</div>
+                        <div className="text-2xl font-bold">{loading ? "..." : stat.value}</div>
                     </CardContent>
                     </Card>
                 ))}

@@ -32,6 +32,7 @@ import { getVerificationConfigAction, updateVerificationConfigAction, type Verif
 import { Bot, Save } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -49,7 +50,21 @@ const formSchema = z.object({
 
 export default function SettingsPage() {
   const { toast } = useToast()
+  const router = useRouter()
   const [loading, setLoading] = React.useState(true);
+
+  // Protect page
+  React.useEffect(() => {
+    try {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (!user.permissions?.includes('admin')) {
+        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+        router.replace('/dashboard');
+      }
+    } catch (e) {
+      router.replace('/login');
+    }
+  }, [router, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
