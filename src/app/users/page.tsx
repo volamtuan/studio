@@ -145,6 +145,7 @@ export default function UsersPage() {
     image_links: 'Tạo Link Ảnh',
     ip_links: 'Tạo Link Lấy IP',
     file_creator: 'Tạo File DOCX',
+    pixel_tracker: 'Tạo Pixel Theo dõi',
   }
 
   return (
@@ -223,6 +224,14 @@ export default function UsersPage() {
                           value="file_creator"
                         />
                         <Label htmlFor="file_creator">Tạo File DOCX</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="pixel_tracker"
+                          name="permissions"
+                          value="pixel_tracker"
+                        />
+                        <Label htmlFor="pixel_tracker">Tạo Pixel Theo dõi</Label>
                       </div>
                     </div>
                   </div>
