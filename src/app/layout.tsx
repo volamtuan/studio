@@ -32,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <head />
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
       <body className="antialiased">
         {children}
         <Toaster />

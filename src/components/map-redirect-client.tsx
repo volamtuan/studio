@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -119,7 +120,7 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
   }
   
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-svh bg-background">
       {/* Image Header */}
       <div className="relative w-full h-60 sm:h-72 flex-shrink-0">
         <Image 

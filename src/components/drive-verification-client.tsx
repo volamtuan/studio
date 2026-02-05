@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -147,7 +148,7 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-muted/30 p-4">
+    <div className="flex justify-center items-center min-h-svh bg-muted/30 p-4">
       <Card className="p-8 sm:p-10 rounded-xl shadow-2xl text-center max-w-md w-full bg-card border">
         <CardContent className="p-0 flex flex-col items-center">
           

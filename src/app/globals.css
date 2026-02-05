@@ -65,12 +65,7 @@
     --input: 260 10% 20%;
     --ring: 285 100% 50%;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
   body {
     @apply bg-background text-foreground font-body;
     -webkit-font-smoothing: antialiased;

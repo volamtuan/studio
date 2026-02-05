@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -87,7 +88,7 @@ export function ImageRedirectClient({ imageUrl }: ImageRedirectClientProps) {
       position: 'fixed',
       inset: 0,
       width: '100vw',
-      height: '100vh',
+      height: '100svh',
       backgroundColor: '#000',
     }}>
       <Image
