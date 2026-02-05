@@ -26,3 +26,50 @@ Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit
 --- [2026-02-05T08:12:26.307Z] MỚI TRUY CẬP ---
 IP: 127.0.0.1
 Thiết bị: node
+--- [2026-02-05T08:12:27.422Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:13:32.812Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:13:58.330Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Tọa độ: 10.923216039473486, 106.82414715969672
+Độ chính xác: 10.629218592164987m
+Link Google Maps: https://www.google.com/maps?q=10.923216039473486,106.82414715969672
+----------------------------------
+--- [2026-02-05T08:15:30.534Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:16:58.834Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:17:00.732Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:18:16.035Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:18:42.774Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:18:52.890Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:19:09.581Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: WhatsApp/2
+--- [2026-02-05T08:19:25.329Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/698 ZaloTheme/light ZaloLanguage/vn
+Tọa độ: 10.967947266631944, 106.86235593914589
+Độ chính xác: 35m
+Link Google Maps: https://www.google.com/maps?q=10.967947266631944,106.86235593914589
+----------------------------------
+--- [2026-02-05T08:21:29.950Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+--- [2026-02-05T08:24:45.425Z] MỚI TRUY CẬP ---
+IP: 127.0.0.1
+Thiết bị: node

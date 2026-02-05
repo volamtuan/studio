@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -24,7 +23,7 @@ export default function LoginPage() {
 
     // Simulate auth delay
     setTimeout(() => {
-      if (username === "admin" && password === "pass") {
+      if (username === "admin" && password === "123") {
         router.push("/dashboard")
       } else {
           setError("Invalid username or password.")
