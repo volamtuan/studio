@@ -32,13 +32,13 @@ import { getVerificationConfigAction, updateVerificationConfigAction, type Verif
 import { Save } from "lucide-react"
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required."),
-  description: z.string().min(1, "Description is required."),
-  fileName: z.string().min(1, "File name is required."),
-  fileInfo: z.string().min(1, "File info is required."),
-  buttonText: z.string().min(1, "Button text is required."),
-  footerText: z.string().min(1, "Footer text is required."),
-  redirectUrl: z.string().url("Must be a valid URL."),
+  title: z.string().min(1, "Tiêu đề là bắt buộc."),
+  description: z.string().min(1, "Mô tả là bắt buộc."),
+  fileName: z.string().min(1, "Tên tệp là bắt buộc."),
+  fileInfo: z.string().min(1, "Thông tin tệp là bắt buộc."),
+  buttonText: z.string().min(1, "Văn bản nút là bắt buộc."),
+  footerText: z.string().min(1, "Văn bản chân trang là bắt buộc."),
+  redirectUrl: z.string().url("Phải là một URL hợp lệ."),
 })
 
 export default function SettingsPage() {
@@ -67,8 +67,8 @@ export default function SettingsPage() {
       } catch (error) {
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Could not load settings.",
+          title: "Lỗi",
+          description: "Không thể tải cài đặt.",
         })
       }
       setLoading(false)
@@ -82,14 +82,14 @@ export default function SettingsPage() {
     const result = await updateVerificationConfigAction(values)
     if (result.success) {
       toast({
-        title: "Success",
+        title: "Thành công",
         description: result.message,
       })
       form.reset(values) // Reset form to new values, making it "not dirty"
     } else {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Lỗi",
         description: result.message,
       })
     }
@@ -102,16 +102,16 @@ export default function SettingsPage() {
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
-          <h1 className="text-xl font-bold font-headline">Verification Page Settings</h1>
+          <h1 className="text-xl font-bold font-headline">Cài Đặt Trang Xác Minh</h1>
         </header>
         <main className="flex-1 p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <Card>
                 <CardHeader>
-                  <CardTitle>Customize UI</CardTitle>
+                  <CardTitle>Tùy Chỉnh Giao Diện</CardTitle>
                   <CardDescription>
-                    Change the text and links displayed on the public verification page.
+                    Thay đổi văn bản và liên kết được hiển thị trên trang xác minh công khai.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -120,7 +120,7 @@ export default function SettingsPage() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Main Title</FormLabel>
+                        <FormLabel>Tiêu Đề Chính</FormLabel>
                         <FormControl>
                           <Input placeholder="Xác minh để tiếp tục" {...field} />
                         </FormControl>
@@ -133,7 +133,7 @@ export default function SettingsPage() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description Text</FormLabel>
+                        <FormLabel>Văn Bản Mô Tả</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Để bảo vệ tệp và ngăn chặn truy cập trái phép..."
@@ -150,7 +150,7 @@ export default function SettingsPage() {
                       name="fileName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>File Name</FormLabel>
+                          <FormLabel>Tên Tệp</FormLabel>
                           <FormControl>
                             <Input placeholder="Tai-lieu-quan-trong.pdf" {...field} />
                           </FormControl>
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                       name="fileInfo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>File Info</FormLabel>
+                          <FormLabel>Thông Tin Tệp</FormLabel>
                           <FormControl>
                             <Input placeholder="1.2 MB - Tệp an toàn" {...field} />
                           </FormControl>
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                     name="buttonText"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Button Text</FormLabel>
+                        <FormLabel>Văn Bản Nút</FormLabel>
                         <FormControl>
                           <Input placeholder="Xác minh & Tải xuống" {...field} />
                         </FormControl>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
                     name="footerText"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Footer Text</FormLabel>
+                        <FormLabel>Văn Bản Chân Trang</FormLabel>
                         <FormControl>
                           <Input placeholder="Thông tin vị trí của bạn..." {...field} />
                         </FormControl>
@@ -203,11 +203,11 @@ export default function SettingsPage() {
                     name="redirectUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Redirect URL</FormLabel>
+                        <FormLabel>URL Chuyển Hướng</FormLabel>
                         <FormControl>
                           <Input placeholder="https://www.facebook.com" {...field} />
                         </FormControl>
-                        <FormDescription>The URL users are sent to after verification.</FormDescription>
+                        <FormDescription>URL mà người dùng được chuyển đến sau khi xác minh.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -216,7 +216,7 @@ export default function SettingsPage() {
                 <CardFooter className="border-t px-6 py-4">
                   <Button type="submit" disabled={loading || !form.formState.isDirty}>
                     <Save className="mr-2 h-4 w-4" />
-                    {loading ? 'Saving...' : 'Save Changes'}
+                    {loading ? 'Đang lưu...' : 'Lưu Thay Đổi'}
                   </Button>
                 </CardFooter>
               </Card>

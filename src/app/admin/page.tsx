@@ -11,8 +11,9 @@ import { getLogContentAction, deleteLogsAction } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
 
 export default function AdminPage() {
-  const [logContent, setLogContent] = React.useState("Loading logs...")
+  const [logContent, setLogContent] = React.useState("Đang tải nhật ký...")
   const [loading, setLoading] = React.useState(true)
+  const [autoRefresh, setAutoRefresh] = React.useState(true)
   const { toast } = useToast()
 
   const fetchLogs = React.useCallback(async () => {
@@ -24,7 +25,12 @@ export default function AdminPage() {
 
   React.useEffect(() => {
     fetchLogs()
-  }, [fetchLogs])
+    let interval: any
+    if (autoRefresh) {
+      interval = setInterval(fetchLogs, 2000)
+    }
+    return () => clearInterval(interval)
+  }, [fetchLogs, autoRefresh])
 
   const handleDownload = () => {
     const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' })
@@ -39,19 +45,19 @@ export default function AdminPage() {
   }
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete all access logs? This action cannot be undone.")) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa tất cả nhật ký truy cập không? Hành động này không thể hoàn tác.")) {
       setLoading(true)
       const result = await deleteLogsAction()
       if (result.success) {
         toast({
-          title: "Success",
+          title: "Thành công",
           description: result.message,
         })
         await fetchLogs()
       } else {
         toast({
           variant: "destructive",
-          title: "Error",
+          title: "Lỗi",
           description: result.message,
         })
       }
@@ -65,19 +71,24 @@ export default function AdminPage() {
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
-          <h1 className="text-xl font-bold font-headline">Access Logs</h1>
+          <h1 className="text-xl font-bold font-headline">Nhật ký truy cập</h1>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              <span className="ml-2 hidden sm:inline">Refresh</span>
+             <Button 
+              variant={autoRefresh ? "secondary" : "outline"} 
+              size="sm" 
+              className="gap-2"
+              onClick={() => setAutoRefresh(!autoRefresh)}
+            >
+              <RefreshCw className={`h-4 w-4 ${autoRefresh ? "animate-spin" : ""}`} /> 
+              {autoRefresh ? "Tự động làm mới" : "Làm mới thủ công"}
             </Button>
             <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || !logContent}>
               <Download className="h-4 w-4" />
-               <span className="ml-2 hidden sm:inline">Download</span>
+               <span className="ml-2 hidden sm:inline">Tải xuống</span>
             </Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
               <Trash2 className="h-4 w-4" />
-               <span className="ml-2 hidden sm:inline">Clear Logs</span>
+               <span className="ml-2 hidden sm:inline">Xóa Nhật ký</span>
             </Button>
           </div>
         </header>
@@ -94,7 +105,7 @@ export default function AdminPage() {
             <CardContent>
               <ScrollArea className="h-[65vh] rounded-md border bg-muted/20 p-4 font-code">
                 <pre className="text-sm text-foreground whitespace-pre-wrap">
-                  {loading ? "Loading logs..." : logContent}
+                  {loading ? "Đang tải nhật ký..." : logContent}
                 </pre>
               </ScrollArea>
             </CardContent>

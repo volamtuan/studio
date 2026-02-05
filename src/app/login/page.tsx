@@ -26,7 +26,7 @@ export default function LoginPage() {
       if (username === "admin" && password === "123") {
         router.push("/dashboard")
       } else {
-          setError("Invalid username or password.")
+          setError("Tên đăng nhập hoặc mật khẩu không hợp lệ.")
           setLoading(false)
       }
     }, 1000)
@@ -39,23 +39,23 @@ export default function LoginPage() {
           <div className="mx-auto w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
             <Zap className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-headline font-bold">Admin Console</h1>
-          <p className="text-muted-foreground">Access Management</p>
+          <h1 className="text-3xl font-headline font-bold">Bảng Điều Khiển</h1>
+          <p className="text-muted-foreground">Quản Lý Truy Cập</p>
         </div>
 
         <Card className="bg-card/50 backdrop-blur-sm border-border shadow-2xl">
           <form onSubmit={handleLogin}>
             <CardHeader>
-              <CardTitle>Sign In</CardTitle>
-              <CardDescription>Enter credentials to access the admin dashboard.</CardDescription>
+              <CardTitle>Đăng Nhập</CardTitle>
+              <CardDescription>Nhập thông tin để truy cập.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Tên đăng nhập</Label>
                 <Input id="username" name="username" placeholder="admin" required className="bg-muted/30" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mật khẩu</Label>
                 <Input id="password" name="password" type="password" placeholder="••••" required className="bg-muted/30" />
               </div>
               
@@ -71,20 +71,20 @@ export default function LoginPage() {
               <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-3 mt-4">
                 <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <p className="text-xs text-destructive">
-                  Unauthorized access is strictly prohibited. All IP addresses and login attempts are being logged.
+                  Nghiêm cấm truy cập trái phép. Mọi địa chỉ IP và nỗ lực đăng nhập đều được ghi lại.
                 </p>
               </div>
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
-                {loading ? "Authenticating..." : "Login to Dashboard"}
+                {loading ? "Đang xác thực..." : "Đăng Nhập"}
               </Button>
             </CardFooter>
           </form>
         </Card>
         
         <p className="text-center text-xs text-muted-foreground">
-          &copy; 2024 Secure Access Systems. All rights reserved.
+          &copy; 2024 Hệ thống truy cập an toàn. Bảo lưu mọi quyền.
         </p>
       </div>
     </div>

