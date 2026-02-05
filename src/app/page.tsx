@@ -6,7 +6,29 @@ import { DriveVerificationClient } from '@/components/drive-verification-client'
 
 async function logInitialAccess() {
   const headersList = headers();
-  const ip = headersList.get('x-vercel-forwarded-for') ?? headersList.get('x-forwarded-for') ?? 'unknown';
+
+  // This logic is designed to find the most accurate client IP address,
+  // especially when the app is behind proxies (like Vercel or Ngrok).
+  // It checks standard headers and takes the first IP address from any
+  // comma-separated lists, which is the standard way to identify the
+  // original client.
+  const getClientIp = () => {
+    const vercelIp = headersList.get('x-vercel-forwarded-for');
+    if (vercelIp) {
+      return vercelIp.split(',')[0].trim();
+    }
+
+    const forwardedFor = headersList.get('x-forwarded-for');
+    if (forwardedFor) {
+      return forwardedFor.split(',')[0].trim();
+    }
+    
+    // When running locally, headers might not be present.
+    // Fallback to a local IP address to match behavior of original app.
+    return '127.0.0.1';
+  };
+
+  const ip = getClientIp();
   const ua = headersList.get('user-agent') ?? 'unknown';
   const logDir = path.join(process.cwd(), 'logs');
   const logFile = path.join(logDir, 'tracking_logs.txt');
