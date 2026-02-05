@@ -70,6 +70,7 @@ const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
     'ip_links', 
     'file_creator',
     'link_cloaker',
+    'pixel_tracker'
 ];
 
 
@@ -80,6 +81,7 @@ const permissionLabels: { [key in UserPermission]: string } = {
   ip_links: 'Tạo Link Lấy IP',
   file_creator: 'Tạo File DOCX',
   link_cloaker: 'Tạo Link Bọc',
+  pixel_tracker: 'Tạo Pixel Theo dõi',
 }
 
 export default function UsersPage() {
@@ -189,7 +191,7 @@ export default function UsersPage() {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
+          
           <h1 className="flex items-center gap-2 text-xl font-bold font-headline">
             <Users />
             Quản lý Người dùng

@@ -136,7 +136,7 @@ export default function AdminPage() {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
+          
           <h1 className="text-xl font-bold font-headline">Nhật ký truy cập</h1>
           <div className="ml-auto flex items-center gap-2">
              <Button 
@@ -203,8 +203,8 @@ export default function AdminPage() {
                                                 {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
                                                 {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
                                                 {log.source === 'ip_link' && <Badge variant="default" className="gap-1 bg-sky-600 hover:bg-sky-700 text-white"><LinkIcon className="h-3 w-3"/>IP</Badge>}
-                                                
                                                 {log.source === 'cloaker' && <Badge variant="default" className="gap-1 bg-orange-500 hover:bg-orange-600 text-white"><Package className="h-3 w-3"/>Bọc</Badge>}
+                                                {log.source === 'pixel_tracker' && <Badge variant="destructive" className="gap-1"><Binary className="h-3 w-3"/>Pixel</Badge>}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-sm">

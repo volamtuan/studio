@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { getPixelLinksAction, savePixelLinksAction, type PixelLinkConfig } from "@/app/actions/pixel-links"
 import { Copy, PlusCircle, Save, Trash2, Binary } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -29,15 +30,14 @@ export default function PixelTrackerPage() {
   const [origin, setOrigin] = React.useState("")
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin') && !user.permissions?.includes('pixel_tracker')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('pixel_tracker'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   React.useEffect(() => {
@@ -119,7 +119,7 @@ export default function PixelTrackerPage() {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
+          
           <h1 className="text-xl font-bold font-headline">Tạo Pixel Theo dõi</h1>
           <div className="ml-auto">
             <Button onClick={handleSave} disabled={saving}>

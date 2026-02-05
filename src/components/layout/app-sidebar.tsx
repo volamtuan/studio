@@ -44,6 +44,7 @@ const allNav = [
   { title: "Tạo Link Lấy IP", url: "/ip-logger", icon: LinkIcon, permission: "ip_links" },
   { title: "Tạo File DOCX", url: "/file-creator", icon: FilePlus2, permission: "file_creator" },
   { title: "Link Bọc", url: "/cloaker", icon: Package, permission: "link_cloaker" },
+  { title: "Tạo Pixel Theo dõi", url: "/pixel-tracker", icon: Binary, permission: "pixel_tracker" },
   { title: "Quản lý Người dùng", url: "/users", icon: Users, permission: "admin" },
   { title: "Cài Đặt", url: "/settings", icon: Settings, permission: "admin" },
 ]

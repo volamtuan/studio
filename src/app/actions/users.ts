@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 
 const usersConfigPath = path.join(process.cwd(), 'src', 'config', 'users.json');
 
-export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'link_cloaker';
+export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'link_cloaker' | 'pixel_tracker';
 
 export interface User {
   username: string;
