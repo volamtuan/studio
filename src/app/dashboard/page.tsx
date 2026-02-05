@@ -4,18 +4,25 @@ import path from 'path';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart, Users, MapPin } from "lucide-react"
+import { Users, MapPin, Link as LinkIcon } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const logFile = path.join(process.cwd(), 'logs', 'tracking_logs.txt');
 
 interface RecentLog {
   timestamp: string;
-  ip: string;
-  isp: string;
-  country: string;
-  location: string;
   device: string;
+  address: string;
+  coordinates: string;
+  accuracy: string;
+  mapLink: string;
+}
+
+function parseValue(entry: string, label: string): string {
+    const match = entry.match(new RegExp(`${label}: (.*)`));
+    return match ? match[1].trim() : 'N/A';
 }
 
 async function getLogStats() {
@@ -23,39 +30,23 @@ async function getLogStats() {
     const content = await fs.readFile(logFile, 'utf-8');
     const entries = content.split('--- [').filter(e => e.trim() !== '');
 
-    const uniqueIps = new Set<string>();
-    entries.forEach(entry => {
-        const ipMatch = entry.match(/Địa chỉ IP: (.*?)\n/);
-        if (ipMatch && ipMatch[1]) {
-            uniqueIps.add(ipMatch[1]);
-        }
-    });
-
     const locationsLogged = entries.filter(e => /Tọa độ:/.test(e)).length;
     
     const recentLogs: RecentLog[] = entries.slice(-10).reverse().map(entry => {
-      const lines = entry.split('\n');
-      const timestamp = lines[0]?.split(']')[0] || 'N/A';
-      
-      const getValue = (label: string) => {
-        const line = lines.find(l => l.startsWith(label + ": "));
-        return line ? line.split(': ')[1].trim() : 'N/A';
-      };
-      
+      const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
       return { 
-        timestamp,
-        ip: getValue('Địa chỉ IP'),
-        device: getValue('Thiết bị'),
-        location: getValue('Vị trí (ước tính)'),
-        country: getValue('Quốc gia'),
-        isp: getValue('Nhà cung cấp')
+        timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
+        device: parseValue(entry, 'Thiết bị'),
+        address: parseValue(entry, 'Địa chỉ'),
+        coordinates: parseValue(entry, 'Tọa độ'),
+        accuracy: parseValue(entry, 'Độ chính xác'),
+        mapLink: parseValue(entry, 'Link Google Maps'),
       };
     });
 
     return {
       totalVisits: entries.length,
       locationsLogged,
-      uniqueIps: uniqueIps.size,
       recentLogs
     };
 
@@ -64,7 +55,6 @@ async function getLogStats() {
     return {
       totalVisits: 0,
       locationsLogged: 0,
-      uniqueIps: 0,
       recentLogs: []
     };
   }
@@ -77,7 +67,6 @@ export default async function DashboardPage() {
   const statsCards = [
       { title: "Total Visits", value: statsData.totalVisits.toLocaleString(), icon: Users },
       { title: "Locations Logged", value: statsData.locationsLogged.toLocaleString(), icon: MapPin },
-      { title: "Unique IPs", value: statsData.uniqueIps.toLocaleString(), icon: BarChart }
   ];
 
   return (
@@ -90,7 +79,7 @@ export default async function DashboardPage() {
         </header>
 
         <main className="flex-1 p-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
                 {statsCards.map((stat) => (
                     <Card key={stat.title}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -110,18 +99,16 @@ export default async function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Recent Activity</CardTitle>
-                        <CardDescription>Showing the last 10 visits to the verification page.</CardDescription>
+                        <CardDescription>Showing the last 10 location-enabled visits.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[150px]">Timestamp</TableHead>
-                                    <TableHead className="w-[120px]">IP Address</TableHead>
-                                    <TableHead>Location</TableHead>
-                                    <TableHead>Country</TableHead>
-                                    <TableHead>ISP</TableHead>
-                                    <TableHead className="hidden md:table-cell">Device</TableHead>
+                                    <TableHead className="w-[180px]">Timestamp</TableHead>
+                                    <TableHead>Address</TableHead>
+                                    <TableHead className="hidden lg:table-cell">Device</TableHead>
+                                    <TableHead className="text-right">Map</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -129,16 +116,26 @@ export default async function DashboardPage() {
                                     statsData.recentLogs.map((log, index) => (
                                         <TableRow key={index}>
                                             <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
-                                            <TableCell className="font-medium">{log.ip}</TableCell>
-                                            <TableCell>{log.location}</TableCell>
-                                            <TableCell>{log.country}</TableCell>
-                                            <TableCell>{log.isp}</TableCell>
-                                            <TableCell className="hidden md:table-cell text-xs text-muted-foreground truncate max-w-xs">{log.device}</TableCell>
+                                            <TableCell className="text-sm">
+                                                <div className="font-medium truncate max-w-xs">{log.address}</div>
+                                                <div className="text-xs text-muted-foreground font-mono">
+                                                    {log.coordinates} (acc: {log.accuracy})
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">{log.device}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="outline" size="sm" asChild>
+                                                    <Link href={log.mapLink} target="_blank" rel="noopener noreferrer">
+                                                        <LinkIcon className="h-3 w-3 mr-1" />
+                                                        View
+                                                    </Link>
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
                                             No activity logged yet.
                                         </TableCell>
                                     </TableRow>
