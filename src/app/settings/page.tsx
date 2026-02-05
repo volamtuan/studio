@@ -47,13 +47,35 @@ export default function SettingsPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: async () => {
-      setLoading(true)
-      const config = await getVerificationConfigAction()
-      setLoading(false)
-      return config
-    }
+    defaultValues: {
+      title: "",
+      description: "",
+      fileName: "",
+      fileInfo: "",
+      buttonText: "",
+      footerText: "",
+      redirectUrl: "",
+    },
   })
+
+  React.useEffect(() => {
+    async function loadSettings() {
+      setLoading(true)
+      try {
+        const config = await getVerificationConfigAction()
+        form.reset(config)
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not load settings.",
+        })
+      }
+      setLoading(false)
+    }
+    loadSettings()
+  }, [form, toast])
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
@@ -63,6 +85,7 @@ export default function SettingsPage() {
         title: "Success",
         description: result.message,
       })
+      form.reset(values) // Reset form to new values, making it "not dirty"
     } else {
       toast({
         variant: "destructive",
