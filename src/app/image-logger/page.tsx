@@ -45,8 +45,8 @@ export default function ImageLoggerPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "Xem ảnh mới của tôi!",
-      imageUrl: "https://picsum.photos/seed/example/1200/630",
+      title: "Bạn có một ảnh mới!",
+      imageUrl: "https://picsum.photos/seed/pics/1200/630",
     },
   })
   
@@ -63,8 +63,8 @@ export default function ImageLoggerPage() {
       description: "Đừng quên nhấn 'Lưu thay đổi' để áp dụng.",
     })
     form.reset({
-      title: "Xem ảnh mới của tôi!",
-      imageUrl: "https://picsum.photos/seed/example/1200/630",
+      title: "Bạn có một ảnh mới!",
+      imageUrl: "https://picsum.photos/seed/pics/1200/630",
     })
   }
 
@@ -130,29 +130,29 @@ export default function ImageLoggerPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <FormField control={form.control} name="title" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tiêu đề (og:title)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Xem ảnh mới của tôi!" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
                     <FormField control={form.control} name="imageUrl" render={({ field }) => (
                       <FormItem>
                         <FormLabel>URL Hình ảnh</FormLabel>
                         <FormControl>
                           <Input placeholder="https://example.com/image.png" {...field} />
                         </FormControl>
-                        <FormDescription>Link ảnh sẽ hiển thị cho người dùng.</FormDescription>
+                        <FormDescription>Dán link ảnh sẽ hiển thị cho người dùng.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="title" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tiêu đề (og:title)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Bạn có một ảnh mới!" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                      {currentImageUrl && z.string().url().safeParse(currentImageUrl).success && (
                         <div className="space-y-2">
                             <FormLabel>Xem trước ảnh</FormLabel>
-                            <div className="relative w-full aspect-video rounded-md bg-muted overflow-hidden border">
+                            <div className="relative w-full aspect-[1.91/1] rounded-md bg-muted overflow-hidden border">
                                <NextImage src={currentImageUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
                             </div>
                         </div>
@@ -179,14 +179,14 @@ export default function ImageLoggerPage() {
                   links.length > 0 ? (
                     links.map(link => (
                       <Card key={link.id} className="flex flex-col sm:flex-row items-start gap-4 p-4">
-                        <div className="relative w-full sm:w-32 h-32 sm:h-20 shrink-0">
+                        <div className="relative w-full sm:w-32 h-32 sm:h-auto sm:aspect-[1.91/1] shrink-0">
                            <NextImage src={link.imageUrl} alt={link.title} layout="fill" objectFit="cover" className="rounded-md bg-muted" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{link.title}</p>
                           <div className="mt-2 flex items-center gap-2 bg-muted/50 p-2 rounded-md">
                             <ImageIcon className="h-3 w-3 text-muted-foreground shrink-0"/>
-                            <p className="text-xs font-code text-muted-foreground truncate">{origin}/i/{link.id}</p>
+                            <p className="text-xs font-code text-muted-foreground truncate">/i/{link.id}</p>
                           </div>
                         </div>
                         <div className="flex gap-2 self-start sm:self-center shrink-0">

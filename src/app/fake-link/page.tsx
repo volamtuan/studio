@@ -190,7 +190,7 @@ export default function FakeLinkPage() {
                           <p className="text-xs text-muted-foreground line-clamp-2">{link.description}</p>
                           <div className="mt-2 flex items-center gap-2 bg-muted/50 p-2 rounded-md">
                             <Globe className="h-3 w-3 text-muted-foreground shrink-0"/>
-                            <p className="text-xs font-code text-muted-foreground truncate">{origin}/map-preview/{link.id}</p>
+                            <p className="text-xs font-code text-muted-foreground truncate">/map-preview/{link.id}</p>
                           </div>
                         </div>
                         <div className="flex gap-2 self-start sm:self-center shrink-0">
