@@ -146,6 +146,7 @@ export default function UsersPage() {
     ip_links: 'Tạo Link Lấy IP',
     file_creator: 'Tạo File DOCX',
     pixel_tracker: 'Tạo Pixel Theo dõi',
+    link_cloaker: 'Tạo Link Bọc',
   }
 
   return (
@@ -232,6 +233,14 @@ export default function UsersPage() {
                           value="pixel_tracker"
                         />
                         <Label htmlFor="pixel_tracker">Tạo Pixel Theo dõi</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="link_cloaker"
+                          name="permissions"
+                          value="link_cloaker"
+                        />
+                        <Label htmlFor="link_cloaker">Tạo Link Bọc</Label>
                       </div>
                     </div>
                   </div>
