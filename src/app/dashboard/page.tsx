@@ -7,12 +7,13 @@ import path from 'path';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, Link as LinkIcon, Globe, Image as ImageIcon } from "lucide-react"
+import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { getLogContentAction } from '../actions/logs';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 
 interface RecentLog {
@@ -136,13 +137,12 @@ export default function DashboardPage() {
                                     <TableHead>Địa chỉ IP</TableHead>
                                     <TableHead>Địa chỉ / Vị trí</TableHead>
                                     <TableHead className="hidden lg:table-cell">Thiết bị</TableHead>
-                                    <TableHead className="text-right">Bản đồ</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {loading ? (
                                      <TableRow>
-                                        <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
                                             Đang tải dữ liệu...
                                         </TableCell>
                                     </TableRow>
@@ -159,28 +159,34 @@ export default function DashboardPage() {
                                             </TableCell>
                                             <TableCell className="text-sm">
                                                 <div className="font-medium truncate max-w-xs">{log.address}</div>
-                                                {log.coordinates !== 'N/A' && (
-                                                    <div className="text-xs text-muted-foreground font-mono">
-                                                        {log.coordinates} (acc: {log.accuracy})
-                                                    </div>
+                                                {log.coordinates !== 'N/A' ? (
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <div className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit">
+                                                                <MapPin className="h-3 w-3" />
+                                                                <span>{log.coordinates} (acc: {log.accuracy})</span>
+                                                            </div>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="p-0 w-80 h-64 border-0">
+                                                            <iframe
+                                                                className="w-full h-full rounded-md"
+                                                                loading="lazy"
+                                                                allowFullScreen
+                                                                src={`https://maps.google.com/maps?q=${log.coordinates}&hl=vi&z=15&output=embed`}
+                                                                >
+                                                            </iframe>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                ) : (
+                                                     <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
                                                 )}
                                             </TableCell>
                                             <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">{log.device}</TableCell>
-                                            <TableCell className="text-right">
-                                              {log.mapLink !== 'N/A' && (
-                                                <Button variant="outline" size="sm" asChild>
-                                                    <Link href={log.mapLink} target="_blank" rel="noopener noreferrer">
-                                                        <LinkIcon className="h-3 w-3 mr-1" />
-                                                        Xem
-                                                    </Link>
-                                                </Button>
-                                              )}
-                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
                                             Chưa có hoạt động nào được ghi lại.
                                         </TableCell>
                                     </TableRow>
