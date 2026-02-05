@@ -28,12 +28,22 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog'
+import {
   Users,
   ShieldCheck,
   KeyRound,
   PlusCircle,
   Save,
   Trash2,
+  Pencil
 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/hooks/use-toast'
@@ -42,13 +52,37 @@ import {
   addUserAction,
   updateAdminPasswordAction,
   deleteUserAction,
+  updateUserAction,
+  type UserPermission,
 } from '@/app/actions/users'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
 
 type User = {
   username: string
-  permissions: string[]
+  permissions: UserPermission[]
+}
+
+const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
+    'map_links', 
+    'image_links', 
+    'ip_links', 
+    'file_creator',
+    'pixel_tracker',
+    'link_cloaker',
+    'qr_creator',
+];
+
+
+const permissionLabels: { [key in UserPermission]: string } = {
+  admin: 'Quản trị viên',
+  map_links: 'Tạo Link Map',
+  image_links: 'Tạo Link Ảnh',
+  ip_links: 'Tạo Link Lấy IP',
+  file_creator: 'Tạo File DOCX',
+  pixel_tracker: 'Tạo Pixel Theo dõi',
+  link_cloaker: 'Tạo Link Bọc',
+  qr_creator: 'Tạo Mã QR'
 }
 
 export default function UsersPage() {
@@ -56,10 +90,11 @@ export default function UsersPage() {
   const router = useRouter()
   const [users, setUsers] = React.useState<User[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
+  const [editingUser, setEditingUser] = React.useState<User | null>(null)
   const addUserFormRef = React.useRef<HTMLFormElement>(null)
+  const editUserFormRef = React.useRef<HTMLFormElement>(null)
   const changePasswordFormRef = React.useRef<HTMLFormElement>(null)
 
-   // Protect page
   React.useEffect(() => {
     try {
       const user = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -88,6 +123,21 @@ export default function UsersPage() {
     if (result.success) {
       toast({ title: 'Thành công', description: result.message })
       addUserFormRef.current?.reset()
+      fetchUsers()
+    } else {
+      toast({
+        title: 'Lỗi',
+        description: result.message,
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleUpdateUser = async (formData: FormData) => {
+    const result = await updateUserAction(formData)
+    if (result.success) {
+      toast({ title: 'Thành công', description: result.message })
+      setEditingUser(null)
       fetchUsers()
     } else {
       toast({
@@ -139,16 +189,6 @@ export default function UsersPage() {
     }
   }
 
-  const permissionLabels: { [key: string]: string } = {
-    admin: 'Quản trị viên',
-    map_links: 'Tạo Link Map',
-    image_links: 'Tạo Link Ảnh',
-    ip_links: 'Tạo Link Lấy IP',
-    file_creator: 'Tạo File DOCX',
-    pixel_tracker: 'Tạo Pixel Theo dõi',
-    link_cloaker: 'Tạo Link Bọc',
-  }
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -177,9 +217,9 @@ export default function UsersPage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="username">Tên đăng nhập</Label>
+                      <Label htmlFor="username-add">Tên đăng nhập</Label>
                       <Input
-                        id="username"
+                        id="username-add"
                         name="username"
                         required
                         placeholder="ví dụ: user01"
@@ -197,51 +237,13 @@ export default function UsersPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Quyền truy cập</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-lg border p-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="map_links" name="permissions" value="map_links" />
-                        <Label htmlFor="map_links">Tạo Link Google Map</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="image_links"
-                          name="permissions"
-                          value="image_links"
-                        />
-                        <Label htmlFor="image_links">Tạo Link Theo dõi Ảnh</Label>
-                      </div>
-                       <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="ip_links"
-                          name="permissions"
-                          value="ip_links"
-                        />
-                        <Label htmlFor="ip_links">Tạo Link Lấy IP</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="file_creator"
-                          name="permissions"
-                          value="file_creator"
-                        />
-                        <Label htmlFor="file_creator">Tạo File DOCX</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="pixel_tracker"
-                          name="permissions"
-                          value="pixel_tracker"
-                        />
-                        <Label htmlFor="pixel_tracker">Tạo Pixel Theo dõi</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="link_cloaker"
-                          name="permissions"
-                          value="link_cloaker"
-                        />
-                        <Label htmlFor="link_cloaker">Tạo Link Bọc</Label>
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 rounded-lg border p-4">
+                      {ALL_PERMISSIONS.map(p => (
+                        <div className="flex items-center space-x-2" key={`add-${p}`}>
+                          <Checkbox id={`add-${p}`} name="permissions" value={p} />
+                          <Label htmlFor={`add-${p}`}>{permissionLabels[p]}</Label>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>
@@ -296,58 +298,99 @@ export default function UsersPage() {
                 <CardTitle>Danh sách người dùng</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tên</TableHead>
-                      <TableHead>Quyền</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={3} className="text-center">
-                          Đang tải...
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      users.map((user) => (
-                        <TableRow key={user.username}>
-                          <TableCell className="font-medium">
-                            {user.username}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {user.permissions.map((p) => (
-                                <Badge
-                                  key={p}
-                                  variant={
-                                    p === 'admin' ? 'default' : 'secondary'
-                                  }
-                                >
-                                  {permissionLabels[p] || p}
-                                </Badge>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {user.username !== 'vlt' && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive hover:text-destructive h-8 w-8"
-                                onClick={() => handleDeleteUser(user.username)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </TableCell>
+                 <Dialog open={!!editingUser} onOpenChange={(isOpen) => !isOpen && setEditingUser(null)}>
+                    <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>Tên</TableHead>
+                        <TableHead>Quyền</TableHead>
+                        <TableHead className="text-right">Hành động</TableHead>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-center h-40">
+                            Đang tải...
+                            </TableCell>
+                        </TableRow>
+                        ) : (
+                        users.map((user) => (
+                            <TableRow key={user.username}>
+                            <TableCell className="font-medium">
+                                {user.username}
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex flex-wrap gap-1">
+                                {user.permissions.map((p) => (
+                                    <Badge
+                                    key={p}
+                                    variant={
+                                        p === 'admin' ? 'default' : 'secondary'
+                                    }
+                                    className="whitespace-nowrap"
+                                    >
+                                    {permissionLabels[p] || p}
+                                    </Badge>
+                                ))}
+                                </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                                {user.username !== 'vlt' && (
+                                <div className='flex justify-end gap-1'>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() => setEditingUser(user)}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive hover:text-destructive h-8 w-8"
+                                      onClick={() => handleDeleteUser(user.username)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                )}
+                            </TableCell>
+                            </TableRow>
+                        ))
+                        )}
+                    </TableBody>
+                    </Table>
+                     <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Chỉnh sửa quyền cho {editingUser?.username}</DialogTitle>
+                            <DialogDescription>Chọn các quyền bạn muốn cấp cho người dùng này.</DialogDescription>
+                        </DialogHeader>
+                        <form ref={editUserFormRef} action={handleUpdateUser}>
+                            <input type="hidden" name="username" value={editingUser?.username || ''} />
+                            <div className="grid grid-cols-2 gap-4 py-4">
+                                {ALL_PERMISSIONS.map(p => (
+                                    <div className="flex items-center space-x-2" key={`edit-${p}`}>
+                                        <Checkbox 
+                                            id={`edit-${p}`} 
+                                            name="permissions" 
+                                            value={p} 
+                                            defaultChecked={editingUser?.permissions.includes(p)}
+                                        />
+                                        <Label htmlFor={`edit-${p}`}>{permissionLabels[p]}</Label>
+                                    </div>
+                                ))}
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="secondary">Hủy</Button>
+                                </DialogClose>
+                                <Button type="submit">Lưu thay đổi</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                 </Dialog>
               </CardContent>
             </Card>
           </div>

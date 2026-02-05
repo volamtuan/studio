@@ -5,16 +5,17 @@ import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { getIpLinksAction, type IpLinkConfig } from "@/app/actions/ip-links"
-import { FilePlus2, UploadCloud, Download, AlertCircle } from "lucide-react"
+import { FilePlus2, UploadCloud, Download, AlertCircle, FileSignature, FileUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import PizZip from "pizzip"
 import { saveAs } from "file-saver"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function FileCreatorPage() {
   const { toast } = useToast()
@@ -26,7 +27,6 @@ export default function FileCreatorPage() {
   const [origin, setOrigin] = React.useState("")
 
   React.useEffect(() => {
-    // Permission check
     try {
       const user = JSON.parse(sessionStorage.getItem('user') || '{}');
       if (!user.permissions?.includes('admin') && !user.permissions?.includes('file_creator')) {
@@ -37,12 +37,10 @@ export default function FileCreatorPage() {
       router.replace('/login');
     }
     
-    // Get window origin
     if (typeof window !== 'undefined') {
       setOrigin(window.location.origin)
     }
 
-    // Fetch IP links
     async function loadIpLinks() {
       const links = await getIpLinksAction()
       setIpLinks(links)
@@ -65,7 +63,7 @@ export default function FileCreatorPage() {
     }
   }
 
-  const handleGenerate = () => {
+  const handleGenerateFromUpload = () => {
     if (!selectedFile || !selectedLink) {
       toast({
         variant: "destructive",
@@ -139,6 +137,63 @@ export default function FileCreatorPage() {
     reader.readAsArrayBuffer(selectedFile)
   }
 
+  const handleGenerateFromTemplate = () => {
+    if (!selectedLink) {
+        toast({
+            variant: "destructive",
+            title: "Thiếu thông tin",
+            description: "Vui lòng chọn một liên kết theo dõi."
+        });
+        return;
+    }
+
+    setIsLoading(true);
+    try {
+        const zip = new PizZip();
+
+        zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`);
+
+        const relsDir = zip.folder("_rels");
+        relsDir.file(".rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+        
+        const wordDir = zip.folder("word");
+        wordDir.file("document.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Tài liệu này được tạo tự động để phục vụ mục đích theo dõi. Vui lòng bật nội dung nếu được yêu cầu.</w:t></w:r></w:p></w:body></w:document>`);
+
+        const wordRelsDir = wordDir.folder("_rels");
+        const trackingUrl = `${origin}/l/${selectedLink}`;
+        const relationshipId = `rId${Date.now()}`;
+        const relsContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="${relationshipId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate" Target="${trackingUrl}" TargetMode="External"/></Relationships>`;
+        wordRelsDir.file("document.xml.rels", relsContent);
+        
+        const out = zip.generate({
+            type: "blob",
+            mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        });
+
+        const outputFilename = `tailieu_theodoi_${selectedLink}.docx`;
+        saveAs(out, outputFilename);
+
+        toast({
+            title: "Thành công!",
+            description: `Tệp ${outputFilename} đã được tạo và tải xuống.`
+        });
+
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Đã xảy ra lỗi",
+            description: error.message || "Không thể tạo tệp DOCX từ mẫu."
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }
+
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -156,14 +211,14 @@ export default function FileCreatorPage() {
                   Chèn Link Theo Dõi vào File DOCX
                 </CardTitle>
                 <CardDescription>
-                  Công cụ này sẽ chèn một link theo dõi vào tệp .docx của bạn. Khi người nhận mở tệp, hệ thống sẽ cố gắng ghi lại địa chỉ IP và vị trí địa lý của họ.
+                  Khi người nhận mở file, hệ thống sẽ cố gắng ghi lại địa chỉ IP và vị trí của họ. Chọn một phương pháp dưới đây.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="ip-link-select">1. Chọn Link Theo Dõi</Label>
+                  <Label>1. Chọn Link Theo Dõi</Label>
                   <Select value={selectedLink} onValueChange={setSelectedLink}>
-                    <SelectTrigger id="ip-link-select">
+                    <SelectTrigger>
                       <SelectValue placeholder="Chọn một link đã tạo..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -176,24 +231,51 @@ export default function FileCreatorPage() {
                       )}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">Đây là link sẽ được chèn vào file để theo dõi.</p>
                 </div>
-                <div className="space-y-2">
-                  <Label>2. Tải Lên Tệp DOCX Gốc</Label>
-                  <Label htmlFor="file-upload" className="relative block w-full border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <UploadCloud className="h-8 w-8" />
-                      {selectedFile ? (
-                        <span className="font-semibold text-primary">{selectedFile.name}</span>
-                      ) : (
-                        <span>Nhấn để chọn tệp .docx</span>
-                      )}
+
+                <Tabs defaultValue="template" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="template"><FileSignature className="mr-2 h-4 w-4"/>Tạo từ tệp mẫu</TabsTrigger>
+                    <TabsTrigger value="upload"><FileUp className="mr-2 h-4 w-4"/>Tải lên tệp có sẵn</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="template" className="pt-6">
+                    <Card className="border-dashed bg-muted/20">
+                        <CardHeader className="items-center text-center">
+                            <CardTitle>Tạo File DOCX Trống</CardTitle>
+                            <CardDescription>
+                              Một tệp .docx trắng sẽ được tạo với link theo dõi bạn đã chọn được chèn sẵn.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardFooter>
+                            <Button className="w-full" onClick={handleGenerateFromTemplate} disabled={isLoading || !selectedLink}>
+                                {isLoading ? "Đang xử lý..." : <><Download className="mr-2 h-4 w-4" /> Tạo và Tải Tệp Mẫu</>}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="upload" className="pt-6 space-y-6">
+                    <div className="space-y-2">
+                      <Label>2. Tải Lên Tệp DOCX Gốc</Label>
+                      <Label htmlFor="file-upload" className="relative block w-full border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <UploadCloud className="h-8 w-8" />
+                          {selectedFile ? (
+                            <span className="font-semibold text-primary">{selectedFile.name}</span>
+                          ) : (
+                            <span>Nhấn để chọn tệp .docx</span>
+                          )}
+                        </div>
+                      </Label>
+                      <Input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                     </div>
-                  </Label>
-                  <Input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-                </div>
-                <Button className="w-full" onClick={handleGenerate} disabled={isLoading || !selectedFile || !selectedLink}>
-                  {isLoading ? "Đang xử lý..." : <><Download className="mr-2 h-4 w-4" /> Tạo và Tải Xuống</>}
-                </Button>
+                    <Button className="w-full" onClick={handleGenerateFromUpload} disabled={isLoading || !selectedFile || !selectedLink}>
+                      {isLoading ? "Đang xử lý..." : <><Download className="mr-2 h-4 w-4" /> Chèn Link và Tải Xuống</>}
+                    </Button>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
 

@@ -8,10 +8,12 @@ import { revalidatePath } from 'next/cache';
 
 const usersConfigPath = path.join(process.cwd(), 'src', 'config', 'users.json');
 
+export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'pixel_tracker' | 'link_cloaker' | 'qr_creator';
+
 export interface User {
   username: string;
   passwordHash: string;
-  permissions: ('admin' | 'map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'pixel_tracker' | 'link_cloaker')[];
+  permissions: UserPermission[];
 }
 
 async function readUsers(): Promise<User[]> {
@@ -73,7 +75,7 @@ export async function getUsersAction() {
 export async function addUserAction(formData: FormData) {
   const username = formData.get('username') as string;
   const password = formData.get('password') as string;
-  const permissions = formData.getAll('permissions') as ('map_links' | 'image_links' | 'ip_links' | 'file_creator' | 'pixel_tracker' | 'link_cloaker')[];
+  const permissions = formData.getAll('permissions') as UserPermission[];
 
   if (!username || !password) {
     return { success: false, message: 'Tên người dùng và mật khẩu là bắt buộc.' };
@@ -94,6 +96,34 @@ export async function addUserAction(formData: FormData) {
   await writeUsers(users);
   return { success: true, message: 'Người dùng đã được tạo thành công.' };
 }
+
+// Action to update user permissions
+export async function updateUserAction(formData: FormData) {
+    const username = formData.get('username') as string;
+    const permissions = formData.getAll('permissions') as UserPermission[];
+
+    if (!username) {
+        return { success: false, message: 'Tên người dùng không hợp lệ.' };
+    }
+
+    let users = await readUsers();
+    const userIndex = users.findIndex(u => u.username === username);
+
+    if (userIndex === -1) {
+        return { success: false, message: 'Không tìm thấy người dùng.' };
+    }
+
+    // Prevent changing admin user's permissions away from 'admin'
+    if (users[userIndex].permissions.includes('admin')) {
+        return { success: false, message: 'Không thể thay đổi quyền của quản trị viên.' };
+    }
+
+    users[userIndex].permissions = permissions;
+    await writeUsers(users);
+    
+    return { success: true, message: `Quyền của người dùng '${username}' đã được cập nhật.` };
+}
+
 
 // Action to update admin password
 export async function updateAdminPasswordAction(formData: FormData) {
