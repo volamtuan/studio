@@ -6,7 +6,8 @@ import {
   LogOut,
   Zap,
   FileKey2,
-  Settings
+  Settings,
+  MapPin
 } from "lucide-react"
 import {
   Sidebar,
@@ -32,6 +33,11 @@ const mainNav = [
     title: "Nhật Ký Truy Cập",
     url: "/admin",
     icon: FileKey2,
+  },
+  {
+    title: "Fake Link Google Map",
+    url: "/fake-link",
+    icon: MapPin,
   },
   {
     title: "Cài Đặt",

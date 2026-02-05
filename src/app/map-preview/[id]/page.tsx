@@ -1,0 +1,50 @@
+import type { Metadata, ResolvingMetadata } from 'next';
+import { getMapLinksAction, type MapLinkConfig } from '@/app/actions/map-links';
+import { MapRedirectClient } from '@/components/map-redirect-client';
+import { notFound } from 'next/navigation';
+
+type Props = {
+  params: { id: string }
+}
+
+async function getLinkConfig(id: string): Promise<MapLinkConfig | undefined> {
+  const links = await getMapLinksAction();
+  return links.find(link => link.id === id);
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const config = await getLinkConfig(params.id);
+
+  if (!config) {
+    return {
+      title: 'Không tìm thấy vị trí'
+    }
+  }
+ 
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: config.title,
+    description: config.description,
+    openGraph: {
+      title: config.title,
+      description: config.description,
+      images: [config.imageUrl, ...previousImages],
+      type: 'website',
+    },
+  }
+}
+
+export default async function MapPreviewPage({ params }: Props) {
+  const config = await getLinkConfig(params.id);
+
+  if (!config) {
+    notFound();
+  }
+
+  // The main tracking page is at the root '/' which handles the actual logging
+  return <MapRedirectClient redirectUrl="/" />;
+}
