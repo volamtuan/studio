@@ -26,6 +26,7 @@ interface LogEntry {
   mapLink: string;
   language: string;
   timezone: string;
+  redirectUrl?: string;
 }
 
 function parseValue(entry: string, label: string): string {
@@ -52,6 +53,7 @@ function parseLogContent(content: string): LogEntry[] {
         mapLink: parseValue(entry, 'Link Google Maps'),
         language: parseValue(entry, 'Ngôn ngữ'),
         timezone: parseValue(entry, 'Múi giờ'),
+        redirectUrl: parseValue(entry, 'Chuyển hướng đến'),
     };
   });
 
@@ -206,16 +208,16 @@ export default function AdminPage() {
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             <div className="font-medium truncate max-w-xs">{log.address}</div>
-                                            {log.source === 'ip_link' && log.mapLink !== 'N/A' ? (
+                                            {log.redirectUrl && log.redirectUrl !== 'N/A' ? (
                                                 <a
-                                                    href={log.mapLink}
+                                                    href={log.redirectUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     title="Truy cập link chuyển hướng"
                                                     className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
                                                 >
                                                     <ExternalLink className="h-3 w-3" />
-                                                    <span className="truncate">Chuyển hướng: {log.mapLink}</span>
+                                                    <span className="truncate">Chuyển hướng: {log.redirectUrl}</span>
                                                 </a>
                                             ) : lat && lon && log.mapLink !== 'N/A' ? (
                                                 <div className="flex items-center gap-2">
