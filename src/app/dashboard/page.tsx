@@ -21,6 +21,8 @@ interface RecentLog {
   accuracy: string;
   mapLink: string;
   source: string;
+  language: string;
+  timezone: string;
 }
 
 interface LogStats {
@@ -67,6 +69,8 @@ async function getLogStats(content: string): Promise<LogStats> {
                     accuracy: parseValue(entry, 'Độ chính xác'),
                     mapLink: parseValue(entry, 'Link Google Maps'),
                     source: parseValue(entry, 'Nguồn'),
+                    language: parseValue(entry, 'Ngôn ngữ'),
+                    timezone: parseValue(entry, 'Múi giờ'),
                 });
             }
         }
@@ -207,7 +211,14 @@ export default function DashboardPage() {
                                                      <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">{log.device}</TableCell>
+                                            <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">
+                                              <div className="truncate">{log.device}</div>
+                                              {(log.language !== 'N/A' || log.timezone !== 'N/A') && (
+                                                <div className="text-muted-foreground/80 truncate" title={`${log.language} (${log.timezone})`}>
+                                                    {log.language} ({log.timezone})
+                                                </div>
+                                              )}
+                                            </TableCell>
                                         </TableRow>
                                     )})
                                 ) : (

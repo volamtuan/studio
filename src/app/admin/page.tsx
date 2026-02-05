@@ -23,6 +23,8 @@ interface LogEntry {
   accuracy: string;
   address: string;
   mapLink: string;
+  language: string;
+  timezone: string;
 }
 
 function parseValue(entry: string, label: string): string {
@@ -47,6 +49,8 @@ function parseLogContent(content: string): LogEntry[] {
         accuracy: parseValue(entry, 'Độ chính xác'),
         address: parseValue(entry, 'Địa chỉ'),
         mapLink: parseValue(entry, 'Link Google Maps'),
+        language: parseValue(entry, 'Ngôn ngữ'),
+        timezone: parseValue(entry, 'Múi giờ'),
     };
   });
 
@@ -226,7 +230,14 @@ export default function AdminPage() {
                                                     <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
                                             )}
                                         </TableCell>
-                                        <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">{log.device}</TableCell>
+                                        <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">
+                                            <div className="truncate">{log.device}</div>
+                                            {(log.language !== 'N/A' || log.timezone !== 'N/A') && (
+                                              <div className="text-muted-foreground/80 truncate" title={`${log.language} (${log.timezone})`}>
+                                                  {log.language} ({log.timezone})
+                                              </div>
+                                            )}
+                                        </TableCell>
                                     </TableRow>
                                 )})
                             ) : (

