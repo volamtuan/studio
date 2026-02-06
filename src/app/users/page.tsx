@@ -67,7 +67,6 @@ type User = {
 const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
     'map_links', 
     'image_links', 
-    'ip_links', 
     'file_creator',
     'link_cloaker',
     'pixel_tracker'
@@ -78,7 +77,6 @@ const permissionLabels: { [key in UserPermission]: string } = {
   admin: 'Quản trị viên',
   map_links: 'Tạo Link Map',
   image_links: 'Tạo Link Ảnh',
-  ip_links: 'Tạo Link Lấy IP',
   file_creator: 'Tạo File DOCX',
   link_cloaker: 'Tạo Link Bọc',
   pixel_tracker: 'Tạo Pixel Theo dõi',
