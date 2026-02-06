@@ -10,60 +10,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { getLogContentAction, deleteLogsAction } from "@/app/actions/logs"
+import { getParsedLogsAction, getLogContentAction, deleteLogsAction, type LogEntry } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { MapPreviewPopup } from "@/components/map-preview-popup"
 import { getCurrentUserAction } from "@/app/actions/users"
 
-interface LogEntry {
-  timestamp: string;
-  source: string;
-  device: string;
-  ip: string;
-  coordinates: string;
-  accuracy: string;
-  address: string;
-  mapLink: string;
-  language: string;
-  timezone: string;
-  redirectUrl?: string;
-}
-
-function parseValue(entry: string, label: string): string {
-  const match = entry.match(new RegExp(`${label}: (.*)`));
-  return match ? match[1].trim() : 'N/A';
-}
-
-function parseLogContent(content: string): LogEntry[] {
-  if (!content || content.trim() === '') {
-    return [];
-  }
-  const entries = content.split('--- [').filter(e => e.trim() !== '');
-  
-  const allLogs: LogEntry[] = entries.map(entry => {
-    const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
-    return {
-        timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
-        source: parseValue(entry, 'Nguồn'),
-        device: parseValue(entry, 'Thiết bị'),
-        ip: parseValue(entry, 'Địa chỉ IP'),
-        coordinates: parseValue(entry, 'Tọa độ'),
-        accuracy: parseValue(entry, 'Độ chính xác'),
-        address: parseValue(entry, 'Địa chỉ'),
-        mapLink: parseValue(entry, 'Link Google Maps'),
-        language: parseValue(entry, 'Ngôn ngữ'),
-        timezone: parseValue(entry, 'Múi giờ'),
-        redirectUrl: parseValue(entry, 'Chuyển hướng đến'),
-    };
-  });
-
-  return allLogs.reverse(); // Newest first
-}
-
-
 export default function AdminPage() {
-  const [rawLogContent, setRawLogContent] = React.useState("")
   const [parsedLogs, setParsedLogs] = React.useState<LogEntry[]>([])
   const [loading, setLoading] = React.useState(true)
   const [autoRefresh, setAutoRefresh] = React.useState(true)
@@ -83,9 +36,8 @@ export default function AdminPage() {
   }, [router, toast]);
 
   const fetchLogs = React.useCallback(async () => {
-    const content = await getLogContentAction()
-    setRawLogContent(content)
-    setParsedLogs(parseLogContent(content))
+    const logs = await getParsedLogsAction()
+    setParsedLogs(logs)
     setLoading(false)
   }, [])
 
@@ -98,8 +50,9 @@ export default function AdminPage() {
     return () => clearInterval(interval)
   }, [fetchLogs, autoRefresh])
 
-  const handleDownload = () => {
-    const blob = new Blob([rawLogContent], { type: 'text/plain;charset=utf-8' })
+  const handleDownload = async () => {
+    const content = await getLogContentAction();
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -148,7 +101,7 @@ export default function AdminPage() {
               <RefreshCw className={`h-4 w-4 ${autoRefresh ? "animate-spin" : ""}`} /> 
               {autoRefresh ? "Tự động làm mới" : "Làm mới thủ công"}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || !rawLogContent}>
+            <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || parsedLogs.length === 0}>
               <Download className="h-4 w-4" />
                <span className="ml-2 hidden sm:inline">Tải xuống</span>
             </Button>

@@ -62,6 +62,8 @@ export async function getCurrentUserAction(): Promise<SessionPayload | null> {
 
 export async function logoutAction() {
     cookies().delete('session');
+    // Revalidate the entire site to ensure protected routes are cleared from cache
+    revalidatePath('/', 'layout');
     return { success: true };
 }
 

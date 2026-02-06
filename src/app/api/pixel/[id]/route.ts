@@ -4,36 +4,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import fs from 'fs';
 import path from 'path';
-import { getVerificationConfigAction } from '@/app/actions/settings';
-
-// Copied from l/[id]/page.tsx
-async function sendTelegramNotification(message: string) {
-    try {
-        const config = await getVerificationConfigAction();
-        if (
-            !config.telegramNotificationsEnabled ||
-            !config.telegramBotToken ||
-            !config.telegramChatId
-        ) {
-            return;
-        }
-        const botToken = config.telegramBotToken;
-        const chatId = config.telegramChatId;
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-                parse_mode: 'Markdown',
-                disable_web_page_preview: true,
-            }),
-        });
-    } catch (error) {
-        console.error('Failed to send Telegram notification:', error);
-    }
-}
+import { sendTelegramNotification } from '@/lib/server-utils';
 
 async function logAccess(linkId: string, title: string, imageUrl: string) {
     const headersList = headers();

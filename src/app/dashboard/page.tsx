@@ -9,96 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Users, Link as LinkIcon, Globe, Image as ImageIcon, MapPin, Clock, ExternalLink, Binary, Package } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from '@/components/ui/badge';
-import { getLogContentAction } from '../actions/logs';
+import { getLogStatsAction, type LogStats } from '../actions/logs';
 import { MapPreviewPopup } from '@/components/map-preview-popup';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentUserAction, logoutAction } from '@/app/actions/users';
-
-
-interface RecentLog {
-  timestamp: string;
-  ip: string;
-  device: string;
-  address: string;
-  coordinates: string;
-  accuracy: string;
-  mapLink: string;
-  source: string;
-  language: string;
-  timezone: string;
-  redirectUrl?: string;
-}
-
-interface LogStats {
-  totalVisits: number;
-  uniqueIps: number;
-  recentLogs: RecentLog[];
-  visitsInLast5Mins: number;
-}
-
-function parseValue(entry: string, label: string): string {
-    const match = entry.match(new RegExp(`${label}: (.*)`));
-    return match ? match[1].trim() : 'N/A';
-}
-
-async function getLogStats(content: string): Promise<LogStats> {
-  try {
-    const entries = content.split('--- [').filter(e => e.trim() !== '');
-
-    const allIps = entries.map(e => parseValue(e, 'Địa chỉ IP')).filter(ip => ip !== 'N/A');
-    const uniqueIps = new Set(allIps).size;
-    
-    const now = new Date().getTime();
-    const fiveMinutesAgo = now - 5 * 60 * 1000;
-
-    const recentLogs: RecentLog[] = [];
-    let visitsInLast5Mins = 0;
-
-    entries.forEach(entry => {
-        const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
-        if (timestampMatch) {
-            const logDate = new Date(timestampMatch[1]);
-            if (logDate.getTime() >= fiveMinutesAgo) {
-                visitsInLast5Mins++;
-            }
-
-            // We still only want the last 10 for the table
-            if (entries.length - entries.indexOf(entry) <= 10) {
-                 recentLogs.push({
-                    timestamp: logDate.toLocaleString('vi-VN'),
-                    ip: parseValue(entry, 'Địa chỉ IP'),
-                    device: parseValue(entry, 'Thiết bị'),
-                    address: parseValue(entry, 'Địa chỉ'),
-                    coordinates: parseValue(entry, 'Tọa độ'),
-                    accuracy: parseValue(entry, 'Độ chính xác'),
-                    mapLink: parseValue(entry, 'Link Google Maps'),
-                    source: parseValue(entry, 'Nguồn'),
-                    language: parseValue(entry, 'Ngôn ngữ'),
-                    timezone: parseValue(entry, 'Múi giờ'),
-                    redirectUrl: parseValue(entry, 'Chuyển hướng đến'),
-                });
-            }
-        }
-    });
-
-    return {
-      totalVisits: entries.length,
-      uniqueIps,
-      recentLogs: recentLogs.reverse(),
-      visitsInLast5Mins,
-    };
-
-  } catch (error) {
-    return {
-      totalVisits: 0,
-      uniqueIps: 0,
-      recentLogs: [],
-      visitsInLast5Mins: 0,
-    };
-  }
-}
-
 
 export default function DashboardPage() {
   const [statsData, setStatsData] = React.useState<LogStats>({ totalVisits: 0, uniqueIps: 0, recentLogs: [], visitsInLast5Mins: 0 });
@@ -107,8 +22,7 @@ export default function DashboardPage() {
   const { toast } = useToast();
 
   const fetchStats = React.useCallback(async () => {
-    const content = await getLogContentAction();
-    const stats = await getLogStats(content);
+    const stats = await getLogStatsAction();
     setStatsData(stats);
     setLoading(false);
   }, []);
