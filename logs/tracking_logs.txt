@@ -483,3 +483,14 @@ Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 Ngôn ngữ: en-US
 Múi giờ: Asia/Bangkok
 ----------------------------------
+--- [2026-02-06T13:16:53.461Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 125.235.120.207
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.923316079878518, 106.8240088640224
+Độ chính xác: 8.981586263289557m
+Địa chỉ: Bửu Hoà 4, Phường Biên Hòa, Tỉnh Đồng Nai, 76100, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.923316079878518,106.8240088640224
+----------------------------------

