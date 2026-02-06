@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -14,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { useToast } from "@/hooks/use-toast"
 import { getPixelLinksAction, savePixelLinksAction, type PixelLinkConfig } from "@/app/actions/pixel-links"
 import { uploadFileAction } from "@/app/actions/upload"
-import { Copy, PlusCircle, Save, Trash2, Binary, Loader2 } from "lucide-react"
+import { Copy, PlusCircle, Save, Trash2, Eye, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getCurrentUserAction } from "@/app/actions/users"
 import Image from "next/image"
@@ -65,7 +64,7 @@ export default function PixelTrackerPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "Pixel theo dõi mới",
+      title: "Logger mới",
     },
   })
 
@@ -80,7 +79,7 @@ export default function PixelTrackerPage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>>) {
     if (!imageFile) {
         toast({
             variant: "destructive",
@@ -112,11 +111,11 @@ export default function PixelTrackerPage() {
     }
     setLinks(prevLinks => [...prevLinks, newLink])
     toast({
-      title: "Đã thêm pixel mới",
+      title: "Đã thêm IP Logger mới",
       description: "Đừng quên nhấn 'Lưu thay đổi' để áp dụng.",
     })
     
-    form.reset();
+    form.reset({ title: "Logger mới" });
     const fileInput = document.getElementById('image-upload') as HTMLInputElement;
     if (fileInput) fileInput.value = "";
     setImageFile(null);
@@ -127,7 +126,7 @@ export default function PixelTrackerPage() {
   const handleDelete = (id: string) => {
     setLinks(prevLinks => prevLinks.filter(link => link.id !== id))
     toast({
-        title: "Đã xóa pixel",
+        title: "Đã xóa logger",
         description: "Thay đổi sẽ được áp dụng sau khi bạn lưu.",
         variant: "destructive"
     })
@@ -138,7 +137,7 @@ export default function PixelTrackerPage() {
     navigator.clipboard.writeText(url)
     toast({
       title: "Đã sao chép!",
-      description: "URL pixel theo dõi đã được sao chép vào bộ nhớ tạm.",
+      description: "URL IP Logger đã được sao chép vào bộ nhớ tạm.",
     })
   }
   
@@ -148,7 +147,7 @@ export default function PixelTrackerPage() {
     if (result.success) {
       toast({
         title: "Thành công",
-        description: result.message,
+        description: "Các IP logger đã được lưu thành công.",
       });
     } else {
       toast({
@@ -166,13 +165,7 @@ export default function PixelTrackerPage() {
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
-          <h1 className="text-xl font-bold font-headline">Tạo Pixel Theo dõi</h1>
-          <div className="ml-auto">
-            <Button onClick={handleSave} disabled={saving || adding}>
-              <Save className="mr-2 h-4 w-4" />
-              {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
-            </Button>
-          </div>
+          <h1 className="text-xl font-bold font-headline">Tạo IP Logger</h1>
         </header>
         <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
@@ -180,9 +173,9 @@ export default function PixelTrackerPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                   <CardHeader>
-                    <CardTitle>Tạo Pixel Mới</CardTitle>
+                    <CardTitle>Tạo IP Logger Mới</CardTitle>
                     <CardDescription>
-                      Tạo một URL trả về hình ảnh để theo dõi lượt xem (vd: trong email).
+                      Tạo một URL hình ảnh để ghi lại IP của người xem. Hữu ích để chèn vào email, diễn đàn, hoặc website.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -190,7 +183,7 @@ export default function PixelTrackerPage() {
                       <FormItem>
                         <FormLabel>Tên gợi nhớ</FormLabel>
                         <FormControl>
-                          <Input placeholder="Vd: Pixel cho email marketing" {...field} />
+                          <Input placeholder="Vd: Logger cho email marketing" {...field} />
                         </FormControl>
                          <FormDescription>Tên này chỉ dùng để bạn quản lý.</FormDescription>
                         <FormMessage />
@@ -208,7 +201,7 @@ export default function PixelTrackerPage() {
                         <div className="space-y-2">
                             <FormLabel>Xem trước</FormLabel>
                             <div className="rounded-md bg-muted overflow-hidden border p-2 flex justify-center items-center">
-                               <Image src={previewUrl} alt="Xem trước ảnh" width={50} height={50} style={{ objectFit: 'contain' }} />
+                               <img src={previewUrl} alt="Xem trước ảnh" width={50} height={50} style={{ objectFit: 'contain' }} />
                             </div>
                         </div>
                     )}
@@ -216,7 +209,7 @@ export default function PixelTrackerPage() {
                   <CardFooter>
                     <Button type="submit" className="w-full" disabled={adding || saving}>
                        {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-                       {adding ? 'Đang thêm...' : 'Thêm Pixel'}
+                       {adding ? 'Đang thêm...' : 'Thêm IP Logger'}
                     </Button>
                   </CardFooter>
                 </form>
@@ -227,8 +220,8 @@ export default function PixelTrackerPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Danh sách pixel đã tạo</CardTitle>
-                <CardDescription>Sao chép URL và chèn vào thẻ &lt;img&gt; để bắt đầu theo dõi.</CardDescription>
+                <CardTitle>Danh sách IP Logger đã tạo</CardTitle>
+                <CardDescription>Sao chép URL và chèn vào thẻ &lt;img&gt; để bắt đầu ghi lại IP.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {loading ? <p>Đang tải danh sách...</p> : (
@@ -239,7 +232,7 @@ export default function PixelTrackerPage() {
                           <p className="font-semibold text-sm truncate">{link.title}</p>
                           <p className="text-xs text-muted-foreground truncate">Trả về ảnh từ: {link.imageUrl}</p>
                           <div className="mt-2 flex items-center gap-2 bg-muted/50 p-2 rounded-md">
-                            <Binary className="h-3 w-3 text-muted-foreground shrink-0"/>
+                            <Eye className="h-3 w-3 text-muted-foreground shrink-0"/>
                             <p className="text-xs font-code text-muted-foreground truncate">/api/pixel/{link.id}.png</p>
                           </div>
                         </div>
@@ -254,7 +247,7 @@ export default function PixelTrackerPage() {
                       </Card>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">Chưa có pixel nào được tạo.</p>
+                    <p className="text-sm text-muted-foreground text-center py-8">Chưa có IP logger nào được tạo.</p>
                   )
                 )}
               </CardContent>

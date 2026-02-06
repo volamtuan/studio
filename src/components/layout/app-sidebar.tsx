@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -12,7 +11,7 @@ import {
   Image as ImageIcon,
   Users,
   FilePlus2,
-  Binary,
+  Eye,
   Package,
 } from "lucide-react"
 import {
@@ -39,7 +38,7 @@ const creatorNav = [
   { title: "Liên kết Theo dõi Ảnh", url: "/image-logger", icon: ImageIcon, permission: "image_links" },
   { title: "Link Bọc", url: "/cloaker", icon: Package, permission: "link_cloaker" },
   { title: "Tạo File DOCX", url: "/file-creator", icon: FilePlus2, permission: "file_creator" },
-  { title: "Tạo Pixel Theo dõi", url: "/pixel-tracker", icon: Binary, permission: "pixel_tracker" },
+  { title: "IP Logger", url: "/pixel-tracker", icon: Eye, permission: "pixel_tracker" },
 ];
 
 const adminNav = [
@@ -131,7 +130,7 @@ export function AppSidebar() {
           })}
         </div>
         
-        <div className="p-2 mt-auto border-t border-border/50">
+        <div className="p-2 border-t border-border/50">
             <SidebarMenu>
             <SidebarMenuItem>
                 <SidebarMenuButton disabled className="justify-start pointer-events-none">
@@ -153,5 +152,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-
-    
