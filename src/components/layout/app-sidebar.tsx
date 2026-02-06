@@ -15,9 +15,6 @@ import {
   FilePlus2,
   Binary,
   Package,
-  Database,
-  Terminal,
-  ShieldCheck,
 } from "lucide-react"
 import {
   Sidebar,
@@ -29,11 +26,11 @@ import {
   SidebarMenuItem,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { getCurrentUserAction, logoutAction } from "@/app/actions/users"
-import { Separator } from "../ui/separator"
 
 interface User {
   username: string;
@@ -59,17 +56,10 @@ const adminNav = [
     { title: "Cài Đặt", url: "/settings", icon: Settings, permission: "admin" },
 ];
 
-const scraperNav = [
-    { title: "Data Browser", url: "/data", icon: Database, permission: "admin" },
-    { title: "Proxy Management", url: "/proxies", icon: ShieldCheck, permission: "admin" },
-    { title: "System Logs", url: "/logs", icon: Terminal, permission: "admin" },
-];
-
 const navGroups = [
   { label: "Phân Tích", items: analyticsNav },
   { label: "Công Cụ Tạo Link", items: creatorNav },
   { label: "Quản Trị Hệ Thống", items: adminNav },
-  { label: "Scraper", items: scraperNav, separator: true },
 ]
 
 
@@ -124,7 +114,6 @@ export function AppSidebar() {
 
           return (
             <React.Fragment key={group.label}>
-              {group.separator && <Separator className="my-2 bg-sidebar-border/50"/>}
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">{group.label}</SidebarGroupLabel>
                 <SidebarMenu>
