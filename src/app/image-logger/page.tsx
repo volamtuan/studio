@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast"
 import { getImageLinksAction, saveImageLinksAction, type ImageLinkConfig } from "@/app/actions/image-links"
 import { uploadFileAction } from "@/app/actions/upload"
 import { Copy, PlusCircle, Save, Trash2, Image as ImageIcon, Loader2 } from "lucide-react"
-import NextImage from 'next/image'
 import {
   Dialog,
   DialogContent,
@@ -258,7 +257,7 @@ export default function ImageLoggerPage() {
                         <Dialog>
                             <DialogTrigger asChild>
                                 <div className="relative w-full sm:w-32 h-32 sm:h-auto sm:aspect-[1.91/1] shrink-0 cursor-pointer group">
-                                <NextImage src={link.imageUrl} alt={link.title} layout="fill" objectFit="cover" className="rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
+                                <img src={link.imageUrl} alt={link.title} className="w-full h-full object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
                                 </div>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
@@ -301,3 +300,5 @@ export default function ImageLoggerPage() {
     </SidebarProvider>
   )
 }
+
+    

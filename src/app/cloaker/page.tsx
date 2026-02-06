@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast"
 import { getCloakedLinksAction, saveCloakedLinksAction, type CloakedLinkConfig } from "@/app/actions/cloaked-links"
 import { uploadFileAction } from "@/app/actions/upload"
 import { Copy, PlusCircle, Save, Trash2, Package, Loader2 } from "lucide-react"
-import Image from 'next/image'
 import {
   Dialog,
   DialogContent,
@@ -271,7 +270,7 @@ export default function CloakerPage() {
                         <Dialog>
                           <DialogTrigger asChild>
                             <div className="relative w-full sm:w-32 h-32 sm:h-20 shrink-0 cursor-pointer group">
-                               <Image src={link.imageUrl} alt={link.title} layout="fill" objectFit="cover" className="rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
+                               <img src={link.imageUrl} alt={link.title} className="w-full h-full object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
                             </div>
                           </DialogTrigger>
                           <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
@@ -312,3 +311,5 @@ export default function CloakerPage() {
     </SidebarProvider>
   )
 }
+
+    
