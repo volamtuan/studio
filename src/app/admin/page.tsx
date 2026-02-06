@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { getParsedLogsAction, getLogContentAction, deleteLogsAction, type LogEntry } from "@/app/actions/logs"
+import { getParsedLogsAction, deleteLogsAction, type LogEntry } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { MapPreviewPopup } from "@/components/map-preview-popup"
@@ -22,6 +22,7 @@ export default function AdminPage() {
   const [autoRefresh, setAutoRefresh] = React.useState(true)
   const { toast } = useToast()
   const router = useRouter()
+  const [logContentForDownload, setLogContentForDownload] = React.useState('');
 
   // Protect page
   React.useEffect(() => {
@@ -36,8 +37,9 @@ export default function AdminPage() {
   }, [router, toast]);
 
   const fetchLogs = React.useCallback(async () => {
-    const logs = await getParsedLogsAction()
+    const { logs, rawContent } = await getParsedLogsAction()
     setParsedLogs(logs)
+    setLogContentForDownload(rawContent);
     setLoading(false)
   }, [])
 
@@ -45,14 +47,13 @@ export default function AdminPage() {
     fetchLogs()
     let interval: any
     if (autoRefresh) {
-      interval = setInterval(fetchLogs, 2000)
+      interval = setInterval(fetchLogs, 5000) // Changed from 2000ms to 5000ms
     }
     return () => clearInterval(interval)
   }, [fetchLogs, autoRefresh])
 
-  const handleDownload = async () => {
-    const content = await getLogContentAction();
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const handleDownload = () => {
+    const blob = new Blob([logContentForDownload], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -105,7 +106,7 @@ export default function AdminPage() {
               <Download className="h-4 w-4" />
                <span className="ml-2 hidden sm:inline">Tải xuống</span>
             </Button>
-            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
+            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading || parsedLogs.length === 0}>
               <Trash2 className="h-4 w-4" />
                <span className="ml-2 hidden sm:inline">Xóa Nhật ký</span>
             </Button>
@@ -227,3 +228,5 @@ export default function AdminPage() {
     </SidebarProvider>
   )
 }
+
+    

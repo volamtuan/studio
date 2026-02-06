@@ -1,3 +1,4 @@
+
 'use server';
 
 import { promises as fs } from 'fs';
@@ -19,9 +20,10 @@ export interface LogEntry {
   language: string;
   timezone: string;
   redirectUrl?: string;
+  timestampISO: string;
 }
 
-export interface RecentLog extends LogEntry {}
+export interface RecentLog extends Omit<LogEntry, 'timestampISO'> {}
 
 export interface LogStats {
   totalVisits: number;
@@ -32,23 +34,6 @@ export interface LogStats {
 
 
 // --- Basic Actions ---
-
-export async function getLogContentAction() {
-  try {
-    const content = await fs.readFile(logFile, 'utf-8');
-    return content;
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      try {
-        await fs.writeFile(logFile, '', 'utf-8');
-        return "Log file did not exist and has been created. It is currently empty.";
-      } catch (writeError) {
-        return "Log file does not exist and could not be created.";
-      }
-    }
-    return "Could not read log file.";
-  }
-}
 
 export async function deleteLogsAction() {
   try {
@@ -70,11 +55,26 @@ function parseValue(entry: string, label: string): string {
   return match ? match[1].trim() : 'N/A';
 }
 
-export async function getParsedLogsAction(): Promise<LogEntry[]> {
-  const content = await getLogContentAction();
-  if (!content || content.trim() === '' || content.startsWith('Log file does not exist')) {
-    return [];
+async function readAndParseLogs(): Promise<{ logs: LogEntry[], rawContent: string }> {
+  let content = "";
+  try {
+    content = await fs.readFile(logFile, 'utf-8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      try {
+        await fs.writeFile(logFile, '', 'utf-8');
+        return { logs: [], rawContent: "Log file did not exist and has been created. It is currently empty." };
+      } catch (writeError) {
+         return { logs: [], rawContent: "Log file does not exist and could not be created." };
+      }
+    }
+     return { logs: [], rawContent: "Could not read log file." };
   }
+
+  if (!content || content.trim() === '') {
+    return { logs: [], rawContent: content };
+  }
+
   const entries = content.split('--- [').filter(e => e.trim() !== '');
   
   const allLogs: LogEntry[] = entries.map(entry => {
@@ -82,6 +82,7 @@ export async function getParsedLogsAction(): Promise<LogEntry[]> {
     const dateObj = timestampMatch ? new Date(timestampMatch[1]) : null;
     return {
         timestamp: dateObj ? dateObj.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'N/A',
+        timestampISO: dateObj ? dateObj.toISOString() : new Date(0).toISOString(),
         source: parseValue(entry, 'Nguồn'),
         device: parseValue(entry, 'Thiết bị'),
         ip: parseValue(entry, 'Địa chỉ IP'),
@@ -95,14 +96,19 @@ export async function getParsedLogsAction(): Promise<LogEntry[]> {
     };
   });
 
-  return allLogs.reverse(); // Newest first
+  return { logs: allLogs.reverse(), rawContent: content }; // Newest first
+}
+
+
+export async function getParsedLogsAction(): Promise<{ logs: LogEntry[], rawContent: string }> {
+  return readAndParseLogs();
 }
 
 
 export async function getLogStatsAction(): Promise<LogStats> {
-  const content = await getLogContentAction();
+  const { logs: allParsedLogs } = await readAndParseLogs();
 
-  if (!content || content.trim() === '' || content.startsWith('Log file does not exist')) {
+  if (allParsedLogs.length === 0) {
      return {
       totalVisits: 0,
       uniqueIps: 0,
@@ -111,47 +117,29 @@ export async function getLogStatsAction(): Promise<LogStats> {
     };
   }
 
-  const entries = content.split('--- [').filter(e => e.trim() !== '');
-  const allIps = entries.map(e => parseValue(e, 'Địa chỉ IP')).filter(ip => ip !== 'N/A');
+  const allIps = allParsedLogs.map(log => log.ip).filter(ip => ip !== 'N/A');
   const uniqueIps = new Set(allIps).size;
   
   const now = new Date().getTime();
   const fiveMinutesAgo = now - 5 * 60 * 1000;
 
-  const allParsedLogs: RecentLog[] = entries.map(entry => {
-    const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
-    const dateObj = timestampMatch ? new Date(timestampMatch[1]) : null;
-    
-    return {
-      timestamp: dateObj ? dateObj.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'N/A',
-      timestampISO: dateObj ? dateObj.toISOString() : new Date(0).toISOString(),
-      ip: parseValue(entry, 'Địa chỉ IP'),
-      device: parseValue(entry, 'Thiết bị'),
-      address: parseValue(entry, 'Địa chỉ'),
-      coordinates: parseValue(entry, 'Tọa độ'),
-      accuracy: parseValue(entry, 'Độ chính xác'),
-      mapLink: parseValue(entry, 'Link Google Maps'),
-      source: parseValue(entry, 'Nguồn'),
-      language: parseValue(entry, 'Ngôn ngữ'),
-      timezone: parseValue(entry, 'Múi giờ'),
-      redirectUrl: parseValue(entry, 'Chuyển hướng đến'),
-    };
-  }).reverse(); // Newest first
-
   const visitsInLast5Mins = allParsedLogs.filter(log => {
-      const logDate = new Date(log.timestampISO as string);
+      const logDate = new Date(log.timestampISO);
       return logDate.getTime() >= fiveMinutesAgo;
   }).length;
 
   const recentLogs = allParsedLogs.slice(0, 10).map(log => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { timestampISO, ...rest } = log; // remove temporary ISO timestamp
     return rest;
   });
 
   return {
-    totalVisits: entries.length,
+    totalVisits: allParsedLogs.length,
     uniqueIps,
     recentLogs,
     visitsInLast5Mins,
   };
 }
+
+    

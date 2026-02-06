@@ -131,7 +131,7 @@ export function AppSidebar() {
           })}
         </div>
         
-        <div className="border-t border-border/50 p-2">
+        <div className="p-2 mt-auto border-t border-border/50">
             <SidebarMenu>
             <SidebarMenuItem>
                 <SidebarMenuButton disabled className="justify-start pointer-events-none">
@@ -153,3 +153,5 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
+
+    

