@@ -79,7 +79,7 @@ const permissionLabels: { [key in UserPermission]: string } = {
   image_links: 'Tạo Link Ảnh',
   file_creator: 'Tạo File DOCX',
   link_cloaker: 'Tạo Link Bọc',
-  pixel_tracker: 'Tạo Pixel Theo dõi',
+  pixel_tracker: 'Tạo IP Logger',
 }
 
 export default function UsersPage() {

@@ -5,7 +5,7 @@ import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin, ExternalLink, Binary, Package } from 'lucide-react'
+import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin, ExternalLink, Eye, Package } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
@@ -47,7 +47,7 @@ export default function AdminPage() {
     fetchLogs()
     let interval: any
     if (autoRefresh) {
-      interval = setInterval(fetchLogs, 5000) // Changed from 2000ms to 5000ms
+      interval = setInterval(fetchLogs, 5000)
     }
     return () => clearInterval(interval)
   }, [fetchLogs, autoRefresh])
@@ -156,8 +156,8 @@ export default function AdminPage() {
                                                 <span>{log.ip}</span>
                                                 {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
                                                 {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
-                                                {log.source === 'cloaker' && <Badge variant="default" className="gap-1 bg-orange-500 hover:bg-orange-600 text-white"><Package className="h-3 w-3"/>Bọc</Badge>}
-                                                {log.source === 'pixel_tracker' && <Badge variant="destructive" className="gap-1"><Binary className="h-3 w-3"/>Pixel</Badge>}
+                                                {log.source === 'cloaker' && <Badge variant="default" className="gap-1"><Package className="h-3 w-3"/>Bọc</Badge>}
+                                                {log.source === 'pixel_tracker' && <Badge variant="destructive" className="gap-1"><Eye className="h-3 w-3"/>Logger</Badge>}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-sm">
@@ -228,5 +228,3 @@ export default function AdminPage() {
     </SidebarProvider>
   )
 }
-
-    
