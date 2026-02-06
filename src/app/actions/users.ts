@@ -17,10 +17,15 @@ export interface User {
   permissions: UserPermission[];
 }
 
+export type SessionPayload = {
+  username: string;
+  permissions: UserPermission[];
+};
+
 // This secret should be moved to an environment variable in a real production app.
 const SESSION_SECRET = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3";
 
-async function createSession(payload: { username: string; permissions: UserPermission[] }) {
+async function createSession(payload: SessionPayload) {
     const sessionData = JSON.stringify(payload);
     const signature = crypto.createHmac('sha256', SESSION_SECRET).update(sessionData).digest('hex');
     const token = `${Buffer.from(sessionData).toString('base64')}.${signature}`;
@@ -34,7 +39,7 @@ async function createSession(payload: { username: string; permissions: UserPermi
     });
 }
 
-export async function getCurrentUserAction(): Promise<{ username: string; permissions: UserPermission[] } | null> {
+export async function getCurrentUserAction(): Promise<SessionPayload | null> {
     const token = cookies().get('session')?.value;
     if (!token) return null;
 
@@ -48,7 +53,7 @@ export async function getCurrentUserAction(): Promise<{ username: string; permis
         // Use timingSafeEqual to prevent timing attacks
         if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
             const payload = JSON.parse(sessionData);
-            return payload as { username: string; permissions: UserPermission[] };
+            return payload as SessionPayload;
         }
     } catch (e) {
         // Errors in parsing/verification mean an invalid token
@@ -93,7 +98,7 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-export async function loginAction(username: string, password_raw: string) {
+export async function loginAction(username: string, password_raw: string): Promise<{ success: true; user: SessionPayload } | { success: false; message: string }> {
   const users = await readUsers();
   const passwordHash = hashPassword(password_raw);
   
@@ -108,7 +113,7 @@ export async function loginAction(username: string, password_raw: string) {
   return { success: false, message: 'Tên đăng nhập hoặc mật khẩu không hợp lệ.' };
 }
 
-export async function getUsersAction() {
+export async function getUsersAction(): Promise<SessionPayload[]> {
   const users = await readUsers();
   return users.map(u => {
     const { passwordHash, ...user } = u;

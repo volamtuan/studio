@@ -14,12 +14,6 @@ export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
-  
-  // Clear old insecure session on load to ensure a clean login
-  React.useEffect(() => {
-    sessionStorage.removeItem('user');
-  }, [])
-
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

@@ -26,16 +26,10 @@ import {
   SidebarMenuItem,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { getCurrentUserAction, logoutAction } from "@/app/actions/users"
-
-interface User {
-  username: string;
-  permissions: string[];
-}
+import { getCurrentUserAction, logoutAction, type SessionPayload } from "@/app/actions/users"
 
 const analyticsNav = [
   { title: "Tổng Quan", url: "/dashboard", icon: LayoutDashboard, permission: null },
@@ -66,13 +60,13 @@ const navGroups = [
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const [user, setUser] = React.useState<User | null>(null);
+  const [user, setUser] = React.useState<SessionPayload | null>(null);
 
   React.useEffect(() => {
     async function fetchUser() {
         const currentUser = await getCurrentUserAction();
         if (currentUser) {
-            setUser(currentUser as User);
+            setUser(currentUser);
         } else {
             router.replace('/login');
         }

