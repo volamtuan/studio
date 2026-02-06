@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { getImageLinksAction, saveImageLinksAction, type ImageLinkConfig } from "@/app/actions/image-links"
-import { Copy, PlusCircle, Save, Trash2, Image as ImageIcon } from "lucide-react"
+import { uploadFileAction } from "@/app/actions/upload"
+import { Copy, PlusCircle, Save, Trash2, Image as ImageIcon, Loader2 } from "lucide-react"
 import NextImage from 'next/image'
 import {
   Dialog,
@@ -26,7 +27,7 @@ import { getCurrentUserAction } from "@/app/actions/users"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
-  imageUrl: z.string().url("Phải là một URL hình ảnh hợp lệ."),
+  // imageUrl is handled by file upload
 })
 
 export default function ImageLoggerPage() {
@@ -35,7 +36,12 @@ export default function ImageLoggerPage() {
   const [links, setLinks] = React.useState<ImageLinkConfig[]>([])
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
+  const [adding, setAdding] = React.useState(false)
   const [origin, setOrigin] = React.useState("")
+
+  // State for file upload
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     async function checkAuth() {
@@ -66,26 +72,62 @@ export default function ImageLoggerPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "Bạn có một ảnh mới!",
-      imageUrl: "https://picsum.photos/seed/pics/1200/630",
     },
   })
   
-  const currentImageUrl = form.watch("imageUrl")
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+        setImageFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    } else {
+        setImageFile(null);
+        setPreviewUrl(null);
+    }
+  }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!imageFile) {
+        toast({
+            variant: "destructive",
+            title: "Thiếu hình ảnh",
+            description: "Vui lòng chọn một tệp hình ảnh để tải lên.",
+        });
+        return;
+    }
+    setAdding(true);
+
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    const uploadResult = await uploadFileAction(formData);
+
+    if (!uploadResult.success) {
+        toast({
+            variant: "destructive",
+            title: "Lỗi tải lên",
+            description: uploadResult.message,
+        });
+        setAdding(false);
+        return;
+    }
+
     const newLink: ImageLinkConfig = {
       id: crypto.randomUUID(),
-      ...values
+      title: values.title,
+      imageUrl: uploadResult.url,
     }
     setLinks(prevLinks => [...prevLinks, newLink])
     toast({
       title: "Đã thêm liên kết ảnh mới",
       description: "Đừng quên nhấn 'Lưu thay đổi' để áp dụng.",
     })
-    form.reset({
-      title: "Bạn có một ảnh mới!",
-      imageUrl: "https://picsum.photos/seed/pics/1200/630",
-    })
+    
+    form.reset();
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
+    setImageFile(null);
+    setPreviewUrl(null);
+    setAdding(false);
   }
 
   const handleDelete = (id: string) => {
@@ -132,7 +174,7 @@ export default function ImageLoggerPage() {
           <SidebarTrigger />
           <h1 className="text-xl font-bold font-headline">Liên kết Theo dõi Ảnh</h1>
           <div className="ml-auto">
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving || adding}>
               <Save className="mr-2 h-4 w-4" />
               {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
             </Button>
@@ -150,16 +192,6 @@ export default function ImageLoggerPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Hình ảnh</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/image.png" {...field} />
-                        </FormControl>
-                        <FormDescription>Dán link ảnh sẽ hiển thị cho người dùng.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
                     <FormField control={form.control} name="title" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tiêu đề (og:title)</FormLabel>
@@ -169,18 +201,27 @@ export default function ImageLoggerPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
-                     {currentImageUrl && z.string().url().safeParse(currentImageUrl).success && (
+                    <FormItem>
+                        <FormLabel>Hình ảnh</FormLabel>
+                        <FormControl>
+                            <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer" />
+                        </FormControl>
+                        <FormDescription>Chọn một tệp ảnh sẽ hiển thị cho người dùng.</FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                     {previewUrl && (
                         <div className="space-y-2">
                             <FormLabel>Xem trước ảnh</FormLabel>
                             <div className="relative w-full aspect-[1.91/1] rounded-md bg-muted overflow-hidden border">
-                               <NextImage src={currentImageUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
+                               <NextImage src={previewUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
                             </div>
                         </div>
                     )}
                   </CardContent>
                   <CardFooter>
-                    <Button type="submit" className="w-full">
-                       <PlusCircle className="mr-2 h-4 w-4" /> Thêm Liên Kết
+                    <Button type="submit" className="w-full" disabled={adding || saving}>
+                       {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                       {adding ? 'Đang thêm...' : 'Thêm Liên Kết'}
                     </Button>
                   </CardFooter>
                 </form>

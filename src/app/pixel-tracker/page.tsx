@@ -13,13 +13,15 @@ import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { getPixelLinksAction, savePixelLinksAction, type PixelLinkConfig } from "@/app/actions/pixel-links"
-import { Copy, PlusCircle, Save, Trash2, Binary } from "lucide-react"
+import { uploadFileAction } from "@/app/actions/upload"
+import { Copy, PlusCircle, Save, Trash2, Binary, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getCurrentUserAction } from "@/app/actions/users"
+import Image from "next/image"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
-  imageUrl: z.string().url("Phải là một URL hình ảnh hợp lệ."),
+  // imageUrl is handled by file upload
 })
 
 export default function PixelTrackerPage() {
@@ -28,7 +30,12 @@ export default function PixelTrackerPage() {
   const [links, setLinks] = React.useState<PixelLinkConfig[]>([])
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
+  const [adding, setAdding] = React.useState(false)
   const [origin, setOrigin] = React.useState("")
+
+  // State for file upload
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     async function checkAuth() {
@@ -59,24 +66,62 @@ export default function PixelTrackerPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "Pixel theo dõi mới",
-      imageUrl: "https://via.placeholder.com/1", // Default to a 1x1 pixel
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+        setImageFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    } else {
+        setImageFile(null);
+        setPreviewUrl(null);
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!imageFile) {
+        toast({
+            variant: "destructive",
+            title: "Thiếu hình ảnh",
+            description: "Vui lòng chọn một tệp hình ảnh để tải lên. Đối với pixel 1x1, bạn có thể tạo một ảnh PNG trong suốt.",
+        });
+        return;
+    }
+    setAdding(true);
+
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    const uploadResult = await uploadFileAction(formData);
+
+    if (!uploadResult.success) {
+        toast({
+            variant: "destructive",
+            title: "Lỗi tải lên",
+            description: uploadResult.message,
+        });
+        setAdding(false);
+        return;
+    }
+
     const newLink: PixelLinkConfig = {
       id: crypto.randomUUID(),
-      ...values
+      title: values.title,
+      imageUrl: uploadResult.url
     }
     setLinks(prevLinks => [...prevLinks, newLink])
     toast({
       title: "Đã thêm pixel mới",
       description: "Đừng quên nhấn 'Lưu thay đổi' để áp dụng.",
     })
-    form.reset({
-      title: "Pixel theo dõi mới",
-      imageUrl: "https://via.placeholder.com/1",
-    })
+    
+    form.reset();
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
+    setImageFile(null);
+    setPreviewUrl(null);
+    setAdding(false);
   }
 
   const handleDelete = (id: string) => {
@@ -123,7 +168,7 @@ export default function PixelTrackerPage() {
           <SidebarTrigger />
           <h1 className="text-xl font-bold font-headline">Tạo Pixel Theo dõi</h1>
           <div className="ml-auto">
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving || adding}>
               <Save className="mr-2 h-4 w-4" />
               {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
             </Button>
@@ -151,20 +196,27 @@ export default function PixelTrackerPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Hình ảnh</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://via.placeholder.com/1" {...field} />
-                        </FormControl>
-                        <FormDescription>URL của hình ảnh sẽ được trả về (thường là pixel 1x1).</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                    <FormItem>
+                      <FormLabel>Tệp Hình ảnh</FormLabel>
+                      <FormControl>
+                        <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer" />
+                      </FormControl>
+                      <FormDescription>Tải lên hình ảnh sẽ được trả về (thường là pixel 1x1).</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                    {previewUrl && (
+                        <div className="space-y-2">
+                            <FormLabel>Xem trước</FormLabel>
+                            <div className="rounded-md bg-muted overflow-hidden border p-2 flex justify-center items-center">
+                               <Image src={previewUrl} alt="Xem trước ảnh" width={50} height={50} style={{ objectFit: 'contain' }} />
+                            </div>
+                        </div>
+                    )}
                   </CardContent>
                   <CardFooter>
-                    <Button type="submit" className="w-full">
-                       <PlusCircle className="mr-2 h-4 w-4" /> Thêm Pixel
+                    <Button type="submit" className="w-full" disabled={adding || saving}>
+                       {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                       {adding ? 'Đang thêm...' : 'Thêm Pixel'}
                     </Button>
                   </CardFooter>
                 </form>
