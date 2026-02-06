@@ -37,7 +37,7 @@ async function logAccess(linkId: string, title: string, imageUrl: string) {
 
     let telegramMessage = `*🔔 Pixel được xem!*\n\n`;
     telegramMessage += `*Tiêu đề:* \`${title}\`\n`;
-    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
+    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
     telegramMessage += `*Ảnh được trả về:* ${imageUrl}\n`;
     

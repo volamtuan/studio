@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     let telegramMessage = `*🔔 Truy cập mới (IP Link)!*\n\n`;
     telegramMessage += `*Tiêu đề:* \`${linkConfig.title}\`\n`;
-    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
+    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
     telegramMessage += `*Ngôn ngữ:* \`${language || 'N/A'}\`\n`;
     telegramMessage += `*Múi giờ:* \`${timezone || 'N/A'}\`\n`;

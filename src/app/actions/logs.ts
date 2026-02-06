@@ -79,8 +79,9 @@ export async function getParsedLogsAction(): Promise<LogEntry[]> {
   
   const allLogs: LogEntry[] = entries.map(entry => {
     const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
+    const dateObj = timestampMatch ? new Date(timestampMatch[1]) : null;
     return {
-        timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
+        timestamp: dateObj ? dateObj.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'N/A',
         source: parseValue(entry, 'Nguồn'),
         device: parseValue(entry, 'Thiết bị'),
         ip: parseValue(entry, 'Địa chỉ IP'),
@@ -119,9 +120,11 @@ export async function getLogStatsAction(): Promise<LogStats> {
 
   const allParsedLogs: RecentLog[] = entries.map(entry => {
     const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
+    const dateObj = timestampMatch ? new Date(timestampMatch[1]) : null;
+    
     return {
-      timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
-      timestampISO: timestampMatch ? new Date(timestampMatch[1]).toISOString() : new Date(0).toISOString(),
+      timestamp: dateObj ? dateObj.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'N/A',
+      timestampISO: dateObj ? dateObj.toISOString() : new Date(0).toISOString(),
       ip: parseValue(entry, 'Địa chỉ IP'),
       device: parseValue(entry, 'Thiết bị'),
       address: parseValue(entry, 'Địa chỉ'),

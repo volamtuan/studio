@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     logData += `Múi giờ: ${timezone || 'N/A'}\n`;
 
     let telegramMessage = `*🔔 Truy cập mới (${sourceText})!*\n\n`;
-    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
+    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}\`\n`;
     telegramMessage += `*Thiết bị:* \`${ua}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
     telegramMessage += `*Ngôn ngữ:* \`${language || 'N/A'}\`\n`;

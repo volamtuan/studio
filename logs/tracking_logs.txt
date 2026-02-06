@@ -155,3 +155,47 @@ Tọa độ: 10.936630189419539, 106.79418636522291
 Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
 Link Google Maps: https://www.google.com/maps?q=10.936630189419539,106.79418636522291
 ----------------------------------
+--- [2026-02-06T03:13:04.338Z] MỚI TRUY CẬP ---
+Nguồn: pixel_tracker
+Thiết bị: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 _zbot
+Địa chỉ IP: 127.0.0.1
+Ngôn ngữ: N/A
+Múi giờ: N/A
+Tọa độ: N/A
+Độ chính xác: N/A
+Địa chỉ: Pixel theo dõi mới
+Link Google Maps: https://thumbs.dreamstime.com/b/click-web-website-icon-vector-isolated-white-background-icon-click-web-website-icon-vector-isolated-white-background-252008803.jpg
+----------------------------------
+--- [2026-02-06T03:13:05.454Z] MỚI TRUY CẬP ---
+Nguồn: pixel_tracker
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/696 ZaloTheme/light ZaloLanguage/vn
+Địa chỉ IP: 127.0.0.1
+Ngôn ngữ: vi-VN
+Múi giờ: N/A
+Tọa độ: N/A
+Độ chính xác: N/A
+Địa chỉ: Pixel theo dõi mới
+Link Google Maps: https://thumbs.dreamstime.com/b/click-web-website-icon-vector-isolated-white-background-icon-click-web-website-icon-vector-isolated-white-background-252008803.jpg
+----------------------------------
+--- [2026-02-06T03:16:42.374Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.936628914007843, 106.79418526032443
+Độ chính xác: 9.281945281484429m
+Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.936628914007843,106.79418526032443
+----------------------------------
+--- [2026-02-06T03:17:36.417Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.93663977912601, 106.7941790239965
+Độ chính xác: 12.451578435622146m
+Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.93663977912601,106.7941790239965
+----------------------------------
