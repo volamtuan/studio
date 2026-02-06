@@ -11,6 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from '@/components/ui/badge';
 import { getLogContentAction } from '../actions/logs';
 import { MapPreviewPopup } from '@/components/map-preview-popup';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { getCurrentUserAction, logoutAction } from '@/app/actions/users';
 
 
 interface RecentLog {
@@ -100,6 +103,8 @@ async function getLogStats(content: string): Promise<LogStats> {
 export default function DashboardPage() {
   const [statsData, setStatsData] = React.useState<LogStats>({ totalVisits: 0, uniqueIps: 0, recentLogs: [], visitsInLast5Mins: 0 });
   const [loading, setLoading] = React.useState(true);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const fetchStats = React.useCallback(async () => {
     const content = await getLogContentAction();
@@ -109,10 +114,28 @@ export default function DashboardPage() {
   }, []);
 
   React.useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 5000); // Auto-refresh every 5 seconds
-    return () => clearInterval(interval);
-  }, [fetchStats]);
+    let interval: NodeJS.Timeout | undefined;
+    
+    async function checkAuthAndFetch() {
+        const user = await getCurrentUserAction();
+        if (!user || user.permissions.length === 0) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Tài khoản không có quyền. Vui lòng liên hệ quản trị viên.', variant: 'destructive' });
+            await logoutAction();
+            router.replace('/login');
+        } else {
+            fetchStats();
+            interval = setInterval(fetchStats, 5000); // Auto-refresh every 5 seconds
+        }
+    }
+
+    checkAuthAndFetch();
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [fetchStats, router, toast]);
 
   const statsCards = [
       { title: "Tổng Lượt Truy Cập", value: statsData.totalVisits.toLocaleString(), icon: Users },

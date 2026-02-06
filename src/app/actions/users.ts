@@ -106,6 +106,9 @@ export async function loginAction(formData: FormData): Promise<{ success: true; 
   const user = users.find(u => u.username === username);
 
   if (user && user.passwordHash === passwordHash) {
+    if (user.permissions.length === 0) {
+      return { success: false, message: 'Tài khoản của bạn không có quyền truy cập. Vui lòng liên hệ quản trị viên.' };
+    }
     const { passwordHash: _, ...userToReturn } = user;
     await createSession(userToReturn, remember);
     return { success: true, user: userToReturn };
