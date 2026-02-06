@@ -79,7 +79,7 @@ export default function PixelTrackerPage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!imageFile) {
         toast({
             variant: "destructive",
@@ -227,7 +227,16 @@ export default function PixelTrackerPage() {
                 {loading ? <p>Đang tải danh sách...</p> : (
                   links.length > 0 ? (
                     links.map(link => (
-                      <Card key={link.id} className="flex flex-col sm:flex-row items-start gap-4 p-4">
+                      <Card key={link.id} className="flex flex-col sm:flex-row items-center gap-4 p-4">
+                        <div className="relative w-20 h-20 sm:w-12 sm:h-12 shrink-0 bg-muted rounded-md flex items-center justify-center border p-1">
+                            <Image 
+                                src={link.imageUrl} 
+                                alt={link.title} 
+                                layout="fill" 
+                                objectFit="contain" 
+                                className="rounded-sm"
+                            />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{link.title}</p>
                           <p className="text-xs text-muted-foreground truncate">Trả về ảnh từ: {link.imageUrl}</p>
