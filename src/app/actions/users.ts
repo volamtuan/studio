@@ -17,15 +17,12 @@ export interface User {
   permissions: UserPermission[];
 }
 
-export type SessionPayload = {
-  username: string;
-  permissions: UserPermission[];
-};
+export type SessionPayload = Omit<User, 'passwordHash'>;
 
 // This secret should be moved to an environment variable in a real production app.
 const SESSION_SECRET = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3";
 
-async function createSession(payload: SessionPayload) {
+async function createSession(payload: SessionPayload, remember: boolean) {
     const sessionData = JSON.stringify(payload);
     const signature = crypto.createHmac('sha256', SESSION_SECRET).update(sessionData).digest('hex');
     const token = `${Buffer.from(sessionData).toString('base64')}.${signature}`;
@@ -33,7 +30,7 @@ async function createSession(payload: SessionPayload) {
     cookies().set('session', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24, // 1 day
+        maxAge: remember ? 60 * 60 * 24 * 30 : undefined, // 30 days or session
         path: '/',
         sameSite: 'lax',
     });
@@ -98,7 +95,11 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-export async function loginAction(username: string, password_raw: string): Promise<{ success: true; user: SessionPayload } | { success: false; message: string }> {
+export async function loginAction(formData: FormData): Promise<{ success: true; user: SessionPayload } | { success: false; message: string }> {
+  const username = formData.get('username') as string;
+  const password_raw = formData.get('password') as string;
+  const remember = formData.get('remember') === 'on';
+
   const users = await readUsers();
   const passwordHash = hashPassword(password_raw);
   
@@ -106,7 +107,7 @@ export async function loginAction(username: string, password_raw: string): Promi
 
   if (user && user.passwordHash === passwordHash) {
     const { passwordHash: _, ...userToReturn } = user;
-    await createSession(userToReturn);
+    await createSession(userToReturn, remember);
     return { success: true, user: userToReturn };
   }
   
