@@ -17,6 +17,7 @@ import { uploadFileAction } from "@/app/actions/upload"
 import { Copy, PlusCircle, Save, Trash2, Eye, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getCurrentUserAction } from "@/app/actions/users"
+import Image from "next/image"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -79,7 +80,7 @@ export default function PixelTrackerPage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>>) {
     if (!imageFile) {
         toast({
             variant: "destructive",
@@ -229,10 +230,11 @@ export default function PixelTrackerPage() {
                     links.map(link => (
                       <Card key={link.id} className="flex flex-col sm:flex-row items-center gap-4 p-4">
                         <div className="relative w-20 h-20 sm:w-12 sm:h-12 shrink-0 bg-muted rounded-md flex items-center justify-center border p-1">
-                            <img
+                            <Image
                                 src={link.imageUrl}
                                 alt={link.title}
-                                className="w-full h-full object-contain rounded-sm"
+                                fill
+                                className="object-contain rounded-sm"
                             />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -265,5 +267,3 @@ export default function PixelTrackerPage() {
     </SidebarProvider>
   )
 }
-
-    

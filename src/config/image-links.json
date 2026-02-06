@@ -2,16 +2,25 @@
   {
     "id": "68c5a124-fda4-464a-96ee-fa19f1521c76",
     "title": " ",
-    "imageUrl": "https://picsum.photos/seed/pics/1200/630"
+    "imageUrl": "https://picsum.photos/seed/pics/1200/630",
+    "description": "Nhấn để xem ảnh đầy đủ."
   },
   {
     "id": "3b26687d-2750-4c74-a3db-cd8754bc1115",
     "title": "Tiểu sử Đức quốc công Đào Minh Quân",
-    "imageUrl": "/uploads/6cec3ad8-b5d1-4c48-b794-62e5e08ceb09.jpeg"
+    "imageUrl": "/uploads/6cec3ad8-b5d1-4c48-b794-62e5e08ceb09.jpeg",
+    "description": "Nhấn để xem ảnh đầy đủ."
   },
   {
     "id": "0cf16002-34d8-491b-89b7-5079dfaa2f1d",
     "title": "Vay tiền hỗ trợ nợ xấu",
-    "imageUrl": "/uploads/e43b4a68-698a-4c11-be5a-f8d9a9946ace.jpeg"
+    "imageUrl": "/uploads/e43b4a68-698a-4c11-be5a-f8d9a9946ace.jpeg",
+    "description": "Nhấn để xem ảnh đầy đủ."
+  },
+  {
+    "id": "6608dfc9-86d7-4b95-bba0-9a2bcf24119b",
+    "title": "Tiểu sử Đức quốc công Đào Minh Quân",
+    "description": "Tội ác cộng sản với Đào Minh Quân và công ơn cao cả của Ngài",
+    "imageUrl": "/uploads/db301068-a153-490c-9380-f42014f98af2.jpeg"
   }
 ]

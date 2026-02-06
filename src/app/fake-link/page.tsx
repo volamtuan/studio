@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { getCurrentUserAction } from "@/app/actions/users"
+import Image from "next/image"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -90,7 +91,7 @@ export default function FakeLinkPage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>>) {
     if (!imageFile) {
         toast({
             variant: "destructive",
@@ -261,7 +262,7 @@ export default function FakeLinkPage() {
                         <Dialog>
                           <DialogTrigger asChild>
                             <div className="relative w-full sm:w-32 h-32 sm:h-20 shrink-0 cursor-pointer group">
-                               <img src={link.imageUrl} alt={link.title} className="w-full h-full object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
+                               <Image src={link.imageUrl} alt={link.title} fill className="object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
                             </div>
                           </DialogTrigger>
                           <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
@@ -269,7 +270,9 @@ export default function FakeLinkPage() {
                                 <DialogTitle>{link.title}</DialogTitle>
                                 <DialogDescription>{link.description}</DialogDescription>
                             </DialogHeader>
-                            <img src={link.imageUrl} alt={link.title} className="rounded-md w-full h-auto" />
+                            <div className="relative w-full aspect-video">
+                                <Image src={link.imageUrl} alt={link.title} fill className="object-contain rounded-md" />
+                            </div>
                           </DialogContent>
                         </Dialog>
                         <div className="flex-1 min-w-0">
@@ -302,5 +305,3 @@ export default function FakeLinkPage() {
     </SidebarProvider>
   )
 }
-
-    
