@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { getImageLinksAction, saveImageLinksAction, type ImageLinkConfig } from "@/app/actions/image-links"
@@ -19,6 +20,9 @@ import NextImage from 'next/image'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
@@ -27,7 +31,7 @@ import { getCurrentUserAction } from "@/app/actions/users"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
-  // imageUrl is handled by file upload
+  description: z.string().optional(),
 })
 
 export default function ImageLoggerPage() {
@@ -72,6 +76,7 @@ export default function ImageLoggerPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "Bạn có một ảnh mới!",
+      description: "Nhấn để xem ảnh đầy đủ.",
     },
   })
   
@@ -114,6 +119,7 @@ export default function ImageLoggerPage() {
     const newLink: ImageLinkConfig = {
       id: crypto.randomUUID(),
       title: values.title,
+      description: values.description || "Nhấn để xem ảnh đầy đủ.",
       imageUrl: uploadResult.url,
     }
     setLinks(prevLinks => [...prevLinks, newLink])
@@ -201,6 +207,15 @@ export default function ImageLoggerPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
+                    <FormField control={form.control} name="description" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mô tả (og:description)</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Mô tả ngắn gọn..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                     <FormItem>
                         <FormLabel>Hình ảnh</FormLabel>
                         <FormControl>
@@ -213,7 +228,7 @@ export default function ImageLoggerPage() {
                         <div className="space-y-2">
                             <FormLabel>Xem trước ảnh</FormLabel>
                             <div className="relative w-full aspect-[1.91/1] rounded-md bg-muted overflow-hidden border">
-                               <NextImage src={previewUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
+                               <img src={previewUrl} alt="Xem trước ảnh" className="w-full h-full object-cover" />
                             </div>
                         </div>
                     )}
@@ -247,14 +262,19 @@ export default function ImageLoggerPage() {
                                 </div>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
-                                <NextImage src={link.imageUrl} alt={link.title} width={1200} height={630} className="rounded-md w-full h-auto" />
+                                <DialogHeader className="sr-only">
+                                  <DialogTitle>{link.title}</DialogTitle>
+                                  <DialogDescription>{link.description}</DialogDescription>
+                               </DialogHeader>
+                                <img src={link.imageUrl} alt={link.title} className="rounded-md w-full h-auto" />
                             </DialogContent>
                         </Dialog>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{link.title}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{link.description}</p>
                           <div className="mt-2 flex items-center gap-2 bg-muted/50 p-2 rounded-md">
                             <ImageIcon className="h-3 w-3 text-muted-foreground shrink-0"/>
-                             <a href={link.imageUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-code text-muted-foreground truncate hover:text-primary hover:underline" title="Xem ảnh gốc">
+                             <a href={`${origin}/i/${link.id}`} target="_blank" rel="noopener noreferrer" className="text-xs font-code text-muted-foreground truncate hover:text-primary hover:underline" title="Mở liên kết">
                                 /i/{link.id}
                               </a>
                           </div>

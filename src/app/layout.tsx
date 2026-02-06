@@ -31,6 +31,7 @@ export async function generateMetadata(
       title: config.title,
       description: config.description,
       images: [imageUrl, ...previousImages],
+      url: config.redirectUrl,
     },
   }
 }

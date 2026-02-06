@@ -10,6 +10,7 @@ const configPath = path.join(process.cwd(), 'src', 'config', 'image-links.json')
 export interface ImageLinkConfig {
   id: string;
   title: string;
+  description: string;
   imageUrl: string;
 }
 
@@ -24,7 +25,12 @@ export async function getImageLinksAction(): Promise<ImageLinkConfig[]> {
 
   try {
     const content = await fs.readFile(configPath, 'utf-8');
-    return JSON.parse(content) as ImageLinkConfig[];
+    const links = JSON.parse(content) as ImageLinkConfig[];
+    // Add default description for old links that don't have one
+    return links.map(link => ({
+        ...link,
+        description: link.description || 'Nhấn để xem ảnh đầy đủ.'
+    }));
   } catch (error) {
     console.error("Failed to read or parse image links config:", error);
     return [];

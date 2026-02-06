@@ -35,28 +35,26 @@ export async function generateMetadata(
     ? config.imageUrl
     : `${baseUrl}${config.imageUrl}`;
     
-  const pageUrl = `${baseUrl}/i/${params.id}`;
-
   const previousImages = (await parent).openGraph?.images || []
 
   return {
     title: config.title,
-    description: 'Nhấn để xem ảnh đầy đủ.',
+    description: config.description,
     openGraph: {
       title: config.title,
-      description: 'Nhấn để xem ảnh đầy đủ.',
+      description: config.description,
       images: [{
           url: imageUrl,
           width: 1200,
           height: 630,
       }, ...previousImages],
-      type: 'website',
-      url: pageUrl,
+      type: 'article',
+      url: imageUrl,
     },
      twitter: {
         card: "summary_large_image",
         title: config.title,
-        description: 'Nhấn để xem ảnh đầy đủ.',
+        description: config.description,
         images: [imageUrl],
     },
   }

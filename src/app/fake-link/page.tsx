@@ -20,6 +20,9 @@ import Image from 'next/image'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
@@ -229,7 +232,7 @@ export default function FakeLinkPage() {
                         <div className="space-y-2">
                             <FormLabel>Xem trước ảnh</FormLabel>
                             <div className="relative w-full aspect-[1.91/1] rounded-md bg-muted overflow-hidden border">
-                               <Image src={previewUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
+                               <img src={previewUrl} alt="Xem trước ảnh" className="w-full h-full object-cover" />
                             </div>
                         </div>
                     )}
@@ -263,7 +266,11 @@ export default function FakeLinkPage() {
                             </div>
                           </DialogTrigger>
                           <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
-                            <Image src={link.imageUrl} alt={link.title} width={1200} height={630} className="rounded-md w-full h-auto" />
+                             <DialogHeader className="sr-only">
+                                <DialogTitle>{link.title}</DialogTitle>
+                                <DialogDescription>{link.description}</DialogDescription>
+                            </DialogHeader>
+                            <img src={link.imageUrl} alt={link.title} className="rounded-md w-full h-auto" />
                           </DialogContent>
                         </Dialog>
                         <div className="flex-1 min-w-0">
