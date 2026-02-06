@@ -36,7 +36,6 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useRouter } from "next/navigation"
 import { getCurrentUserAction } from "@/app/actions/users"
-import Image from "next/image"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -282,7 +281,7 @@ export default function SettingsPage() {
                           <div className="space-y-2">
                               <FormLabel>Xem trước</FormLabel>
                               <div className="relative w-24 h-24 rounded-md bg-muted overflow-hidden border">
-                                  <Image src={previewUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
+                                  <img src={previewUrl} alt="Xem trước ảnh" className="w-full h-full object-cover" />
                               </div>
                           </div>
                        )}
