@@ -91,7 +91,7 @@ export default function FakeLinkPage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!imageFile) {
         toast({
             variant: "destructive",
@@ -305,3 +305,5 @@ export default function FakeLinkPage() {
     </SidebarProvider>
   )
 }
+
+    
