@@ -1,9 +1,18 @@
 'use client';
     
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { CloakedLinkConfig } from '@/app/actions/cloaked-links';
 import { useLocationLogger } from '@/hooks/use-location-logger';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RedirectClientProps {
   config: CloakedLinkConfig;
@@ -11,34 +20,57 @@ interface RedirectClientProps {
 
 export function RedirectClient({ config }: RedirectClientProps) {
   const { id, redirectUrl } = config;
-  const [statusText, setStatusText] = useState('Đang chuyển hướng an toàn...');
+  const [statusText, setStatusText] = useState('Đang chờ xác nhận...');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const { log } = useLocationLogger('/api/log-cloaked-link', { id });
 
-  useEffect(() => {
-    const logAndRedirect = () => {
-      setStatusText('Đang xác minh và chuyển hướng...');
-      log({
-        onSuccess: () => {
-          window.location.href = redirectUrl;
-        },
-        onError: () => {
-          // On any error, just log without geo and redirect
-          window.location.href = redirectUrl;
-        }
-      });
-    };
-
-    const timer = setTimeout(logAndRedirect, 500);
-    return () => clearTimeout(timer);
+  const handleConfirmHuman = useCallback(() => {
+    setIsDialogOpen(false);
+    setStatusText('Đang xác minh và chuyển hướng...');
+    log({
+      onSuccess: () => {
+        window.location.href = redirectUrl;
+      },
+      onError: () => {
+        window.location.href = redirectUrl;
+      }
+    });
   }, [log, redirectUrl]);
 
+  const handleDenyHuman = () => {
+      setIsDialogOpen(false);
+      setStatusText('Đang chuyển hướng...');
+      log({
+          onSuccess: () => { window.location.href = redirectUrl; },
+          onError: () => { window.location.href = redirectUrl; }
+      });
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsDialogOpen(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="flex justify-center items-center min-h-svh bg-background p-4">
-      <div className="flex flex-col items-center gap-4 text-muted-foreground">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-lg font-medium">{statusText}</p>
-      </div>
-    </div>
+    <>
+        <div className="flex justify-center items-center min-h-svh bg-background p-4">
+        <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-lg font-medium">{statusText}</p>
+        </div>
+        </div>
+         <AlertDialog open={isDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Bạn có phải là con người không?</AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={handleDenyHuman}>Không</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleConfirmHuman}>Có</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </>
   );
 }
