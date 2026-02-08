@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -13,6 +14,7 @@ import {
   FilePlus2,
   Eye,
   Package,
+  Globe,
 } from "lucide-react"
 import {
   Sidebar,
@@ -39,6 +41,7 @@ const creatorNav = [
   { title: "Link Bọc", url: "/cloaker", icon: Package, permission: "link_cloaker" },
   { title: "Tạo File DOCX", url: "/file-creator", icon: FilePlus2, permission: "file_creator" },
   { title: "IP Logger", url: "/pixel-tracker", icon: Eye, permission: "pixel_tracker" },
+  { title: "Tạo Link Lấy IP", url: "/ip-logger", icon: Globe, permission: "ip_links" },
 ];
 
 const adminNav = [

@@ -43,7 +43,8 @@ import {
   PlusCircle,
   Save,
   Trash2,
-  Pencil
+  Pencil,
+  Globe
 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/hooks/use-toast'
@@ -69,7 +70,8 @@ const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
     'image_links', 
     'file_creator',
     'link_cloaker',
-    'pixel_tracker'
+    'pixel_tracker',
+    'ip_links'
 ];
 
 
@@ -80,6 +82,7 @@ const permissionLabels: { [key in UserPermission]: string } = {
   file_creator: 'Tạo File DOCX',
   link_cloaker: 'Tạo Link Bọc',
   pixel_tracker: 'Tạo IP Logger',
+  ip_links: 'Tạo Link Lấy IP'
 }
 
 export default function UsersPage() {
