@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -122,7 +121,18 @@ export default function DashboardPage() {
                                                     {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
                                                     {log.source === 'cloaker' && <Badge variant="default" className="gap-1"><Package className="h-3 w-3"/>Bọc</Badge>}
                                                     {log.source === 'pixel_tracker' && <Badge variant="destructive" className="gap-1"><Eye className="h-3 w-3"/>Logger</Badge>}
+                                                    {log.source === 'ip_link' && <Badge variant="outline" className="gap-1"><Globe className="h-3 w-3"/>IP Link</Badge>}
                                                 </div>
+                                                {log.isp && log.isp !== 'N/A' && (
+                                                    <div className="text-muted-foreground/80 truncate max-w-[250px]" title={log.isp}>
+                                                        {log.isp}
+                                                    </div>
+                                                )}
+                                                {log.ipType && log.ipType !== 'N/A' && (
+                                                    <div className="text-amber-600 dark:text-amber-500 text-xs font-semibold" title={log.ipType}>
+                                                        {log.ipType}
+                                                    </div>
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-sm">
                                                 <div className="font-medium truncate max-w-xs">{log.address}</div>

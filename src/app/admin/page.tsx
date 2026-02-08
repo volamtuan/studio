@@ -5,7 +5,7 @@ import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin, ExternalLink, Eye, Package } from 'lucide-react'
+import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin, ExternalLink, Eye, Package, Globe } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
@@ -158,7 +158,18 @@ export default function AdminPage() {
                                                 {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
                                                 {log.source === 'cloaker' && <Badge variant="default" className="gap-1"><Package className="h-3 w-3"/>Bọc</Badge>}
                                                 {log.source === 'pixel_tracker' && <Badge variant="destructive" className="gap-1"><Eye className="h-3 w-3"/>Logger</Badge>}
+                                                {log.source === 'ip_link' && <Badge variant="outline" className="gap-1"><Globe className="h-3 w-3"/>IP Link</Badge>}
                                             </div>
+                                             {log.isp && log.isp !== 'N/A' && (
+                                                <div className="text-muted-foreground/80 truncate max-w-[250px]" title={log.isp}>
+                                                    {log.isp}
+                                                </div>
+                                            )}
+                                            {log.ipType && log.ipType !== 'N/A' && (
+                                                <div className="text-amber-600 dark:text-amber-500 text-xs font-semibold" title={log.ipType}>
+                                                    {log.ipType}
+                                                </div>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             <div className="font-medium truncate max-w-xs">{log.address}</div>

@@ -21,6 +21,8 @@ export interface LogEntry {
   timezone: string;
   redirectUrl?: string;
   timestampISO: string;
+  isp?: string;
+  ipType?: string;
 }
 
 export interface RecentLog extends Omit<LogEntry, 'timestampISO'> {}
@@ -86,6 +88,8 @@ async function readAndParseLogs(): Promise<{ logs: LogEntry[], rawContent: strin
         source: parseValue(entry, 'Nguồn'),
         device: parseValue(entry, 'Thiết bị'),
         ip: parseValue(entry, 'Địa chỉ IP'),
+        isp: parseValue(entry, 'ISP'),
+        ipType: parseValue(entry, 'Loại IP'),
         coordinates: parseValue(entry, 'Tọa độ'),
         accuracy: parseValue(entry, 'Độ chính xác'),
         address: parseValue(entry, 'Địa chỉ'),
@@ -141,5 +145,3 @@ export async function getLogStatsAction(): Promise<LogStats> {
     visitsInLast5Mins,
   };
 }
-
-    
