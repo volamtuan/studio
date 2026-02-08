@@ -32,7 +32,7 @@ import { getCurrentUserAction, logoutAction, type SessionPayload, type UserPermi
 
 const analyticsNav = [
   { title: "Tổng Quan", url: "/dashboard", icon: LayoutDashboard, permission: null },
-  { title: "Nhật Ký Truy Cập", url: "/admin", icon: FileKey2, permission: null },
+  { title: "Nhật Ký Truy Cập", url: "/admin", icon: FileKey2, permission: "access_logs" },
 ];
 
 const creatorNav = [

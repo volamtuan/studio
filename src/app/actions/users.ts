@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 
 const usersConfigPath = path.join(process.cwd(), 'src', 'config', 'users.json');
 
-export type UserPermission = 'admin' | 'map_links' | 'image_links' | 'file_creator' | 'link_cloaker' | 'pixel_tracker' | 'ip_links';
+export type UserPermission = 'admin' | 'access_logs' | 'map_links' | 'image_links' | 'file_creator' | 'link_cloaker' | 'pixel_tracker' | 'ip_links';
 
 export interface User {
   username: string;
@@ -179,8 +179,17 @@ export async function updateUserAction(formData: FormData) {
         return { success: false, message: 'Không tìm thấy người dùng.' };
     }
 
-    if (users[userIndex].username === 'vlt') {
-        return { success: false, message: 'Không thể thay đổi quyền của quản trị viên gốc.' };
+    if (users[userIndex].username === 'vlt' && username === 'vlt') {
+       // Allow changing other admins' permissions, but not the main 'vlt' admin
+       const editorIsVlt = session.username === 'vlt';
+       if (!editorIsVlt) {
+           return { success: false, message: 'Bạn không thể thay đổi quyền của quản trị viên gốc.' };
+       }
+    }
+    
+    // An admin can't remove their own admin rights
+    if (session.username === username && !permissions.includes('admin')) {
+        return { success: false, message: "Bạn không thể xóa quyền quản trị của chính mình." };
     }
 
     users[userIndex].permissions = permissions;

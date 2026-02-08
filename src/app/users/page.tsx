@@ -67,6 +67,7 @@ type User = {
 
 const ALL_PERMISSIONS: UserPermission[] = [
     'admin',
+    'access_logs',
     'map_links', 
     'image_links', 
     'file_creator',
@@ -78,6 +79,7 @@ const ALL_PERMISSIONS: UserPermission[] = [
 
 const permissionLabels: { [key in UserPermission]: string } = {
   admin: 'Quản trị viên',
+  access_logs: 'Xem Nhật Ký Truy Cập',
   map_links: 'Tạo Link Map',
   image_links: 'Tạo Link Ảnh',
   file_creator: 'Tạo File DOCX',
@@ -376,6 +378,7 @@ export default function UsersPage() {
                                             name="permissions" 
                                             value={p} 
                                             defaultChecked={editingUser?.permissions.includes(p)}
+                                            disabled={editingUser?.username === 'vlt' && p === 'admin'}
                                         />
                                         <Label htmlFor={`edit-${p}`}>{permissionLabels[p]}</Label>
                                     </div>
