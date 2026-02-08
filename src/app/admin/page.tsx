@@ -28,9 +28,9 @@ export default function AdminPage() {
   React.useEffect(() => {
     async function checkAuth() {
         const user = await getCurrentUserAction();
-        if (!user || !user.permissions?.includes('admin')) {
-            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-            router.replace('/dashboard');
+        if (!user) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn cần đăng nhập để truy cập trang này.', variant: 'destructive' });
+            router.replace('/login');
         }
     }
     checkAuth();
