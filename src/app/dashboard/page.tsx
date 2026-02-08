@@ -88,7 +88,7 @@ export default function DashboardPage() {
                 ))}
             </div>
             
-            {!hasLogsPermission && (
+            {hasLogsPermission && (
               <div className="mt-6">
                   <Card>
                       <CardHeader>
