@@ -1,12 +1,12 @@
 
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { getAddressFromIp } from '@/lib/server-utils';
+import { getAddressFromIp, type IpInfo } from '@/lib/server-utils';
 
 /**
  * API endpoint to get estimated geolocation data based on the request's IP address.
  * This does not require client-side permissions.
- * @returns JSON response with IP, estimated_address, and coordinates.
+ * @returns JSON response with IP, estimated_address, and other details.
  */
 export async function GET(request: Request) {
   try {
@@ -26,13 +26,12 @@ export async function GET(request: Request) {
         }, { status: 400 });
     }
 
-    // Get estimated location from the determined IP address
-    const { address, lat, lon } = await getAddressFromIp(finalIp);
+    // Get detailed estimated location from the determined IP address
+    const ipInfo: IpInfo = await getAddressFromIp(finalIp);
     
     const responsePayload = {
       ip: finalIp,
-      estimated_address: address,
-      coordinates: (lat && lon) ? { lat, lon } : 'N/A'
+      ...ipInfo,
     };
     
     return NextResponse.json(responsePayload);

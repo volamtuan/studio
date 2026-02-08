@@ -25,19 +25,31 @@ export async function getAddress(lat: number, lon: number): Promise<string> {
     }
 }
 
+export interface IpInfo {
+    address: string;
+    lat?: number;
+    lon?: number;
+    city?: string;
+    regionName?: string;
+    country?: string;
+    zip?: string;
+    isp?: string;
+    org?: string;
+}
+
 /**
  * Gets an approximate address from an IP address using ip-api.com.
  * @param ip - The public IP address of the user.
- * @returns An object containing the address string and optional coordinates.
+ * @returns An object containing detailed address information.
  */
-export async function getAddressFromIp(ip: string): Promise<{ address: string; lat?: number; lon?: number }> {
+export async function getAddressFromIp(ip: string): Promise<IpInfo> {
     // Do not geolocate private or local IPs
     if (ip === 'N/A' || ip === '127.0.0.1' || ip.startsWith('::1')) {
         return { address: "(Vị trí bị từ chối, không có IP công khai)" };
     }
 
     try {
-        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon`);
+        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,zip,lat,lon,isp,org`);
         
         if (!response.ok) {
             return { address: `(Không thể tra cứu IP: ${response.statusText})` };
@@ -56,6 +68,12 @@ export async function getAddressFromIp(ip: string): Promise<{ address: string; l
             address: displayAddress,
             lat: data.lat,
             lon: data.lon,
+            city: data.city,
+            regionName: data.regionName,
+            country: data.country,
+            zip: data.zip,
+            isp: data.isp,
+            org: data.org
         };
 
     } catch (error) {
