@@ -258,7 +258,7 @@ export default function ImageLoggerPage() {
                         <Dialog>
                             <DialogTrigger asChild>
                                 <div className="relative w-full sm:w-32 h-32 sm:h-auto sm:aspect-[1.91/1] shrink-0 cursor-pointer group">
-                                <Image src={link.imageUrl} alt={link.title} fill className="object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
+                                <img src={link.imageUrl} alt={link.title} className="w-full h-full object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
                                 </div>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
@@ -267,7 +267,7 @@ export default function ImageLoggerPage() {
                                   <DialogDescription>{link.description}</DialogDescription>
                                </DialogHeader>
                                 <div className="relative w-full aspect-video">
-                                  <Image src={link.imageUrl} alt={link.title} fill className="object-contain rounded-md" />
+                                  <img src={link.imageUrl} alt={link.title} className="w-full h-full object-contain rounded-md" />
                                 </div>
                             </DialogContent>
                         </Dialog>

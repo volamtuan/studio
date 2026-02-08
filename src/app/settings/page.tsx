@@ -36,6 +36,7 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useRouter } from "next/navigation"
 import { getCurrentUserAction } from "@/app/actions/users"
+import Image from "next/image"
 
 const formSchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
@@ -367,3 +368,5 @@ export default function SettingsPage() {
     </SidebarProvider>
   )
 }
+
+    
