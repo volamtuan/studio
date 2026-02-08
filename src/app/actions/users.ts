@@ -73,15 +73,15 @@ async function readUsers(): Promise<User[]> {
     return JSON.parse(fileContent);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      // If file doesn't exist, return the default admin user in memory.
+      // The file will be created on the first user write action.
       const defaultAdminPassword = "123";
       const passwordHash = crypto.createHash('sha256').update(defaultAdminPassword).digest('hex');
-      const defaultUser: User[] = [{
+      return [{
         username: "vlt",
         passwordHash: passwordHash,
         permissions: ["admin"]
       }];
-      await fs.writeFile(usersConfigPath, JSON.stringify(defaultUser, null, 2), 'utf-8');
-      return defaultUser;
     }
     console.error("Failed to read users file:", error);
     return [];
@@ -89,6 +89,8 @@ async function readUsers(): Promise<User[]> {
 }
 
 async function writeUsers(users: User[]) {
+  const configDir = path.dirname(usersConfigPath);
+  await fs.mkdir(configDir, { recursive: true });
   await fs.writeFile(usersConfigPath, JSON.stringify(users, null, 2), 'utf-8');
   revalidatePath('/users');
 }

@@ -16,14 +16,6 @@ export interface ImageLinkConfig {
 
 export async function getImageLinksAction(): Promise<ImageLinkConfig[]> {
   try {
-    await fs.access(configPath);
-  } catch (error) {
-    // If file doesn't exist, create it with an empty array
-    await fs.writeFile(configPath, JSON.stringify([], null, 2), 'utf-8');
-    return [];
-  }
-
-  try {
     const content = await fs.readFile(configPath, 'utf-8');
     const links = JSON.parse(content) as ImageLinkConfig[];
     // Add default description for old links that don't have one
@@ -32,13 +24,16 @@ export async function getImageLinksAction(): Promise<ImageLinkConfig[]> {
         description: link.description || 'Nhấn để xem ảnh đầy đủ.'
     }));
   } catch (error) {
-    console.error("Failed to read or parse image links config:", error);
+    // If file doesn't exist, return an empty array.
+    // File will be created on the next save.
     return [];
   }
 }
 
 export async function saveImageLinksAction(links: ImageLinkConfig[]) {
   try {
+    const configDir = path.dirname(configPath);
+    await fs.mkdir(configDir, { recursive: true });
     await fs.writeFile(configPath, JSON.stringify(links, null, 2), 'utf-8');
     revalidatePath('/i', 'layout'); // Revalidate the new preview route
     return { success: true, message: 'Các liên kết đã được lưu thành công.' };

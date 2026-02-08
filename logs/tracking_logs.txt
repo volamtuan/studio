@@ -494,3 +494,281 @@ Tọa độ: 10.923316079878518, 106.8240088640224
 Địa chỉ: Bửu Hoà 4, Phường Biên Hòa, Tỉnh Đồng Nai, 76100, Việt Nam
 Link Google Maps: https://www.google.com/maps?q=10.923316079878518,106.8240088640224
 ----------------------------------
+--- [2026-02-06T13:50:20.856Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:22.079Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:30.105Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:34.460Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:38.058Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:41.654Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:45.104Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:48.645Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:52.214Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:55.779Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:50:59.311Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:02.976Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:07.016Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:09.629Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: 115.75.248.16
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:12.936Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:13.819Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:14.683Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:16.828Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:21.163Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:23.184Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:24.301Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:25.356Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:27.096Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:31.379Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:33.418Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:35.220Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T13:51:38.237Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+Địa chỉ IP: N/A
+Ngôn ngữ: en-US
+Múi giờ: Asia/Bangkok
+----------------------------------
+--- [2026-02-06T15:01:52.723Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: N/A
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.956640844094265, 106.800562330505
+Độ chính xác: 15.878492512225936m
+Địa chỉ: Đường Nguyễn Bỉnh Khiêm, Khu phố Tân Lại, Biên Hòa, Phường Trấn Biên, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.956640844094265,106.800562330505
+----------------------------------
+--- [2026-02-06T15:18:57.186Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 115.76.48.73
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.956640905525353, 106.80056232363842
+Độ chính xác: 13.58584206003278m
+Địa chỉ: Đường Nguyễn Bỉnh Khiêm, Khu phố Tân Lại, Biên Hòa, Phường Trấn Biên, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.956640905525353,106.80056232363842
+----------------------------------
+--- [2026-02-06T16:04:21.569Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 125.235.120.196
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.956595564916947, 106.81365565896127
+Độ chính xác: 5.1453090382182225m
+Địa chỉ: Mega Market, 1086, Đường Nguyễn Ái Quốc, Khu phố Bình Thiền, Biên Hòa, Phường Trấn Biên, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.956595564916947,106.81365565896127
+----------------------------------
+--- [2026-02-06T16:04:21.992Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: N/A
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.956595564916947, 106.81365565896127
+Độ chính xác: 5.1453090382182225m
+Địa chỉ: Mega Market, 1086, Đường Nguyễn Ái Quốc, Khu phố Bình Thiền, Biên Hòa, Phường Trấn Biên, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.956595564916947,106.81365565896127
+----------------------------------
+--- [2026-02-06T16:04:22.808Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: N/A
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.95660432511306, 106.8136519160449
+Độ chính xác: 5.048161094364997m
+Địa chỉ: Mega Market, 1086, Đường Nguyễn Ái Quốc, Khu phố Bình Thiền, Biên Hòa, Phường Trấn Biên, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.95660432511306,106.8136519160449
+----------------------------------
+--- [2026-02-06T16:20:13.695Z] MỚI TRUY CẬP ---
+Nguồn: ip_link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7.3 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 42.116.204.101
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: N/A
+Độ chính xác: N/A
+Địa chỉ: (Chỉ lấy IP, không có vị trí)
+Link Google Maps: N/A
+Chuyển hướng đến: https://www.google.com
+----------------------------------
+--- [2026-02-08T12:50:07.986Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 118.69.29.24
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.923256224539989, 106.82406743697341
+Độ chính xác: 8.72845942861861m
+Địa chỉ: Bửu Hoà 4, Phường Biên Hòa, Tỉnh Đồng Nai, 76100, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.923256224539989,106.82406743697341
+----------------------------------
+--- [2026-02-08T12:50:08.186Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 118.69.29.24
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.923256224539989, 106.82406743697341
+Độ chính xác: 8.72845942861861m
+Địa chỉ: Bửu Hoà 4, Phường Biên Hòa, Tỉnh Đồng Nai, 76100, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.923256224539989,106.82406743697341
+----------------------------------
