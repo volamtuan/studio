@@ -179,8 +179,8 @@ export async function updateUserAction(formData: FormData) {
         return { success: false, message: 'Không tìm thấy người dùng.' };
     }
 
-    if (users[userIndex].permissions.includes('admin')) {
-        return { success: false, message: 'Không thể thay đổi quyền của quản trị viên.' };
+    if (users[userIndex].username === 'vlt') {
+        return { success: false, message: 'Không thể thay đổi quyền của quản trị viên gốc.' };
     }
 
     users[userIndex].permissions = permissions;

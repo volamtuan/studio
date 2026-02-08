@@ -65,7 +65,8 @@ type User = {
   permissions: UserPermission[]
 }
 
-const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
+const ALL_PERMISSIONS: UserPermission[] = [
+    'admin',
     'map_links', 
     'image_links', 
     'file_creator',

@@ -1791,3 +1791,27 @@ Tọa độ: 10.937721837504494, 106.79958803057768
 Địa chỉ: Trường Mầm non Hoa Sen, Đường Hoàng Minh Chánh, An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
 Link Google Maps: https://www.google.com/maps?q=10.937721837504494,106.79958803057768
 ----------------------------------
+--- [2026-02-08T16:10:01.002Z] MỚI TRUY CẬP ---
+Nguồn: link
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Địa chỉ IP: 115.75.248.16
+ISP: VIETELxdsl - xDSL Services - AS7552 Viettel Group
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.936630483097266, 106.79418549069308
+Độ chính xác: 8.288950042827446m
+Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.936630483097266,106.79418549069308
+----------------------------------
+--- [2026-02-08T16:18:43.349Z] MỚI TRUY CẬP ---
+Nguồn: image
+Thiết bị: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Zalo iOS/696 ZaloTheme/light ZaloLanguage/vn
+Địa chỉ IP: 115.75.248.16
+ISP: VIETELxdsl - xDSL Services - AS7552 Viettel Group
+Ngôn ngữ: vi-VN
+Múi giờ: Asia/Saigon
+Tọa độ: 10.936630440915645, 106.79418547449711
+Độ chính xác: 7.972991390092066m
+Địa chỉ: An Hoà, Phường Biên Hòa, Tỉnh Đồng Nai, 76106, Việt Nam
+Link Google Maps: https://www.google.com/maps?q=10.936630440915645,106.79418547449711
+----------------------------------
