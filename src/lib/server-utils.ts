@@ -26,6 +26,46 @@ export async function getAddress(lat: number, lon: number): Promise<string> {
 }
 
 /**
+ * Gets an approximate address from an IP address using ip-api.com.
+ * @param ip - The public IP address of the user.
+ * @returns An object containing the address string and optional coordinates.
+ */
+export async function getAddressFromIp(ip: string): Promise<{ address: string; lat?: number; lon?: number }> {
+    // Do not geolocate private or local IPs
+    if (ip === 'N/A' || ip === '127.0.0.1' || ip.startsWith('::1')) {
+        return { address: "(Vị trí bị từ chối, không có IP công khai)" };
+    }
+
+    try {
+        const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon`);
+        
+        if (!response.ok) {
+            return { address: `(Không thể tra cứu IP: ${response.statusText})` };
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 'success') {
+             return { address: `(Không thể tra cứu IP: ${data.message || 'Lỗi không xác định'})` };
+        }
+
+        const addressParts = [data.city, data.regionName, data.country].filter(Boolean);
+        const displayAddress = addressParts.length > 0 ? addressParts.join(', ') : "(Vị trí gần đúng từ IP)";
+        
+        return {
+            address: displayAddress,
+            lat: data.lat,
+            lon: data.lon,
+        };
+
+    } catch (error) {
+        console.error("Error fetching address from IP API:", error);
+        return { address: "(Lỗi khi tra cứu địa chỉ IP)" };
+    }
+}
+
+
+/**
  * Sends a notification message to a Telegram chat via a bot.
  * It fetches the bot token and chat ID from the application's settings.
  * The request is fire-and-forget.
