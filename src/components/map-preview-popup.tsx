@@ -33,7 +33,7 @@ export function MapPreviewPopup({ lat, lon, address, trigger }: MapPreviewPopupP
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl p-0">
+      <DialogContent className="sm:max-w-4xl p-0">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
@@ -42,7 +42,7 @@ export function MapPreviewPopup({ lat, lon, address, trigger }: MapPreviewPopupP
           {address && address !== 'N/A' && <DialogDescription>{address}</DialogDescription>}
         </DialogHeader>
         <div className="px-6 pb-6">
-            <div className="aspect-[4/3] w-full rounded-md overflow-hidden border bg-muted">
+            <div className="aspect-video w-full rounded-md overflow-hidden border bg-muted">
                 <iframe
                     width="100%"
                     height="100%"

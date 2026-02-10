@@ -3,6 +3,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { getImageLinksAction, type ImageLinkConfig } from '@/app/actions/image-links';
 import { ImageRedirectClient } from '@/components/image-redirect-client';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 
 type Props = {
   params: { id: string }
@@ -25,27 +26,36 @@ export async function generateMetadata(
     }
   }
  
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const protocol = headersList.get('x-forwarded-proto') || 'http';
+  const baseUrl = `${protocol}://${host}`;
+  
+  const imageUrl = config.imageUrl.startsWith('http')
+    ? config.imageUrl
+    : `${baseUrl}${config.imageUrl}`;
+    
   const previousImages = (await parent).openGraph?.images || []
 
   return {
     title: config.title,
-    description: 'Nhấn để xem ảnh đầy đủ.',
+    description: config.description,
     openGraph: {
       title: config.title,
-      description: 'Nhấn để xem ảnh đầy đủ.',
+      description: config.description,
       images: [{
-          url: config.imageUrl,
+          url: imageUrl,
           width: 1200,
           height: 630,
       }, ...previousImages],
-      type: 'website',
-      url: config.imageUrl,
+      type: 'article',
+      url: imageUrl,
     },
      twitter: {
         card: "summary_large_image",
         title: config.title,
-        description: 'Nhấn để xem ảnh đầy đủ.',
-        images: [config.imageUrl],
+        description: config.description,
+        images: [imageUrl],
     },
   }
 }

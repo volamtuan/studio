@@ -43,7 +43,8 @@ import {
   PlusCircle,
   Save,
   Trash2,
-  Pencil
+  Pencil,
+  Globe
 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/hooks/use-toast'
@@ -54,6 +55,7 @@ import {
   deleteUserAction,
   updateUserAction,
   type UserPermission,
+  getCurrentUserAction
 } from '@/app/actions/users'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
@@ -63,24 +65,27 @@ type User = {
   permissions: UserPermission[]
 }
 
-const ALL_PERMISSIONS: Exclude<UserPermission, 'admin'>[] = [
+const ALL_PERMISSIONS: UserPermission[] = [
+    'admin',
+    'access_logs',
     'map_links', 
     'image_links', 
-    'ip_links', 
     'file_creator',
     'link_cloaker',
-    'qr_creator',
+    'pixel_tracker',
+    'ip_links'
 ];
 
 
 const permissionLabels: { [key in UserPermission]: string } = {
   admin: 'Quản trị viên',
+  access_logs: 'Xem Nhật Ký Truy Cập',
   map_links: 'Tạo Link Map',
   image_links: 'Tạo Link Ảnh',
-  ip_links: 'Tạo Link Lấy IP',
   file_creator: 'Tạo File DOCX',
   link_cloaker: 'Tạo Link Bọc',
-  qr_creator: 'Tạo Mã QR'
+  pixel_tracker: 'Tạo IP Logger',
+  ip_links: 'Tạo Link Lấy IP'
 }
 
 export default function UsersPage() {
@@ -94,15 +99,14 @@ export default function UsersPage() {
   const changePasswordFormRef = React.useRef<HTMLFormElement>(null)
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || !user.permissions?.includes('admin')) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   const fetchUsers = React.useCallback(async () => {
@@ -154,7 +158,6 @@ export default function UsersPage() {
         description: `${result.message} Vui lòng đăng nhập lại với mật khẩu mới.`,
       })
       setTimeout(() => {
-        sessionStorage.removeItem('user')
         router.push('/login')
       }, 2000)
     } else {
@@ -375,6 +378,7 @@ export default function UsersPage() {
                                             name="permissions" 
                                             value={p} 
                                             defaultChecked={editingUser?.permissions.includes(p)}
+                                            disabled={editingUser?.username === 'vlt' && p === 'admin'}
                                         />
                                         <Label htmlFor={`edit-${p}`}>{permissionLabels[p]}</Label>
                                     </div>

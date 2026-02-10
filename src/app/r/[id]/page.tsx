@@ -3,6 +3,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { getCloakedLinksAction, type CloakedLinkConfig } from '@/app/actions/cloaked-links';
 import { RedirectClient } from '@/components/redirect-client';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 
 type Props = {
   params: { id: string }
@@ -24,6 +25,15 @@ export async function generateMetadata(
       title: 'Không tìm thấy liên kết'
     }
   }
+
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const protocol = headersList.get('x-forwarded-proto') || 'http';
+  const baseUrl = `${protocol}://${host}`;
+
+  const imageUrl = config.imageUrl.startsWith('http')
+    ? config.imageUrl
+    : `${baseUrl}${config.imageUrl}`;
  
   const previousImages = (await parent).openGraph?.images || []
 
@@ -34,7 +44,7 @@ export async function generateMetadata(
       title: config.title,
       description: config.description,
       images: [{
-          url: config.imageUrl,
+          url: imageUrl,
           width: 1200,
           height: 630,
       }, ...previousImages],
@@ -45,7 +55,7 @@ export async function generateMetadata(
         card: "summary_large_image",
         title: config.title,
         description: config.description,
-        images: [config.imageUrl],
+        images: [imageUrl],
     },
   }
 }
