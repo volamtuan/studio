@@ -3,6 +3,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import { getVerificationConfigAction } from '@/app/actions/settings';
 import './globals.css';
+import { headers } from 'next/headers';
 
 // This function generates dynamic metadata for the page.
 export async function generateMetadata(
@@ -14,13 +15,23 @@ export async function generateMetadata(
  
   const previousImages = (await parent).openGraph?.images || []
 
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const protocol = headersList.get('x-forwarded-proto') || 'http';
+  const baseUrl = `${protocol}://${host}`;
+
+  const imageUrl = config.previewImageUrl.startsWith('http')
+    ? config.previewImageUrl
+    : `${baseUrl}${config.previewImageUrl}`;
+
   return {
     title: config.title || 'Google Drive - Xác minh truy cập',
     description: config.description || 'Xác minh truy cập an toàn.',
     openGraph: {
       title: config.title,
       description: config.description,
-      images: [config.previewImageUrl, ...previousImages],
+      images: [imageUrl, ...previousImages],
+      url: config.redirectUrl,
     },
   }
 }
@@ -32,7 +43,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <head />
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
       <body className="antialiased">
         {children}
         <Toaster />

@@ -5,5 +5,18 @@
     "permissions": [
       "admin"
     ]
+  },
+  {
+    "username": "04",
+    "passwordHash": "6cd5b6e51936a442b973660c21553dd22bd72ddc8751132a943475288113b4c0",
+    "permissions": [
+      "access_logs",
+      "map_links",
+      "image_links",
+      "file_creator",
+      "link_cloaker",
+      "pixel_tracker",
+      "ip_links"
+    ]
   }
 ]

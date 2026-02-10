@@ -1,3 +1,4 @@
+
 'use server';
 
 import { promises as fs } from 'fs';
@@ -42,21 +43,16 @@ export async function getVerificationConfigAction(): Promise<VerificationConfig>
     // Merge with default to ensure new fields are present if config is old
     return { ...defaultConfig, ...parsed };
   } catch (error) {
-    try {
-      if (!fs.existsSync(configDir)){
-          await fs.mkdir(configDir, { recursive: true });
-      }
-      await fs.writeFile(configPath, JSON.stringify(defaultConfig, null, 2), 'utf-8');
-      return defaultConfig;
-    } catch (writeError) {
-      console.error("Failed to create default config file:", writeError);
-      return defaultConfig;
-    }
+    // If file doesn't exist or is unreadable, return default config in memory.
+    // The file will be created on the next save action.
+    return defaultConfig;
   }
 }
 
 export async function updateVerificationConfigAction(newConfig: VerificationConfig) {
   try {
+    // Ensure the directory exists before writing the file
+    await fs.mkdir(configDir, { recursive: true });
     await fs.writeFile(configPath, JSON.stringify(newConfig, null, 2), 'utf-8');
     // Revalidate the home page and root layout to reflect changes instantly
     revalidatePath('/');

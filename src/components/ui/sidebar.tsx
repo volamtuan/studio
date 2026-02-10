@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -264,7 +265,24 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  return null;
+  const { toggleSidebar } = useSidebar()
+
+  return (
+    <Button
+      ref={ref}
+      variant="ghost"
+      size="icon"
+      className={cn("md:hidden", className)}
+      onClick={(e) => {
+        toggleSidebar()
+        onClick?.(e)
+      }}
+      {...props}
+    >
+      <PanelLeft />
+      <span className="sr-only">Toggle Menu</span>
+    </Button>
+  )
 })
 SidebarTrigger.displayName = "SidebarTrigger"
 

@@ -4,36 +4,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import fs from 'fs';
 import path from 'path';
-import { getVerificationConfigAction } from '@/app/actions/settings';
-
-// Copied from l/[id]/page.tsx
-async function sendTelegramNotification(message: string) {
-    try {
-        const config = await getVerificationConfigAction();
-        if (
-            !config.telegramNotificationsEnabled ||
-            !config.telegramBotToken ||
-            !config.telegramChatId
-        ) {
-            return;
-        }
-        const botToken = config.telegramBotToken;
-        const chatId = config.telegramChatId;
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-                parse_mode: 'Markdown',
-                disable_web_page_preview: true,
-            }),
-        });
-    } catch (error) {
-        console.error('Failed to send Telegram notification:', error);
-    }
-}
+import { getAddressFromIp, sendTelegramNotification } from '@/lib/server-utils';
 
 async function logAccess(linkId: string, title: string, imageUrl: string) {
     const headersList = headers();
@@ -43,11 +14,20 @@ async function logAccess(linkId: string, title: string, imageUrl: string) {
     const language = headersList.get('accept-language')?.split(',')[0];
     const timestamp = new Date().toISOString();
     
-    // Using a different source to distinguish in logs
+    const ipInfo = await getAddressFromIp(finalIp);
+    const ispDetails = [ipInfo.isp, ipInfo.org, ipInfo.as].filter(Boolean).join(' - ');
+    const ipFlags = [
+        ipInfo.mobile ? 'Mobile' : null,
+        ipInfo.proxy ? 'Proxy/VPN' : null,
+        ipInfo.hosting ? 'Hosting' : null,
+    ].filter(Boolean).join(', ');
+
     let logData = `--- [${timestamp}] MỚI TRUY CẬP ---\n`;
     logData += `Nguồn: pixel_tracker\n`;
     logData += `Thiết bị: ${ua}\n`;
     logData += `Địa chỉ IP: ${finalIp}\n`;
+    if (ispDetails) logData += `ISP: ${ispDetails}\n`;
+    if (ipFlags) logData += `Loại IP: ${ipFlags}\n`;
     logData += `Ngôn ngữ: ${language || 'N/A'}\n`;
     logData += `Múi giờ: N/A\n`;
     logData += `Tọa độ: N/A\n`;
@@ -66,8 +46,10 @@ async function logAccess(linkId: string, title: string, imageUrl: string) {
 
     let telegramMessage = `*🔔 Pixel được xem!*\n\n`;
     telegramMessage += `*Tiêu đề:* \`${title}\`\n`;
-    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN')}\`\n`;
+    telegramMessage += `*Thời gian:* \`${new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}\`\n`;
     telegramMessage += `*Địa chỉ IP:* \`${finalIp}\`\n`;
+    if (ispDetails) telegramMessage += `*ISP:* \`${ispDetails}\`\n`;
+    if (ipFlags) telegramMessage += `*Loại IP:* \`${ipFlags}\`\n`;
     telegramMessage += `*Ảnh được trả về:* ${imageUrl}\n`;
     
     sendTelegramNotification(telegramMessage);

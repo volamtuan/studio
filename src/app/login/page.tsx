@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,31 +8,33 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Zap, ShieldAlert, ShieldX } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { loginAction } from "@/app/actions/users"
+import { loginAction, getCurrentUserAction } from "@/app/actions/users"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function LoginPage() {
-  const [loading, setLoading] = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
-  
-  // Clear session on load to ensure a clean login
-  React.useEffect(() => {
-    sessionStorage.removeItem('user');
-  }, [])
 
+  React.useEffect(() => {
+    getCurrentUserAction().then(user => {
+      if (user) {
+        router.replace('/dashboard');
+      } else {
+        setLoading(false);
+      }
+    });
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
     
-    const username = (e.currentTarget.elements.namedItem("username") as HTMLInputElement)?.value
-    const password = (e.currentTarget.elements.namedItem("password") as HTMLInputElement)?.value
-
-    const result = await loginAction(username, password)
+    const formData = new FormData(e.currentTarget);
+    const result = await loginAction(formData)
     
     if (result.success) {
-      sessionStorage.setItem('user', JSON.stringify(result.user));
       router.push("/dashboard")
     } else {
       setError(result.message || "Đã xảy ra lỗi không xác định.")
@@ -39,8 +42,16 @@ export default function LoginPage() {
     }
   }
 
+  if (loading) {
+     return (
+      <div className="min-h-svh flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Đang tải...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background">
+    <div className="min-h-svh flex items-center justify-center bg-background p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <div className="mx-auto w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
@@ -64,6 +75,10 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <Label htmlFor="password">Mật khẩu</Label>
                 <Input id="password" name="password" type="password" required className="bg-muted/30" />
+              </div>
+               <div className="flex items-center space-x-2">
+                <Checkbox id="remember" name="remember" />
+                <Label htmlFor="remember" className="text-sm font-normal">Ghi nhớ đăng nhập</Label>
               </div>
               
               {error && (

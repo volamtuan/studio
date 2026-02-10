@@ -5,87 +5,41 @@ import * as React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin, ExternalLink, Binary, Package } from 'lucide-react'
+import { FileText, RefreshCw, Download, Trash2, Link as LinkIcon, Image as ImageIcon, MapPin, ExternalLink, Eye, Package, Globe } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { getLogContentAction, deleteLogsAction } from "@/app/actions/logs"
+import { getParsedLogsAction, deleteLogsAction, type LogEntry } from "@/app/actions/logs"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { MapPreviewPopup } from "@/components/map-preview-popup"
-
-interface LogEntry {
-  timestamp: string;
-  source: string;
-  device: string;
-  ip: string;
-  coordinates: string;
-  accuracy: string;
-  address: string;
-  mapLink: string;
-  language: string;
-  timezone: string;
-  redirectUrl?: string;
-}
-
-function parseValue(entry: string, label: string): string {
-  const match = entry.match(new RegExp(`${label}: (.*)`));
-  return match ? match[1].trim() : 'N/A';
-}
-
-function parseLogContent(content: string): LogEntry[] {
-  if (!content || content.trim() === '') {
-    return [];
-  }
-  const entries = content.split('--- [').filter(e => e.trim() !== '');
-  
-  const allLogs: LogEntry[] = entries.map(entry => {
-    const timestampMatch = entry.match(/^(.*?)\] MỚI TRUY CẬP/);
-    return {
-        timestamp: timestampMatch ? new Date(timestampMatch[1]).toLocaleString('vi-VN') : 'N/A',
-        source: parseValue(entry, 'Nguồn'),
-        device: parseValue(entry, 'Thiết bị'),
-        ip: parseValue(entry, 'Địa chỉ IP'),
-        coordinates: parseValue(entry, 'Tọa độ'),
-        accuracy: parseValue(entry, 'Độ chính xác'),
-        address: parseValue(entry, 'Địa chỉ'),
-        mapLink: parseValue(entry, 'Link Google Maps'),
-        language: parseValue(entry, 'Ngôn ngữ'),
-        timezone: parseValue(entry, 'Múi giờ'),
-        redirectUrl: parseValue(entry, 'Chuyển hướng đến'),
-    };
-  });
-
-  return allLogs.reverse(); // Newest first
-}
-
+import { getCurrentUserAction } from "@/app/actions/users"
 
 export default function AdminPage() {
-  const [rawLogContent, setRawLogContent] = React.useState("")
   const [parsedLogs, setParsedLogs] = React.useState<LogEntry[]>([])
   const [loading, setLoading] = React.useState(true)
   const [autoRefresh, setAutoRefresh] = React.useState(true)
   const { toast } = useToast()
   const router = useRouter()
+  const [logContentForDownload, setLogContentForDownload] = React.useState('');
 
   // Protect page
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('access_logs'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   const fetchLogs = React.useCallback(async () => {
-    const content = await getLogContentAction()
-    setRawLogContent(content)
-    setParsedLogs(parseLogContent(content))
+    const { logs, rawContent } = await getParsedLogsAction()
+    setParsedLogs(logs)
+    setLogContentForDownload(rawContent);
     setLoading(false)
   }, [])
 
@@ -93,13 +47,13 @@ export default function AdminPage() {
     fetchLogs()
     let interval: any
     if (autoRefresh) {
-      interval = setInterval(fetchLogs, 2000)
+      interval = setInterval(fetchLogs, 5000)
     }
     return () => clearInterval(interval)
   }, [fetchLogs, autoRefresh])
 
   const handleDownload = () => {
-    const blob = new Blob([rawLogContent], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([logContentForDownload], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -148,11 +102,11 @@ export default function AdminPage() {
               <RefreshCw className={`h-4 w-4 ${autoRefresh ? "animate-spin" : ""}`} /> 
               {autoRefresh ? "Tự động làm mới" : "Làm mới thủ công"}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || !rawLogContent}>
+            <Button variant="outline" size="sm" onClick={handleDownload} disabled={loading || parsedLogs.length === 0}>
               <Download className="h-4 w-4" />
                <span className="ml-2 hidden sm:inline">Tải xuống</span>
             </Button>
-            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
+            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading || parsedLogs.length === 0}>
               <Trash2 className="h-4 w-4" />
                <span className="ml-2 hidden sm:inline">Xóa Nhật ký</span>
             </Button>
@@ -202,10 +156,20 @@ export default function AdminPage() {
                                                 <span>{log.ip}</span>
                                                 {log.source === 'image' && <Badge variant="secondary" className="gap-1"><ImageIcon className="h-3 w-3" />Ảnh</Badge>}
                                                 {log.source === 'link' && <Badge variant="outline" className="gap-1"><LinkIcon className="h-3 w-3"/>Link</Badge>}
-                                                {log.source === 'ip_link' && <Badge variant="default" className="gap-1 bg-sky-600 hover:bg-sky-700 text-white"><LinkIcon className="h-3 w-3"/>IP</Badge>}
-                                                
-                                                {log.source === 'cloaker' && <Badge variant="default" className="gap-1 bg-orange-500 hover:bg-orange-600 text-white"><Package className="h-3 w-3"/>Bọc</Badge>}
+                                                {log.source === 'cloaker' && <Badge variant="default" className="gap-1"><Package className="h-3 w-3"/>Bọc</Badge>}
+                                                {log.source === 'pixel_tracker' && <Badge variant="destructive" className="gap-1"><Eye className="h-3 w-3"/>Logger</Badge>}
+                                                {log.source === 'ip_link' && <Badge variant="outline" className="gap-1"><Globe className="h-3 w-3"/>IP Link</Badge>}
                                             </div>
+                                             {log.isp && log.isp !== 'N/A' && (
+                                                <div className="text-muted-foreground/80 truncate max-w-[250px]" title={log.isp}>
+                                                    {log.isp}
+                                                </div>
+                                            )}
+                                            {log.ipType && log.ipType !== 'N/A' && (
+                                                <div className="text-amber-600 dark:text-amber-500 text-xs font-semibold" title={log.ipType}>
+                                                    {log.ipType}
+                                                </div>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             <div className="font-medium truncate max-w-xs">{log.address}</div>
@@ -220,19 +184,26 @@ export default function AdminPage() {
                                                     <ExternalLink className="h-3 w-3" />
                                                     <span className="truncate">Chuyển hướng: {log.redirectUrl}</span>
                                                 </a>
-                                            ) : lat && lon && log.mapLink !== 'N/A' ? (
+                                            ) : log.mapLink !== 'N/A' ? (
                                                 <div className="flex items-center gap-2">
-                                                    <MapPreviewPopup
-                                                        lat={lat}
-                                                        lon={lon}
-                                                        address={log.address}
-                                                        trigger={
-                                                            <button className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit text-left">
-                                                                <MapPin className="h-3 w-3" />
-                                                                <span>{log.coordinates} (acc: {log.accuracy})</span>
-                                                            </button>
-                                                        }
-                                                    />
+                                                    {lat && lon ? (
+                                                        <MapPreviewPopup
+                                                            lat={lat}
+                                                            lon={lon}
+                                                            address={log.address}
+                                                            trigger={
+                                                                <button className="text-xs text-muted-foreground font-mono cursor-pointer hover:text-primary flex items-center gap-1 w-fit text-left">
+                                                                    <MapPin className="h-3 w-3" />
+                                                                    <span>{log.coordinates} (acc: {log.accuracy})</span>
+                                                                </button>
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <div className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                                                            <MapPin className="h-3 w-3" />
+                                                            <span>{log.coordinates}</span>
+                                                        </div>
+                                                    )}
                                                     <a
                                                       href={log.mapLink}
                                                       target="_blank"
@@ -244,7 +215,7 @@ export default function AdminPage() {
                                                     </a>
                                                 </div>
                                             ) : (
-                                                    <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
+                                                <div className="text-xs text-muted-foreground italic">Không có dữ liệu vị trí</div>
                                             )}
                                         </TableCell>
                                         <TableCell className="hidden lg:table-cell text-xs text-muted-foreground truncate max-w-sm">

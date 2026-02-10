@@ -14,20 +14,25 @@ import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { getCloakedLinksAction, saveCloakedLinksAction, type CloakedLinkConfig } from "@/app/actions/cloaked-links"
-import { Copy, PlusCircle, Save, Trash2, Package } from "lucide-react"
-import Image from 'next/image'
+import { uploadFileAction } from "@/app/actions/upload"
+import { Copy, PlusCircle, Save, Trash2, Package, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
+import { getCurrentUserAction } from "@/app/actions/users"
+import Image from "next/image"
 
 const formSchema = z.object({
   redirectUrl: z.string().url("URL đích phải là một URL hợp lệ."),
   title: z.string().min(1, "Tiêu đề là bắt buộc."),
   description: z.string().optional(),
-  imageUrl: z.string().url("Phải là một URL hình ảnh hợp lệ."),
+  // imageUrl is now handled by file upload, so it's not in the form schema for validation
 })
 
 export default function CloakerPage() {
@@ -36,18 +41,22 @@ export default function CloakerPage() {
   const [links, setLinks] = React.useState<CloakedLinkConfig[]>([])
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
+  const [adding, setAdding] = React.useState(false)
   const [origin, setOrigin] = React.useState("")
+  
+  // State for file upload
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    try {
-      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-      if (!user.permissions?.includes('admin') && !user.permissions?.includes('link_cloaker')) {
-        toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
-        router.replace('/dashboard');
-      }
-    } catch (e) {
-      router.replace('/login');
+    async function checkAuth() {
+        const user = await getCurrentUserAction();
+        if (!user || (!user.permissions.includes('admin') && !user.permissions.includes('link_cloaker'))) {
+            toast({ title: 'Truy cập bị từ chối', description: 'Bạn không có quyền truy cập trang này.', variant: 'destructive' });
+            router.replace('/dashboard');
+        }
     }
+    checkAuth();
   }, [router, toast]);
 
   React.useEffect(() => {
@@ -70,24 +79,65 @@ export default function CloakerPage() {
       redirectUrl: "https://www.google.com",
       title: "Tiêu đề trang web",
       description: "Mô tả ngắn gọn về trang web của bạn",
-      imageUrl: "https://picsum.photos/seed/cloak/1200/630",
     },
   })
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+        setImageFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    } else {
+        setImageFile(null);
+        setPreviewUrl(null);
+    }
+  }
 
-  const currentImageUrl = form.watch("imageUrl");
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!imageFile) {
+        toast({
+            variant: "destructive",
+            title: "Thiếu hình ảnh",
+            description: "Vui lòng chọn một tệp hình ảnh để tải lên.",
+        });
+        return;
+    }
+    setAdding(true);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    const uploadResult = await uploadFileAction(formData);
+
+    if (!uploadResult.success) {
+        toast({
+            variant: "destructive",
+            title: "Lỗi tải lên",
+            description: uploadResult.message,
+        });
+        setAdding(false);
+        return;
+    }
+
     const newLink: CloakedLinkConfig = {
       id: crypto.randomUUID(),
       description: values.description || "",
-      ...values
+      redirectUrl: values.redirectUrl,
+      title: values.title,
+      imageUrl: uploadResult.url
     }
     setLinks(prevLinks => [...prevLinks, newLink])
     toast({
       title: "Đã thêm liên kết mới",
       description: "Đừng quên nhấn 'Lưu thay đổi' để áp dụng.",
     })
-    form.reset()
+    
+    // Reset form and file state
+    form.reset();
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
+    setImageFile(null);
+    setPreviewUrl(null);
+    setAdding(false);
   }
 
   const handleDelete = (id: string) => {
@@ -134,7 +184,7 @@ export default function CloakerPage() {
           <SidebarTrigger />
           <h1 className="text-xl font-bold font-headline">Link Bọc (Cloaker)</h1>
           <div className="ml-auto">
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving || adding}>
               <Save className="mr-2 h-4 w-4" />
               {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
             </Button>
@@ -180,27 +230,27 @@ export default function CloakerPage() {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Hình ảnh (og:image)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/image.png" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    {currentImageUrl && z.string().url().safeParse(currentImageUrl).success && (
+                     <FormItem>
+                      <FormLabel>Hình ảnh (og:image)</FormLabel>
+                      <FormControl>
+                        <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer" />
+                      </FormControl>
+                      <FormDescription>Tải lên một hình ảnh để làm ảnh xem trước.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                    {previewUrl && (
                         <div className="space-y-2">
                             <FormLabel>Xem trước ảnh</FormLabel>
                             <div className="relative w-full aspect-[1.91/1] rounded-md bg-muted overflow-hidden border">
-                               <Image src={currentImageUrl} alt="Xem trước ảnh" layout="fill" objectFit="cover" />
+                               <img src={previewUrl} alt="Xem trước ảnh" className="w-full h-full object-cover" />
                             </div>
                         </div>
                     )}
                   </CardContent>
                   <CardFooter>
-                    <Button type="submit" className="w-full">
-                       <PlusCircle className="mr-2 h-4 w-4" /> Thêm Liên Kết
+                    <Button type="submit" className="w-full" disabled={adding || saving}>
+                      {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                      {adding ? 'Đang thêm...' : 'Thêm Liên Kết'}
                     </Button>
                   </CardFooter>
                 </form>
@@ -221,11 +271,17 @@ export default function CloakerPage() {
                         <Dialog>
                           <DialogTrigger asChild>
                             <div className="relative w-full sm:w-32 h-32 sm:h-20 shrink-0 cursor-pointer group">
-                               <Image src={link.imageUrl} alt={link.title} layout="fill" objectFit="cover" className="rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
+                               <img src={link.imageUrl} alt={link.title} className="w-full h-full object-cover rounded-md bg-muted transition-transform duration-300 group-hover:scale-105" />
                             </div>
                           </DialogTrigger>
                           <DialogContent className="max-w-3xl p-0 bg-transparent border-0">
-                            <Image src={link.imageUrl} alt={link.title} width={1200} height={630} className="rounded-md w-full h-auto" />
+                            <DialogHeader className="sr-only">
+                                <DialogTitle>{link.title}</DialogTitle>
+                                <DialogDescription>{link.description}</DialogDescription>
+                            </DialogHeader>
+                            <div className="relative w-full aspect-video">
+                              <img src={link.imageUrl} alt={link.title} className="w-full h-full object-contain rounded-md" />
+                            </div>
                           </DialogContent>
                         </Dialog>
                         <div className="flex-1 min-w-0">
@@ -258,3 +314,5 @@ export default function CloakerPage() {
     </SidebarProvider>
   )
 }
+
+    
