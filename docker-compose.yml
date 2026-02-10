@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: link_tracker_app
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persist logs, configs, and uploads across container restarts
+      - ./logs:/app/logs
+      - ./src/config:/app/src/config
+      - ./public/uploads:/app/public/uploads
+    restart: unless-stopped
